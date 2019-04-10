@@ -1,0 +1,3 @@
+exports.doNothing = function() {
+  return;
+}

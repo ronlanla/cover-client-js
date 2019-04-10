@@ -1,0 +1,16 @@
+{
+  "name": "diffblue-cover-client-js",
+  "version": "0.0.1",
+  "description": "Diffblue Cover Client JS - Helper for integration with Cover",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:diffblue/diffblue-cover-client-js.git"
+  },
+  "author": "DiffBlue Limited",
+  "bugs": {
+    "url": "https://github.com/diffblue/diffblue-cover-client-js/issues"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/diffblue/diffblue-cover-client-js#readme"
+}
