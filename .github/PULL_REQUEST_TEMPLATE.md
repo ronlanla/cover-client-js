@@ -1,6 +1,6 @@
 <!--
   Please follow this template unless this is a release PR, which just requires a simple changelog.
-  All PRs must be reviewed by at least one senior developer in a web team.
+  All PRs must be reviewed by at least one senior developer in the enterprise team.
 -->
 
 ### Context/purpose
