@@ -1,11 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es6", "dom"],
+    "lib": ["es6"],
     "sourceMap": true,
     "module": "commonjs",
-    "jsx": "react",
-    "jsxFactory": "h",
-    "target": "es5",
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "noImplicitAny": true,

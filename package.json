@@ -15,7 +15,7 @@
   "homepage": "https://github.com/diffblue/diffblue-cover-client-js#readme",
   "scripts": {
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 100 mocha -require ts-node/register 'tests/unit/**/*.ts'",
-    "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json -e 'tests/e2e/reports/**' '{scripts,src,tests,server}/**/*.{js,ts,tsx}' '*.{js,ts,tsx}'",
+    "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts'",
     "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
   },
   "dependencies": {},
