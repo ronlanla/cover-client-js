@@ -1,22 +1,58 @@
-### Unit tests
+# Diffblue Cover client library - Node.js API for Diffblue Cover
 
-You can run the unit tests with `yarn test` or run the unit tests with a coverage report with `yarn coverage`.
-These tests use [Mocha](https://mochajs.org/) and [node Assert](https://nodejs.org/api/assert.html).
+The Diffblue Cover client library provides a programmatic interface and CLI for communicating with the Diffblue Cover API.
 
-You can run specific tests by using the `--grep/-g` [mocha option](https://mochajs.org/#-grep-regexp-g-regexp) with a regex
-targeting the tests you wish to run. For example:
-```bash
-$ yarn test --grep api
+## Installation
+
+Using npm:
+
+```
+npm install diffblue-cover-client-js
 ```
 
-You can run only a specific test suite or case by appending [`.only`](https://mochajs.org/#exclusive-tests) to `describe` or `it`.
-For example
+## Usage
+
+To use Diffblue Cover you will need to provide a JAR file of your compiled code. The default output will be a TAR of the tests produced by Diffblue Cover.
+
+In Node.js (using promises):
+
 ```js
-describe.only('Run only this suite', function() {
+const CoverClient = require('diffblue-cover-client');
+
+return CoverClient.analyse(buildJar).then((count) => {
+  console.log(`Produced ${count} tests`);
+});
 ```
 
-You can skip a specific test suite or case by appending [`.skip`](https://mochajs.org/#inclusive-tests) to `describe` or `it`.
-For example
-```js
-describe.skip('Skip this suite', function() {
+In Typescript (using async/await):
+
+```ts
+import CoverClient from 'diffblue-cover-client';
+
+const count = await CoverClient.analyse('./build.jar', './tests.tar');
+console.log(`Produced ${count} tests`);
 ```
+
+For more detailed usage, see the [programmatic interface documentation](docs/programmatic-interface.md).
+
+## Full documentation
+
+- [Programmatic interface](docs/programmatic-interface.md)
+- [Command line interface](docs/command-line-interface.md)
+- [Tests and checks](docs/tests-and-checks.md)
+  - [Linting](docs/tests-and-checks.md#linting)
+  - [Unit tests](docs/tests-and-checks.md#unit-tests)
+  - [CLI tests](docs/tests-and-checks.md#cli-tests)
+  - [Copyright checker](docs/tests-and-checks.md#copyright-checker)
+  - [License checker](docs/tests-and-checks.md#license-checker)
+  - [Integration tests](docs/tests-and-checks.md#integration-tests)
+    - [Mock API](docs/tests-and-checks.md#mock-api)
+- [Release procedure](docs/release-procedure.md)
+- [Utilities](docs/utilities.md)
+  - [Changelog](docs/utilities.md#changelog)
+- [Code standards](docs/code-standards.md)
+  - [File naming](docs/code-standards.md#file-naming)
+  - [Branches](docs/code-standards.md#branches)
+  - [Coding style](docs/code-standards.md#style)
+  - [Code documentation](docs/code-standards.md#code-documentation)
+- [Contributing guidelines](docs/contributing-guidelines.md)
