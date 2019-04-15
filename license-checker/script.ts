@@ -1,13 +1,13 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { exec } from 'child_process';
-import { readFile } from 'fs';
+import { readFile, writeFile } from 'fs';
 import { padEnd } from 'lodash';
 import { promisify, isArray } from 'util';
 
-
 const asyncExec = promisify(exec);
 const asyncReadFile = promisify(readFile);
+const asyncWriteFile = promisify(writeFile);
 
 /** Get the license information from yarn and return this as a string containing json */
 async function getLicenseInfo() {
@@ -16,7 +16,7 @@ async function getLicenseInfo() {
 }
 
 async function parseLicenseInfo() {
-  const results = {};
+  const results: any = {};
 
   // Get the module names and licenses from the json data
   const data = await getLicenseInfo();
@@ -37,16 +37,15 @@ async function parseLicenseInfo() {
     }
   });
 
-  return JSON.parse(JSON.stringify(results));
+  return results;
 }
-
 
 /**
  * Get the acceptable licenses from the file in the current working
  * directory. This is assumed to be the root of the repo
  */
-async function loadJsonFile() {
-  const data = await asyncReadFile('./acceptable_license_file.json');
+async function loadJsonFile(filePath: string) {
+  const data = await asyncReadFile(filePath);
   return JSON.parse(data.toString());
 }
 
@@ -58,12 +57,12 @@ function checkLicenses(acceptableList, currentList) {
       currentList[currentModule].forEach((license) => {
         if (!acceptableList[currentModule].includes(license)) {
           hasError = true;
-          console.error(`Error: Module "${currentModule}" using license "${license}" not in acceptable licenses`);
+          console.error(`Missing: Module "${currentModule}" using license "${license}" not in acceptable licenses`);
         }
       });
     } else {
       hasError = true;
-      console.error(`Error: Module "${currentModule}" is not in acceptable licenses`);
+      console.error(`Missing: Module "${currentModule}" is not in acceptable licenses`);
     }
   })
     
@@ -76,6 +75,7 @@ function checkLicenses(acceptableList, currentList) {
 
 /** Generate or verify a license file */
 async function main() {
+  const filePath = './acceptable_license_file.json';
   const commands = [
     { command: 'verify-file', help: 'Check against reference file' },
     { command: 'generate-file', help: 'Print the license info' },
@@ -95,16 +95,19 @@ async function main() {
         "Usage: ts-node ./license-checker/script.ts [argument]\n",
         "Options:"
       ].join('\n'));
+
       return commands.forEach((option) => console.log(`  ${padEnd(option.command, 32)}${option.help}`));
     } else if (checkArg) {
-      const acceptableLicenses = await loadJsonFile();
       const currentLicenses = await parseLicenseInfo();
+      const acceptableLicenses = await loadJsonFile(filePath);
+
       checkLicenses(acceptableLicenses, currentLicenses);
     } else if (genArg) {
-      // Print out the current information. Useful for creating the reference file.
-      // NOTE: printed out as pretty json to allow for easier code reviews
-      const currentLicenses = JSON.stringify(await parseLicenseInfo(), null, 2);
-      console.log(currentLicenses);
+      const currentLicenses = await parseLicenseInfo();
+      const data = JSON.stringify(currentLicenses, null, 2);
+
+      await asyncWriteFile(filePath, `${data}\n`);
+      console.log(`File ${filePath} has been generated!`);
     } else {
       throw new Error('No valid arguments given');
     }
