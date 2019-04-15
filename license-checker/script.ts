@@ -3,7 +3,7 @@
 import { exec } from 'child_process';
 import { readFile, writeFile } from 'fs';
 import { padEnd } from 'lodash';
-import { promisify, isArray } from 'util';
+import { promisify } from 'util';
 
 const asyncExec = promisify(exec);
 const asyncReadFile = promisify(readFile);
@@ -12,23 +12,24 @@ const asyncWriteFile = promisify(writeFile);
 /** Get the license information from yarn and return this as a string containing json */
 async function getLicenseInfo() {
   const data = await asyncExec("yarn licenses list --json --no-progress");
-  return JSON.parse(data.stdout).data;
+  return JSON.parse(data.stdout).data.body;
 }
 
 async function parseLicenseInfo() {
   const results: any = {};
 
   // Get the module names and licenses from the json data
-  const data = await getLicenseInfo();
+  const data = (await getLicenseInfo()).map(([name, version, license]) => {
+    return [name.toLowerCase(), license.toLowerCase()];
+  });
 
   // Create a set from the modules and map the licenses to them
   // Some modules may have different license terms depending on how they are included
-  const modules = new Set(data.body.map((item) => item[0].toLowerCase()));
+  const modules = new Set(data.map(([name]) => name));
   modules.forEach((moduleName: string) => {
-    for (let i = 0; i < data.body.length; i++) {
-      if (moduleName === data.body[i][0]) {
-        const license = data.body[i][2].toLowerCase();
-        if (isArray(results[moduleName])) {
+    for (const [name, license] of data) {
+      if (moduleName === name) {
+        if (results[moduleName]) {
           results[moduleName].push(license);
         } else {
           results[moduleName] = [license];
