@@ -9,7 +9,7 @@ import { promisify, isArray } from 'util';
 const asyncExec = promisify(exec);
 const asyncReadFile = promisify(readFile);
 
-// Get the license information from yarn and return this as a string containing json
+/** Get the license information from yarn and return this as a string containing json */
 async function getLicenseInfo() {
   const data = await asyncExec("yarn licenses list --json --no-progress");
   return JSON.parse(data.stdout).data;
@@ -40,14 +40,17 @@ async function parseLicenseInfo() {
   return JSON.parse(JSON.stringify(results));
 }
 
-// Get the acceptable licenses from the file in the current working
-// directory. This is assumed to be the root of the repo
+
+/**
+ * Get the acceptable licenses from the file in the current working
+ * directory. This is assumed to be the root of the repo
+ */
 async function loadJsonFile() {
   const data = await asyncReadFile('./acceptable_license_file.json');
   return JSON.parse(data.toString());
 }
 
-// Check to see if the current license list is acceptable
+/** Check to see if the current license list is acceptable */
 function checkLicenses(acceptableList, currentList) {
   let hasError = false;
   Object.keys(currentList).forEach((currentModule) => {
@@ -71,7 +74,7 @@ function checkLicenses(acceptableList, currentList) {
   }
 }
 
-// Main function
+/** Generate or verify a license file */
 async function main() {
   const commands = [
     { command: 'verify-file', help: 'Check against reference file' },
