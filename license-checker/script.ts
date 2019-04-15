@@ -29,7 +29,7 @@ async function parseLicenseInfo() {
   modules.forEach((moduleName: string) => {
     for (const [name, license] of data) {
       if (moduleName === name) {
-        if (results[moduleName]) {
+        if (results[moduleName] && !results[moduleName].includes(license)) {
           results[moduleName].push(license);
         } else {
           results[moduleName] = [license];
