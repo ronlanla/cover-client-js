@@ -5,27 +5,38 @@ import { readFile, writeFile } from 'fs';
 import { padEnd } from 'lodash';
 import { promisify } from 'util';
 
+import * as logger from '../src/utils/log';
+
+/** String dictionary */
+interface SDictionary {
+  [key: string]: string[];
+}
+
 const asyncExec = promisify(exec);
 const asyncReadFile = promisify(readFile);
 const asyncWriteFile = promisify(writeFile);
 
 /** Get the license information from yarn and return this as a string containing json */
 async function getLicenseInfo() {
-  const data = await asyncExec("yarn licenses list --json --no-progress");
+  const data = await asyncExec('yarn licenses list --json --no-progress');
   return JSON.parse(data.stdout).data.body;
 }
 
+/**
+ * Convert the license info returned from yarn into a readable
+ * object containing the licenses for each module
+ */
 async function parseLicenseInfo() {
-  const results: any = {};
+  const results: SDictionary = {};
 
   // Get the module names and licenses from the json data
-  const data = (await getLicenseInfo()).map(([name, version, license]) => {
+  const data = (await getLicenseInfo()).map(([name, version, license]: string[]) => {
     return [name.toLowerCase(), license.toLowerCase()];
   });
 
   // Create a set from the modules and map the licenses to them
   // Some modules may have different license terms depending on how they are included
-  const modules = new Set(data.map(([name]) => name));
+  const modules = new Set(data.map(([name]: string[]) => name));
   modules.forEach((moduleName: string) => {
     for (const [name, license] of data) {
       if (moduleName === name) {
@@ -51,26 +62,25 @@ async function loadJsonFile(filePath: string) {
 }
 
 /** Check to see if the current license list is acceptable */
-function checkLicenses(acceptableList, currentList) {
+function checkLicenses(acceptableList: SDictionary, currentList: SDictionary) {
   let hasError = false;
   Object.keys(currentList).forEach((currentModule) => {
     if (Object.keys(acceptableList).includes(currentModule)) {
-      currentList[currentModule].forEach((license) => {
+      currentList[currentModule].forEach((license: string) => {
         if (!acceptableList[currentModule].includes(license)) {
           hasError = true;
-          console.error(`Missing: Module "${currentModule}" using license "${license}" not in acceptable licenses`);
+          logger.error(`Missing: Module "${currentModule}" using license "${license}" not in acceptable licenses`);
         }
       });
     } else {
       hasError = true;
-      console.error(`Missing: Module "${currentModule}" is not in acceptable licenses`);
+      logger.error(`Missing: Module "${currentModule}" is not in acceptable licenses`);
     }
-  })
-    
+  });
   if (hasError) {
     throw new Error('License check generated error(s)');
   } else {
-    console.log('Licenses OK!')
+    logger.log('Licenses OK!');
   }
 }
 
@@ -90,14 +100,15 @@ async function main() {
   // Print out the usage
   try {
     if (helpArg) {
-      console.log([
-        "This script gets the license information for modules added by yarn",
-        "The list can be compared against a reference list to see if there is additional licensing impact\n",
-        "Usage: ts-node ./license-checker/script.ts [argument]\n",
-        "Options:"
+      logger.log([
+        'This script gets the license information for modules added by yarn',
+        'The list can be compared against a reference list to see if there is additional licensing impact\n',
+        'Usage: ts-node ./license-checker/script.ts [argument]\n',
+        'Options:',
       ].join('\n'));
 
-      return commands.forEach((option) => console.log(`  ${padEnd(option.command, 32)}${option.help}`));
+      const padding = 32;
+      return commands.forEach((option) => logger.log(`  ${padEnd(option.command, padding)}${option.help}`));
     } else if (checkArg) {
       const currentLicenses = await parseLicenseInfo();
       const acceptableLicenses = await loadJsonFile(filePath);
@@ -105,16 +116,19 @@ async function main() {
       checkLicenses(acceptableLicenses, currentLicenses);
     } else if (genArg) {
       const currentLicenses = await parseLicenseInfo();
-      const data = JSON.stringify(currentLicenses, null, 2);
 
-      await asyncWriteFile(filePath, `${data}\n`);
-      console.log(`File ${filePath} has been generated!`);
+      const padding = 2;
+      const data = `${JSON.stringify(currentLicenses, null, padding)}\n`;
+
+      await asyncWriteFile(filePath, data);
+      logger.log(`File ${filePath} has been generated!`);
     } else {
       throw new Error('No valid arguments given');
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error.toString());
+    return process.exit(1);
   }
 }
-  
+
 main();
