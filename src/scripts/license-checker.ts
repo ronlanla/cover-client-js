@@ -5,7 +5,7 @@ import { readFile, writeFile } from 'fs';
 import { groupBy, mapValues, padEnd } from 'lodash';
 import { promisify } from 'util';
 
-import * as logger from '../src/utils/log';
+import * as logger from '../utils/log';
 
 /** A dictionary for module licenses */
 interface ModuleLicenses {
