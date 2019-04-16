@@ -2,21 +2,21 @@
 
 import { exec } from 'child_process';
 import { readFile, writeFile } from 'fs';
-import { padEnd } from 'lodash';
+import { groupBy, mapValues, padEnd } from 'lodash';
 import { promisify } from 'util';
 
 import * as logger from '../src/utils/log';
 
-/** String dictionary */
-interface SDictionary {
-  [key: string]: string[];
+/** A dictionary for module licenses */
+interface ModuleLicenses {
+  [key: string]: Set<string>;
 }
 
 const asyncExec = promisify(exec);
 const asyncReadFile = promisify(readFile);
 const asyncWriteFile = promisify(writeFile);
 
-/** Get the license information from yarn and return this as a string containing json */
+/** Get the license information from yarn and return as a json object */
 async function getLicenseInfo() {
   const data = await asyncExec('yarn licenses list --json --no-progress');
   return JSON.parse(data.stdout).data.body;
@@ -26,30 +26,10 @@ async function getLicenseInfo() {
  * Convert the license info returned from yarn into a readable
  * object containing the licenses for each module
  */
-async function parseLicenseInfo() {
-  const results: SDictionary = {};
-
-  // Get the module names and licenses from the json data
-  const data = (await getLicenseInfo()).map(([name, version, license]: string[]) => {
-    return [name.toLowerCase(), license.toLowerCase()];
-  });
-
-  // Create a set from the modules and map the licenses to them
-  // Some modules may have different license terms depending on how they are included
-  const modules = new Set(data.map(([name]: string[]) => name));
-  modules.forEach((moduleName: string) => {
-    for (const [name, license] of data) {
-      if (moduleName === name) {
-        if (results[moduleName] && !results[moduleName].includes(license)) {
-          results[moduleName].push(license);
-        } else {
-          results[moduleName] = [license];
-        }
-      }
-    }
-  });
-
-  return results;
+function parseLicenseInfo(licenseInfo: string[][]) {
+  const license = 2;
+  const dataByModule = groupBy(licenseInfo, ([name]) => name.toLowerCase());
+  return mapValues(dataByModule, (moduleData) => new Set(moduleData.map((data) => data[license].toLowerCase())));
 }
 
 /**
@@ -57,17 +37,17 @@ async function parseLicenseInfo() {
  * directory. This is assumed to be the root of the repo
  */
 async function loadJsonFile(filePath: string) {
-  const data = await asyncReadFile(filePath);
-  return JSON.parse(data.toString());
+  const fileData = JSON.parse((await asyncReadFile(filePath)).toString());
+  return mapValues(fileData, (licenses: string[]) => new Set(licenses));
 }
 
 /** Check to see if the current license list is acceptable */
-function checkLicenses(acceptableList: SDictionary, currentList: SDictionary) {
+function checkLicenses(acceptableList: ModuleLicenses, currentList: ModuleLicenses) {
   let hasError = false;
   Object.keys(currentList).forEach((currentModule) => {
-    if (Object.keys(acceptableList).includes(currentModule)) {
+    if (acceptableList[currentModule]) {
       currentList[currentModule].forEach((license: string) => {
-        if (!acceptableList[currentModule].includes(license)) {
+        if (!acceptableList[currentModule].has(license)) {
           hasError = true;
           logger.error(`Missing: Module "${currentModule}" using license "${license}" not in acceptable licenses`);
         }
@@ -110,23 +90,23 @@ async function main() {
       const padding = 24;
       return commands.forEach((option) => logger.log(`  ${padEnd(option.command, padding)}${option.help}`));
     } else if (checkArg) {
-      const currentLicenses = await parseLicenseInfo();
+      const licenses = await getLicenseInfo();
       const acceptableLicenses = await loadJsonFile(filePath);
 
-      checkLicenses(acceptableLicenses, currentLicenses);
+      checkLicenses(acceptableLicenses, parseLicenseInfo(licenses));
     } else if (genArg) {
-      const currentLicenses = await parseLicenseInfo();
+      const licenses = await getLicenseInfo();
 
       const padding = 2;
-      const data = `${JSON.stringify(currentLicenses, null, padding)}\n`;
+      const fileData = mapValues(parseLicenseInfo(licenses), (info) => Array.from(info));
 
-      await asyncWriteFile(filePath, data);
+      await asyncWriteFile(filePath, `${JSON.stringify(fileData, null, padding)}\n`);
       logger.log(`File ${filePath} has been generated!`);
     } else {
       throw new Error('No valid command given');
     }
   } catch (error) {
-    logger.error(error.toString());
+    logger.error(error);
     return process.exit(1);
   }
 }
