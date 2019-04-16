@@ -1,0 +1,605 @@
+{
+  "@babel/code-frame": [
+    "mit"
+  ],
+  "@babel/generator": [
+    "mit"
+  ],
+  "@babel/helper-function-name": [
+    "mit"
+  ],
+  "@babel/helper-get-function-arity": [
+    "mit"
+  ],
+  "@babel/helper-split-export-declaration": [
+    "mit"
+  ],
+  "@babel/highlight": [
+    "mit"
+  ],
+  "@babel/parser": [
+    "mit"
+  ],
+  "@babel/template": [
+    "mit"
+  ],
+  "@babel/traverse": [
+    "mit"
+  ],
+  "@babel/types": [
+    "mit"
+  ],
+  "@types/lodash": [
+    "mit"
+  ],
+  "@types/mocha": [
+    "mit"
+  ],
+  "@types/node": [
+    "mit"
+  ],
+  "ansi-colors": [
+    "mit"
+  ],
+  "ansi-regex": [
+    "mit"
+  ],
+  "ansi-styles": [
+    "mit"
+  ],
+  "append-transform": [
+    "mit"
+  ],
+  "archy": [
+    "mit"
+  ],
+  "arg": [
+    "mit"
+  ],
+  "argparse": [
+    "mit"
+  ],
+  "arrify": [
+    "mit"
+  ],
+  "babel-code-frame": [
+    "mit"
+  ],
+  "balanced-match": [
+    "mit"
+  ],
+  "brace-expansion": [
+    "mit"
+  ],
+  "buffer-from": [
+    "mit"
+  ],
+  "builtin-modules": [
+    "mit"
+  ],
+  "caching-transform": [
+    "mit"
+  ],
+  "camelcase": [
+    "mit"
+  ],
+  "chalk": [
+    "mit"
+  ],
+  "code-point-at": [
+    "mit"
+  ],
+  "color-convert": [
+    "mit"
+  ],
+  "color-name": [
+    "mit"
+  ],
+  "commander": [
+    "mit"
+  ],
+  "commondir": [
+    "mit"
+  ],
+  "concat-map": [
+    "mit"
+  ],
+  "convert-source-map": [
+    "mit"
+  ],
+  "cross-spawn": [
+    "mit"
+  ],
+  "debug": [
+    "mit"
+  ],
+  "decamelize": [
+    "mit"
+  ],
+  "default-require-extensions": [
+    "mit"
+  ],
+  "define-properties": [
+    "mit"
+  ],
+  "emoji-regex": [
+    "mit"
+  ],
+  "end-of-stream": [
+    "mit"
+  ],
+  "error-ex": [
+    "mit"
+  ],
+  "es-abstract": [
+    "mit"
+  ],
+  "es-to-primitive": [
+    "mit"
+  ],
+  "es6-error": [
+    "mit"
+  ],
+  "escape-string-regexp": [
+    "mit"
+  ],
+  "execa": [
+    "mit"
+  ],
+  "find-cache-dir": [
+    "mit"
+  ],
+  "find-up": [
+    "mit"
+  ],
+  "function-bind": [
+    "mit"
+  ],
+  "get-stream": [
+    "mit"
+  ],
+  "globals": [
+    "mit"
+  ],
+  "growl": [
+    "mit"
+  ],
+  "handlebars": [
+    "mit"
+  ],
+  "has": [
+    "mit"
+  ],
+  "has-ansi": [
+    "mit"
+  ],
+  "has-flag": [
+    "mit"
+  ],
+  "has-symbols": [
+    "mit"
+  ],
+  "hasha": [
+    "mit"
+  ],
+  "he": [
+    "mit"
+  ],
+  "imurmurhash": [
+    "mit"
+  ],
+  "invert-kv": [
+    "mit"
+  ],
+  "is-arrayish": [
+    "mit"
+  ],
+  "is-buffer": [
+    "mit"
+  ],
+  "is-callable": [
+    "mit"
+  ],
+  "is-date-object": [
+    "mit"
+  ],
+  "is-fullwidth-code-point": [
+    "mit"
+  ],
+  "is-regex": [
+    "mit"
+  ],
+  "is-stream": [
+    "mit"
+  ],
+  "is-symbol": [
+    "mit"
+  ],
+  "isarray": [
+    "mit"
+  ],
+  "js-tokens": [
+    "mit"
+  ],
+  "js-yaml": [
+    "mit"
+  ],
+  "jsesc": [
+    "mit"
+  ],
+  "json-parse-better-errors": [
+    "mit"
+  ],
+  "lcid": [
+    "mit"
+  ],
+  "load-json-file": [
+    "mit"
+  ],
+  "locate-path": [
+    "mit"
+  ],
+  "lodash": [
+    "mit"
+  ],
+  "lodash.flattendeep": [
+    "mit"
+  ],
+  "log-symbols": [
+    "mit"
+  ],
+  "make-dir": [
+    "mit"
+  ],
+  "map-age-cleaner": [
+    "mit"
+  ],
+  "mem": [
+    "mit"
+  ],
+  "merge-source-map": [
+    "mit"
+  ],
+  "mimic-fn": [
+    "mit"
+  ],
+  "minimist": [
+    "mit"
+  ],
+  "mkdirp": [
+    "mit"
+  ],
+  "mocha": [
+    "mit"
+  ],
+  "ms": [
+    "mit"
+  ],
+  "neo-async": [
+    "mit"
+  ],
+  "nice-try": [
+    "mit"
+  ],
+  "npm-run-path": [
+    "mit"
+  ],
+  "number-is-nan": [
+    "mit"
+  ],
+  "object-keys": [
+    "mit"
+  ],
+  "object.assign": [
+    "mit"
+  ],
+  "object.getownpropertydescriptors": [
+    "mit"
+  ],
+  "optimist": [
+    "mit"
+  ],
+  "os-homedir": [
+    "mit"
+  ],
+  "os-locale": [
+    "mit"
+  ],
+  "p-defer": [
+    "mit"
+  ],
+  "p-finally": [
+    "mit"
+  ],
+  "p-is-promise": [
+    "mit"
+  ],
+  "p-limit": [
+    "mit"
+  ],
+  "p-locate": [
+    "mit"
+  ],
+  "p-try": [
+    "mit"
+  ],
+  "parse-json": [
+    "mit"
+  ],
+  "path-exists": [
+    "mit"
+  ],
+  "path-is-absolute": [
+    "mit"
+  ],
+  "path-key": [
+    "mit"
+  ],
+  "path-parse": [
+    "mit"
+  ],
+  "path-type": [
+    "mit"
+  ],
+  "pify": [
+    "mit"
+  ],
+  "pkg-dir": [
+    "mit"
+  ],
+  "pump": [
+    "mit"
+  ],
+  "read-pkg": [
+    "mit"
+  ],
+  "read-pkg-up": [
+    "mit"
+  ],
+  "require-directory": [
+    "mit"
+  ],
+  "resolve": [
+    "mit"
+  ],
+  "resolve-from": [
+    "mit"
+  ],
+  "safe-buffer": [
+    "mit"
+  ],
+  "shebang-command": [
+    "mit"
+  ],
+  "shebang-regex": [
+    "mit"
+  ],
+  "source-map-support": [
+    "mit"
+  ],
+  "spdx-expression-parse": [
+    "mit"
+  ],
+  "string-width": [
+    "mit"
+  ],
+  "strip-ansi": [
+    "mit"
+  ],
+  "strip-bom": [
+    "mit"
+  ],
+  "strip-eof": [
+    "mit"
+  ],
+  "strip-json-comments": [
+    "mit"
+  ],
+  "supports-color": [
+    "mit"
+  ],
+  "to-fast-properties": [
+    "mit"
+  ],
+  "trim-right": [
+    "mit"
+  ],
+  "ts-node": [
+    "mit"
+  ],
+  "tslint-eslint-rules": [
+    "mit"
+  ],
+  "tsutils": [
+    "mit"
+  ],
+  "uuid": [
+    "mit"
+  ],
+  "wordwrap": [
+    "mit"
+  ],
+  "wrap-ansi": [
+    "mit"
+  ],
+  "yargs": [
+    "mit"
+  ],
+  "yargs-unparser": [
+    "mit"
+  ],
+  "yn": [
+    "mit"
+  ],
+  "browser-stdout": [
+    "isc"
+  ],
+  "cliui": [
+    "isc"
+  ],
+  "foreground-child": [
+    "isc"
+  ],
+  "fs.realpath": [
+    "isc"
+  ],
+  "get-caller-file": [
+    "isc"
+  ],
+  "glob": [
+    "isc"
+  ],
+  "graceful-fs": [
+    "isc"
+  ],
+  "hosted-git-info": [
+    "isc"
+  ],
+  "inflight": [
+    "isc"
+  ],
+  "inherits": [
+    "isc"
+  ],
+  "isexe": [
+    "isc"
+  ],
+  "lru-cache": [
+    "isc"
+  ],
+  "make-error": [
+    "isc"
+  ],
+  "minimatch": [
+    "isc"
+  ],
+  "nyc": [
+    "isc"
+  ],
+  "once": [
+    "isc"
+  ],
+  "package-hash": [
+    "isc"
+  ],
+  "pseudomap": [
+    "isc"
+  ],
+  "release-zalgo": [
+    "isc"
+  ],
+  "require-main-filename": [
+    "isc"
+  ],
+  "rimraf": [
+    "isc"
+  ],
+  "semver": [
+    "isc"
+  ],
+  "set-blocking": [
+    "isc"
+  ],
+  "signal-exit": [
+    "isc"
+  ],
+  "spawn-wrap": [
+    "isc"
+  ],
+  "test-exclude": [
+    "isc"
+  ],
+  "which": [
+    "isc"
+  ],
+  "which-module": [
+    "isc"
+  ],
+  "wide-align": [
+    "isc"
+  ],
+  "wrappy": [
+    "isc"
+  ],
+  "write-file-atomic": [
+    "isc"
+  ],
+  "y18n": [
+    "isc"
+  ],
+  "yallist": [
+    "isc"
+  ],
+  "yargs-parser": [
+    "isc"
+  ],
+  "diff": [
+    "bsd-3-clause"
+  ],
+  "flat": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-coverage": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-hook": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-instrument": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-report": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-source-maps": [
+    "bsd-3-clause"
+  ],
+  "istanbul-reports": [
+    "bsd-3-clause"
+  ],
+  "source-map": [
+    "bsd-3-clause"
+  ],
+  "sprintf-js": [
+    "bsd-3-clause"
+  ],
+  "doctrine": [
+    "bsd-2-clause"
+  ],
+  "esprima": [
+    "bsd-2-clause"
+  ],
+  "esutils": [
+    "bsd-2-clause"
+  ],
+  "normalize-package-data": [
+    "bsd-2-clause"
+  ],
+  "uglify-js": [
+    "bsd-2-clause"
+  ],
+  "node-environment-flags": [
+    "apache-2.0"
+  ],
+  "spdx-correct": [
+    "apache-2.0"
+  ],
+  "tslib": [
+    "apache-2.0"
+  ],
+  "tslint": [
+    "apache-2.0"
+  ],
+  "typescript": [
+    "apache-2.0"
+  ],
+  "validate-npm-package-license": [
+    "apache-2.0"
+  ],
+  "spdx-exceptions": [
+    "cc-by-3.0"
+  ],
+  "spdx-license-ids": [
+    "cc0-1.0"
+  ]
+}
