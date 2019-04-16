@@ -88,8 +88,8 @@ function checkLicenses(acceptableList: SDictionary, currentList: SDictionary) {
 async function main() {
   const filePath = './acceptable_license_file.json';
   const commands = [
-    { command: 'verify-file', help: 'Check against reference file' },
-    { command: 'generate-file', help: 'Print the license info' },
+    { command: 'check-file', help: 'Check acceptable license file against npm dependencies' },
+    { command: 'generate-file', help: 'Generate acceptable license file from npm dependencies' },
   ];
 
   // Valid arguments
@@ -97,17 +97,17 @@ async function main() {
   const checkArg = process.argv.includes(commands[0].command);
   const genArg = process.argv.includes(commands[1].command);
 
-  // Print out the usage
   try {
     if (helpArg) {
       logger.log([
-        'This script gets the license information for modules added by yarn',
-        'The list can be compared against a reference list to see if there is additional licensing impact\n',
-        'Usage: ts-node ./license-checker/script.ts [argument]\n',
-        'Options:',
+        'Generates an acceptable license file containing all licenses in ',
+        'npm dependencies by using the yarn command `yarn licenses`.',
+        'Can compare this file against the current dependencies for discrepancies.\n',
+        'Usage: ts-node ./license-checker/script.ts <command> [--help]\n',
+        'Commands:',
       ].join('\n'));
 
-      const padding = 32;
+      const padding = 24;
       return commands.forEach((option) => logger.log(`  ${padEnd(option.command, padding)}${option.help}`));
     } else if (checkArg) {
       const currentLicenses = await parseLicenseInfo();
@@ -123,7 +123,7 @@ async function main() {
       await asyncWriteFile(filePath, data);
       logger.log(`File ${filePath} has been generated!`);
     } else {
-      throw new Error('No valid arguments given');
+      throw new Error('No valid command given');
     }
   } catch (error) {
     logger.error(error.toString());
