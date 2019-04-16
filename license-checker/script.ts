@@ -2,7 +2,6 @@
 
 import { exec } from 'child_process';
 import { readFile } from 'fs';
-import { find } from 'lodash';
 import { promisify } from 'util';
 
 const asyncExec = promisify(exec);
@@ -72,9 +71,9 @@ async function loadAcceptableLicenses() {
 function checkLicenses(acceptableList, currentList) {
   let hasError = false;
   Object.keys(currentList).forEach((currentModule) => {
-    if (find(Object.keys(acceptableList), (acceptableModule) => acceptableModule === currentModule)) {
-      Object.keys(currentList[currentModule]).forEach((license) => {
-        if (!find(Object.keys(acceptableList[currentModule]), (acceptableLicense) => acceptableLicense === license)) {
+    if (Object.keys(acceptableList).includes(currentModule)) {
+      currentList[currentModule].forEach((license) => {
+        if (!acceptableList[currentModule].includes(license)) {
           hasError = true;
           console.log(`Error: Module "${currentModule}" using license "${license}" not in acceptable licenses`);
         }
@@ -109,9 +108,10 @@ async function main() {
   ];
 
   // Valid arguments
-  const helpArg = find(process.argv, (arg) => arg === '--help');
-  const checkArg = find(process.argv, (arg) => arg === usableCommands[0].command);
-  const genArg = find(process.argv, (arg) => arg === usableCommands[1].command);
+  const helpArg = process.argv.includes('--help');
+  const checkArg = process.argv.includes(usableCommands[0].command);
+  const genArg = process.argv.includes(usableCommands[1].command);
+
   // Print out the usage
   try {
     if (helpArg) {
