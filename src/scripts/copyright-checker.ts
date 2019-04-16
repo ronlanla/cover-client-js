@@ -82,12 +82,21 @@ export async function buildFileList(path: string, existingIgnoreRules: string[])
 }
 
 export async function checkCopyright() {
-  const gitFiles = new Set((await dependencies.childProcess('git ls-files') as string).split('\n'));
-  const files = (await buildFileList('.', baseIgnoreFiles)).filter((file) => gitFiles.has(file));
-  const fileData = await Bluebird.map(files, (file) => dependencies.readFile(file), { concurrency: 3 });
+  try {
+    const gitFiles = new Set((await dependencies.childProcess('git ls-files') as string).split('\n'));
+    const files = (await buildFileList('./src', baseIgnoreFiles)).filter((file) => gitFiles.has(file));
+    const fileData = await Bluebird.map(files, (file) => dependencies.readFile(file), { concurrency: 3 });
 
-  const missingFiles = files.filter((data, i) => !containsCopyrightNotice(fileData[i].toString()));
-  if (missingFiles.length > 0) {
-    throw new Error(`No valid ${currentYear} copyright statement found in: \n${missingFiles.join('\n')}`);
+    const missingFiles = files.filter((data, i) => !containsCopyrightNotice(fileData[i].toString()));
+    if (missingFiles.length > 0) {
+      throw new Error(`No valid ${currentYear} copyright statement found in: \n${missingFiles.join('\n')}`);
+    }
+
+    console.log('Copyright statements up to date!');
+  } catch (error) {
+    console.error(error.toString());
+    process.exit(1);
   }
 }
+
+checkCopyright();
