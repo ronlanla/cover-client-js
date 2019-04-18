@@ -1,5 +1,5 @@
 ## Copyright 2019 Diffblue Limited. All Rights Reserved.
-version: 2
+version: 2.1
 commands:
   test-nodejs:
     steps:
