@@ -11,7 +11,7 @@ import licenseChecker, {
   getLicenseInfo,
   loadAcceptableLicenses,
   parseLicenseInfo,
-} from '../../../src/scripts/license-checker';
+} from '../../../src/scripts/licenseChecker';
 
 const sinonTest = sinonTestFactory();
 

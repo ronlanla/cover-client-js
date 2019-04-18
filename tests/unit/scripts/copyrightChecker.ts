@@ -2,7 +2,7 @@
 
 import assert from '../../../src/utils/assertExtra';
 
-import { containsCopyrightNotice, parseGitignore } from '../../../../src/scripts/copyright-checker';
+import { containsCopyrightNotice, parseGitignore } from '../../../src/scripts/copyrightChecker';
 
 describe('copyright-checker', () => {
   describe('parseGitignore', () => {

@@ -8,7 +8,7 @@ import { flatten } from 'lodash';
 import { join } from 'path';
 import { promisify } from 'util';
 
-import * as logger from '../../src/utils/log';
+import * as logger from '../utils/log';
 
 const currentYear = (new Date()).getFullYear();
 const copyrightPattern = new RegExp(`Copyright (20\\d\\d-)?${currentYear} Diffblue Limited. All Rights Reserved.`);
