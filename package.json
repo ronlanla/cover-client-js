@@ -1,13 +1,13 @@
 {
   "name": "diffblue-cover-client-js",
   "version": "0.0.1",
-  "description": "Diffblue Cover Client JS - Helper for integration with Cover",
+  "description": "Diffblue Cover client library - Node.js API for Diffblue Cover",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:diffblue/diffblue-cover-client-js.git"
   },
-  "author": "DiffBlue Limited",
+  "author": "Diffblue Limited",
   "bugs": {
     "url": "https://github.com/diffblue/diffblue-cover-client-js/issues"
   },
