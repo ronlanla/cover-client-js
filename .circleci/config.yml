@@ -1,29 +1,48 @@
 ## Copyright 2019 Diffblue Limited. All Rights Reserved.
 version: 2
-jobs:
-  build:
-    docker:
-      # CircleCI maintained images: https://circleci.com/docs/2.0/circleci-images/
-      - image: circleci/node:7.10
-
-    working_directory: ~/repo
-
+commands:
+  test-nodejs:
     steps:
+      - run:
+          name: Check yarn version
+          command: yarn --version
+      - run:
+          name: Check node version
+          command: node --version
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: yarn install
-      - run: node --version
-
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Test
+          command: yarn test
       - save_cache:
+          name: Save yarn package cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - ~/.cache/yarn  
+jobs:
+  test-node-v8:
+    docker:
+      - image: node:8
+    steps:
+      - test-nodejs
+  test-node-v10:
+    docker:
+      - image: node:10
+    steps:
+      - test-nodejs
+  test-node-v11:
+    docker:
+      - image: node:11
+    steps:
+      - test-nodejs
 
-      - run: yarn test
+workflows:
+  test-supported-node-versions:
+    jobs:
+      - test-node-v8
+      - test-node-v10
+      - test-node-v11
