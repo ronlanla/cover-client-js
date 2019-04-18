@@ -38,6 +38,9 @@
   "@types/node": [
     "mit"
   ],
+  "@types/sinon": [
+    "mit"
+  ],
   "ansi-colors": [
     "mit"
   ],
@@ -59,6 +62,9 @@
   "argparse": [
     "mit"
   ],
+  "array-from": [
+    "mit"
+  ],
   "arrify": [
     "mit"
   ],
@@ -66,6 +72,9 @@
     "mit"
   ],
   "balanced-match": [
+    "mit"
+  ],
+  "bluebird": [
     "mit"
   ],
   "brace-expansion": [
@@ -158,6 +167,9 @@
   "get-stream": [
     "mit"
   ],
+  "glob-gitignore": [
+    "mit"
+  ],
   "globals": [
     "mit"
   ],
@@ -183,6 +195,9 @@
     "mit"
   ],
   "he": [
+    "mit"
+  ],
+  "ignore": [
     "mit"
   ],
   "imurmurhash": [
@@ -230,6 +245,9 @@
   "json-parse-better-errors": [
     "mit"
   ],
+  "just-extend": [
+    "mit"
+  ],
   "lcid": [
     "mit"
   ],
@@ -242,10 +260,19 @@
   "lodash": [
     "mit"
   ],
+  "lodash.difference": [
+    "mit"
+  ],
   "lodash.flattendeep": [
     "mit"
   ],
+  "lodash.union": [
+    "mit"
+  ],
   "log-symbols": [
+    "mit"
+  ],
+  "make-array": [
     "mit"
   ],
   "make-dir": [
@@ -338,6 +365,9 @@
   "path-parse": [
     "mit"
   ],
+  "path-to-regexp": [
+    "mit"
+  ],
   "path-type": [
     "mit"
   ],
@@ -413,6 +443,12 @@
   "tsutils": [
     "mit"
   ],
+  "type-detect": [
+    "mit"
+  ],
+  "util.inherits": [
+    "mit"
+  ],
   "uuid": [
     "mit"
   ],
@@ -430,6 +466,57 @@
   ],
   "yn": [
     "mit"
+  ],
+  "@sinonjs/commons": [
+    "bsd-3-clause"
+  ],
+  "@sinonjs/formatio": [
+    "bsd-3-clause"
+  ],
+  "@sinonjs/samsam": [
+    "bsd-3-clause"
+  ],
+  "diff": [
+    "bsd-3-clause"
+  ],
+  "flat": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-coverage": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-hook": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-instrument": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-report": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-source-maps": [
+    "bsd-3-clause"
+  ],
+  "istanbul-reports": [
+    "bsd-3-clause"
+  ],
+  "lolex": [
+    "bsd-3-clause"
+  ],
+  "nise": [
+    "bsd-3-clause"
+  ],
+  "sinon": [
+    "bsd-3-clause"
+  ],
+  "source-map": [
+    "bsd-3-clause"
+  ],
+  "sprintf-js": [
+    "bsd-3-clause"
+  ],
+  "@sinonjs/text-encoding": [
+    "(unlicense or apache-2.0)"
   ],
   "browser-stdout": [
     "isc"
@@ -532,36 +619,6 @@
   ],
   "yargs-parser": [
     "isc"
-  ],
-  "diff": [
-    "bsd-3-clause"
-  ],
-  "flat": [
-    "bsd-3-clause"
-  ],
-  "istanbul-lib-coverage": [
-    "bsd-3-clause"
-  ],
-  "istanbul-lib-hook": [
-    "bsd-3-clause"
-  ],
-  "istanbul-lib-instrument": [
-    "bsd-3-clause"
-  ],
-  "istanbul-lib-report": [
-    "bsd-3-clause"
-  ],
-  "istanbul-lib-source-maps": [
-    "bsd-3-clause"
-  ],
-  "istanbul-reports": [
-    "bsd-3-clause"
-  ],
-  "source-map": [
-    "bsd-3-clause"
-  ],
-  "sprintf-js": [
-    "bsd-3-clause"
   ],
   "doctrine": [
     "bsd-2-clause"
