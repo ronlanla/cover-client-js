@@ -50,6 +50,12 @@ const assertExtra = {
       assert.strictEqual(String(error), String(expectedError));
     });
   },
+
+  notOtherwiseCalled: (stub: sinon.SinonStub, name: string) => {
+    stub.callsFake(async (...args) => {
+      throw new Error(`Unexpected call to ${name} with args ${JSON.stringify(args)}`);
+    });
+  }
 };
 
 export default { ...assert, ...assertExtra };
