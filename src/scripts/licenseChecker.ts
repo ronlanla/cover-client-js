@@ -148,7 +148,9 @@ export default async function licenseChecker(commands: Command[], args: string[]
 
 if (require.main === module) {
   licenseChecker(commands, process.argv).then((message) => {
-    logger.log(message);
+    if (message) {
+      logger.log(message);
+    }
   }).catch((error) => {
     // Only show the stack trace for unexpected errors
     logger.error(error instanceof ExpectedError ? error.toString() : error);
