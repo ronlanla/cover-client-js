@@ -2,144 +2,222 @@
 
 import assert from '../../../src/utils/assertExtra';
 
-import { containsCopyrightNotice, parseGitignore } from '../../../src/scripts/copyrightChecker';
+import checkCopyright, {
+  buildFileList,
+  catchMissingFile,
+  components,
+  dependencies,
+  getCommittedFiles,
+  getIgnoreRules,
+  mapRootRelativeRules,
+  parseGitignore,
+} from '../../../src/scripts/copyrightChecker';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
-describe('copyright-checker', () => {
+const sinonTest = sinonTestFactory();
+
+/** Error class for testing catchMissingFile */
+class TestError extends Error implements NodeJS.ErrnoException {
+  public code?: string;
+}
+
+describe('scripts/copyright-checker', () => {
   describe('parseGitignore', () => {
     it('Splits gitignore format files into lines', () => {
       const gitignore = '/foo\nbar.zim\ngir/*\n';
-
       assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*']);
     });
 
     it('Ignores empty lines', () => {
       const gitignore = '\n/foo\n\nbar.zim\ngir/*\n\n';
-
       assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*']);
     });
 
     it('Ignores comments', () => {
       const gitignore = '# Comment 1\n/foo\n# Comment 1\nbar.zim\ngir/*\n';
-
       assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*']);
     });
   });
 
-  describe('containsCopyrightNotice', () => {
-    const currentYear = (new Date()).getFullYear();
-    it('Returns true if a file contains a copyright notice for this year', () => {
-      const file = `
-      const hello = 'hi';
-      // Copyright ${currentYear} Diffblue Limited. All Rights Reserved.
-      `;
-      assert.strictEqual(containsCopyrightNotice(file), true);
+  describe('catchMissingFile', () => {
+    it('Returns an empty string when given a file not found exception', () => {
+      const error = new TestError('File not found');
+      error.code = 'ENOENT';
+
+      const result = catchMissingFile(error);
+
+      assert.strictEqual(result, '');
     });
 
-    it('Returns false if a file does not contain a copyright notice for this year', () => {
-      const file = `
-      # Copyright ${currentYear - 1} Diffblue Limited. All Rights Reserved.
+    it('Rethrows any other error it is passed', () => {
+      const error = new TestError('Some error');
+      error.code = 'OTHER';
 
-      Read this important documentation.
-      `;
-      assert.strictEqual(containsCopyrightNotice(file), false);
-    });
-
-    it('Returns true if a file contains a copyright notice up to this year', () => {
-      const file = `
-      const hello = 'hi';
-      // Copyright 2000-${currentYear} Diffblue Limited. All Rights Reserved.
-      `;
-      assert.strictEqual(containsCopyrightNotice(file), true);
+      assert.throws(() => catchMissingFile(error), 'Some error');
     });
   });
 
-  // describe('getIgnoreRules', () => {
-  //   it('Resolves with a list of all ignored files', sinonTest(async (sandbox) => {
-  //     const readFile = sandbox.stub(dependencies, 'readFile');
-  //     readFile.rejects(new Error('Read file called with unexpected argument(s)'));
-  //     readFile.withArgs('/.gitignore').resolves(['*.json', '/node_modules'].join('\n'));
-  //     readFile.withArgs('/.copyrightignore').resolves('/yarn.lock');
+  describe('mapRootRelativeRules', () => {
+    it('Returns rules, mapping root-relative to include their full path ', () => {
+      const result = mapRootRelativeRules('folder/subfolder', ['/node_modules', '*.log', '!test.log']);
+      assert.deepStrictEqual(result, ['/folder/subfolder/node_modules', '*.log', '!test.log']);
+    });
 
-  //     return getIgnoreRules('/', baseIgnoreFiles).then((files) => {
-  //       assert.deepStrictEqual(files, ['/.git', '.DS_Store', '*.json', '/node_modules', '/yarn.lock']);
-  //     });
-  //   }));
-  // });
+    it('Applies no mapping for the current directory', () => {
+      const result = mapRootRelativeRules('./', ['/node_modules', '*.log', '!test.log']);
+      assert.deepStrictEqual(result, ['/node_modules', '*.log', '!test.log']);
+    });
+  });
 
-  /**
-   * All below tests do not correctly stub functions.
-   * Changes in the logic of the front-end vs platform copyright scripts
-   * have caused some tests to infinitely loop due to the file structure.
-   */
-  // describe('checkCopyright', () => {
-  //   const currentYear = (new Date()).getFullYear();
+  describe('getCommittedFiles', () => {
+    it('Gets the committed files from git', sinonTest(async (sinon) => {
+      const files = [
+        'file.txt',
+        'folder/file.md',
+        'folder/submodule/file.log',
+      ];
+      const childProcess = sinon.stub(dependencies, 'childProcess');
+      childProcess.resolves({ stdout: files.join('\n'), stderr: '' });
 
-  //   it('Resolves when all files have valid copyright notices', sinonTest(async (sandbox) => {
-  //     const getIgnoreListStub = sandbox.stub(dependencies, 'getIgnoreRules');
-  //     getIgnoreListStub.resolves(['/node_modules']);
+      const result = await getCommittedFiles();
 
-  //     const childProcess = sandbox.stub(dependencies, 'childProcess');
-  //     childProcess.resolves({ stdout: '', stderr: '' });
+      assert.deepStrictEqual(result, new Set(files));
+      assert.calledOnceWith(childProcess, ['git ls-files']);
+    }));
+  });
 
-  //     const listFiles = sandbox.stub(dependencies, 'listFiles');
-  //     listFiles.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
+  describe('buildFileList', () => {
+    it('Resolves with files having recursing through subfolders', sinonTest(async (sinon) => {
+      const fileSettings = (ignore: string[]) => ({ ignore: ignore, nodir: true, dot: true });
+      const folderSettings = (ignore: string[]) => ({ ignore: ignore, dot: true });
 
-  //     const readFile = sandbox.stub(dependencies, 'readFile');
-  //     readFile.resolves(`Copyright 2010-${currentYear} Diffblue Limited. All Rights Reserved.`);
+      const listFiles = sinon.stub(dependencies, 'listFiles');
+      const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
 
-  //     await checkCopyright();
-  //     assertUtil.calledOnceWith(listFiles, ['**/*', { dot: true, ignore: ['/node_modules'], nodir: true }]);
-  //     assertUtil.calledWith(readFile, [
-  //       ['docs.txt'],
-  //       ['folder/config.yml'],
-  //       ['folder/subfolder/script.js'],
-  //     ]);
-  //   })).timeout(60000);
+      const baseIgnore = ['/node_modules'];
+      const nestedIgnore = ['/node_modules', '*.md'];
 
-  //   it('Rejects when not all files have valid copyright notices', sinonTest(async (sandbox) => {
-  //     const getIgnoreListStub = sandbox.stub(dependencies, 'getIgnoreRules');
-  //     getIgnoreListStub.resolves(['/node_modules']);
+      getIgnoreRules.withArgs('.', baseIgnore).resolves(baseIgnore);
+      listFiles.withArgs('*', fileSettings(baseIgnore)).resolves(['README.md']);
+      listFiles.withArgs('*/', folderSettings(baseIgnore)).resolves(['folder/']);
 
-  //     const listFiles = sandbox.stub(dependencies, 'listFiles');
-  //     listFiles.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
+      getIgnoreRules.withArgs('folder/', baseIgnore).resolves(nestedIgnore);
+      listFiles.withArgs('folder/*', fileSettings(nestedIgnore)).resolves(['folder/test.log']);
+      listFiles.withArgs('folder/*/', folderSettings(nestedIgnore)).resolves(['folder/subfolder/']);
 
-  //     const readFile = sandbox.stub(dependencies, 'readFile');
-  //     readFile.withArgs('docs.txt').resolves(`Copyright 2000-${currentYear} Diffblue Limited. All Rights Reserved.`);
-  //     readFile.withArgs('folder/config.yml').resolves(
-  //       `# Copyright 2010-${currentYear} Diffblue Limited. All Rights Reserved.`,
-  //     );
-  //     readFile.withArgs('folder/subfolder/script.js').resolves("console.log('nope');");
+      getIgnoreRules.withArgs('folder/subfolder/', nestedIgnore).resolves(nestedIgnore);
+      listFiles.withArgs('folder/subfolder/*', fileSettings(nestedIgnore)).resolves(['folder/subfolder/temp.txt']);
+      listFiles.withArgs('folder/subfolder/*/', folderSettings(nestedIgnore)).resolves([]);
 
-  //     const expectedError = (
-  //       `Error: No valid ${currentYear} copyright statement found in:\nfolder/subfolder/script.js`
-  //     );
-  //     await assertUtil.rejectsWith(checkCopyright(), expectedError);
-  //     assertUtil.calledOnceWith(listFiles, ['**/*', { dot: true, ignore: ['/node_modules'], nodir: true }]);
-  //     assertUtil.calledWith(readFile, [
-  //       ['docs.txt'],
-  //       ['folder/config.yml'],
-  //       ['folder/subfolder/script.js'],
-  //     ]);
-  //   }));
+      assert.notOtherwiseCalled(listFiles, 'listFiles');
+      assert.notOtherwiseCalled(getIgnoreRules, 'getIgnoreRules');
 
-  //   it('Rejects when listFiles rejects', sinonTest(async (sandbox) => {
-  //     const listFiles = sandbox.stub(dependencies, 'listFiles');
-  //     listFiles.rejects('Error message');
+      const result = await buildFileList('.', ['/node_modules']);
 
-  //     const readFile = sandbox.stub(dependencies, 'readFile');
-  //     readFile.resolves('/node_modules');
+      assert.deepStrictEqual(result, [
+        'README.md',
+        'folder/test.log',
+        'folder/subfolder/temp.txt',
+      ]);
+    }));
 
-  //     return assertUtil.rejectsWith(checkCopyright(), 'Error message');
-  //   }));
+    it('Resolves with no files if there are none, recursing through subfolders', sinonTest(async (sinon) => {
+      const fileSettings = { ignore: ['/node_modules'], nodir: true, dot: true };
+      const folderSettings = { ignore: ['/node_modules'], dot: true };
 
-  //   it('Rejects when readFile rejects', sinonTest((sandbox) => {
-  //     const listFiles = sandbox.stub(dependencies, 'listFiles');
-  //     listFiles.resolves(['docs.txt']);
+      const listFiles = sinon.stub(dependencies, 'listFiles');
+      const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
 
-  //     const readFile = sandbox.stub(dependencies, 'readFile');
-  //     readFile.rejects('Error message');
+      getIgnoreRules.withArgs('.', ['/node_modules']).resolves(['/node_modules']);
+      listFiles.withArgs('*', fileSettings).resolves([]);
+      listFiles.withArgs('*/', folderSettings).resolves(['folder/']);
 
-  //     return assertUtil.rejectsWith(checkCopyright(), 'Error message');
-  //   }));
-  // });
+      getIgnoreRules.withArgs('folder/', ['/node_modules']).resolves(['/node_modules']);
+      listFiles.withArgs('folder/*', fileSettings).resolves([]);
+      listFiles.withArgs('folder/*/', folderSettings).resolves([]);
+
+      assert.notOtherwiseCalled(listFiles, 'listFiles');
+      assert.notOtherwiseCalled(getIgnoreRules, 'getIgnoreRules');
+
+      const result = await buildFileList('.', ['/node_modules']);
+
+      assert.deepStrictEqual(result, []);
+    }));
+  });
+
+  describe('getIgnoreRules', () => {
+    it('Resolves with a list of all ignored files', sinonTest(async (sinon) => {
+      const readFile = sinon.stub(dependencies, 'readFile');
+      readFile.withArgs('.gitignore').resolves(['*.json', '/node_modules'].join('\n'));
+      readFile.withArgs('.copyrightignore').resolves('/yarn.lock');
+
+      assert.notOtherwiseCalled(readFile, 'readFile');
+
+      const files = await getIgnoreRules('.', ['/foo', '.BAR']);
+
+      assert.deepStrictEqual(files, ['/foo', '.BAR', '*.json', '/node_modules', '/yarn.lock']);
+      assert.calledWith(readFile, [
+        ['.gitignore'],
+        ['.copyrightignore'],
+      ]);
+    }));
+  });
+
+  describe('checkCopyright', () => {
+    const year = 2010;
+
+    it('Resolves when all files have valid copyright notices', sinonTest(async (sinon) => {
+      const buildFileList = sinon.stub(components, 'buildFileList');
+      buildFileList.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
+
+      const getIgnoreList = sinon.stub(components, 'getIgnoreRules');
+      getIgnoreList.resolves(['/node_modules']);
+
+      const childProcess = sinon.stub(components, 'getCommittedFiles');
+      childProcess.resolves(new Set(['folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
+
+      const readFile = sinon.stub(dependencies, 'readFile');
+      readFile.resolves(`Copyright ${year} Company`);
+
+      const copyrightPattern = /Copyright 2010 Company/;
+      const baseIgnoreFiles = ['/.git', '.DS_Store'];
+
+      await checkCopyright(year, copyrightPattern, baseIgnoreFiles);
+
+      assert.calledWith(readFile, [
+        ['folder/config.yml'],
+        ['folder/subfolder/script.js'],
+      ]);
+    }));
+
+    it('Rejects when not all files have valid copyright notices', sinonTest(async (sinon) => {
+      const buildFileList = sinon.stub(components, 'buildFileList');
+      buildFileList.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
+
+      const getIgnoreList = sinon.stub(components, 'getIgnoreRules');
+      getIgnoreList.resolves(['/node_modules']);
+
+      const childProcess = sinon.stub(components, 'getCommittedFiles');
+      childProcess.resolves(new Set(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
+
+      const readFile = sinon.stub(dependencies, 'readFile');
+      readFile.withArgs('docs.txt').resolves('Copyright 2000-2010 Company');
+      readFile.withArgs('folder/config.yml').resolves('# Copyright 2010 Company ');
+      readFile.withArgs('folder/subfolder/script.js').resolves("console.log('nope');");
+
+      assert.notOtherwiseCalled(readFile, 'readFile');
+
+      const copyrightPattern = /Copyright (\d{4}-)?2010 Company/;
+      const baseIgnoreFiles = ['/.git', '.DS_Store'];
+      const expectedError = new Error('No valid 2010 copyright statement found in:\nfolder/subfolder/script.js');
+
+      await assert.rejectsWith(checkCopyright(year, copyrightPattern, baseIgnoreFiles), expectedError);
+
+      assert.calledWith(readFile, [
+        ['docs.txt'],
+        ['folder/config.yml'],
+        ['folder/subfolder/script.js'],
+      ]);
+    }));
+  });
 });
