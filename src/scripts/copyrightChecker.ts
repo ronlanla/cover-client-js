@@ -11,7 +11,7 @@ import { promisify } from 'util';
 import * as logger from '../utils/log';
 
 const currentYear = (new Date()).getFullYear();
-const copyrightPattern = new RegExp(`Copyright (\d{4}-)?${currentYear} Diffblue Limited. All Rights Reserved.`);
+const copyrightPattern = new RegExp(`Copyright (\\d{4}-)?${currentYear} Diffblue Limited. All Rights Reserved.`);
 const baseIgnoreFiles = ['/.git', '.DS_Store'];
 
 export const dependencies = {
