@@ -8,13 +8,13 @@ import * as sinon from 'sinon';
  *
  * Usage:
  * ```
- * it('Tests the function', sinonTest((sandbox) => {
- *  const logger = sandbox.stub(dependency, 'logger');
+ * it('Tests the function', sinonTest((sinon) => {
+ *   const logger = sinon.stub(dependency, 'logger');
  *
- *  const result = testFunction('hello');
+ *   const result = testFunction('hello');
  *
- *  assert.strictEqual(result, 5);
- *  assert.calledOnceWith(logger, ['hello']);
+ *   assert.strictEqual(result, 5);
+ *   assert.calledOnceWith(logger, ['hello']);
  * }));
  * ```
  */
