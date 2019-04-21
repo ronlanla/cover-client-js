@@ -131,7 +131,7 @@ export function helpMessage(commands: Command[]) {
 
 /** Generate or verify a license file */
 export default async function licenseChecker(commands: Command[], args: string[]) {
-  const filePath = './acceptable_license_file.json';
+  const filePath = './acceptable-licenses.json.json';
 
   const command = commands.find((searchCommand) => args.includes(searchCommand.name));
 
