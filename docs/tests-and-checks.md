@@ -34,3 +34,5 @@ describe.skip('Skip this suite', function() {
 ## Integration tests
 
 ### Mock API
+
+Copyright 2019 Diffblue Limited. All Rights Reserved.

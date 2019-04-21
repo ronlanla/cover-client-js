@@ -1,3 +1,5 @@
+// Copyright 2019 Diffblue Limited. All Rights Reserved.
+
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 

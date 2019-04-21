@@ -1,0 +1,6 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+
+/*.json
+/yarn.lock
+/.github
+/src/types/bluebird

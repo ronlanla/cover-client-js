@@ -1,3 +1,5 @@
+// Copyright 2019 Diffblue Limited. All Rights Reserved.
+
 import { Context } from 'mocha';
 import * as sinon from 'sinon';
 

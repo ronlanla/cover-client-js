@@ -56,3 +56,5 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
   - [Coding style](docs/code-standards.md#style)
   - [Code documentation](docs/code-standards.md#code-documentation)
 - [Contributing guidelines](docs/contributing-guidelines.md)
+
+Copyright 2019 Diffblue Limited. All Rights Reserved.
