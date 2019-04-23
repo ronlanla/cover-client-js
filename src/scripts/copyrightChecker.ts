@@ -10,8 +10,10 @@ import { promisify } from 'util';
 
 import logger from '../utils/log';
 
+/** Interface for the function to check copyright notices */
+type CopyrightNoticeCheck = (year: number, content: string) => boolean;
+
 const currentYear = (new Date()).getFullYear();
-const copyrightPattern = new RegExp(`Copyright (\\d{4}-)?${currentYear} Diffblue Limited. All Rights Reserved.`);
 const baseIgnoreFiles = ['/.git', '.DS_Store'];
 
 export const dependencies = {
@@ -25,6 +27,19 @@ export const components = {
   buildFileList: buildFileList,
   getIgnoreRules: getIgnoreRules,
 };
+
+/** Checks if a copyright notice is present in a document */
+export function hasCopyrightNotice(year: number, content: string) {
+  const startYearIndex = 1;
+  const endYearIndex = 2;
+  const copyrightPattern = new RegExp(`Copyright (?:(\\d{4})-)?(${year}) Diffblue Limited. All Rights Reserved.`);
+  const match = content.match(copyrightPattern);
+  if (!match) {
+    return false;
+  }
+  // Check for impossible year ranges
+  return !match[startYearIndex] || match[endYearIndex] >= match[startYearIndex];
+}
 
 /** Parse git ignore */
 export function parseGitignore(file: string) {
@@ -84,12 +99,16 @@ export async function buildFileList(path: string, existingIgnoreRules: string[])
 }
 
 /** Check for valid copyright statements in all files within current directory */
-export default async function checkCopyright(currentYear: number, copyrightPattern: RegExp, baseIgnoreFiles: string[]) {
+export default async function checkCopyright(
+  currentYear: number,
+  hasCopyrightNotice: CopyrightNoticeCheck,
+  baseIgnoreFiles: string[],
+) {
   const gitFiles = await components.getCommittedFiles();
   const files = (await components.buildFileList('.', baseIgnoreFiles)).filter((file) => gitFiles.has(file));
   const missingFiles = await filter(files, async (file) => {
     const fileData = (await dependencies.readFile(file)).toString();
-    return !fileData.match(copyrightPattern);
+    return !hasCopyrightNotice(currentYear, fileData);
   }, { concurrency: 3 });
 
   if (missingFiles.length > 0) {
@@ -98,7 +117,7 @@ export default async function checkCopyright(currentYear: number, copyrightPatte
 }
 
 if (require.main === module) {
-  checkCopyright(currentYear, copyrightPattern, baseIgnoreFiles).then(() => {
+  checkCopyright(currentYear, hasCopyrightNotice, baseIgnoreFiles).then(() => {
     logger.log('Copyright statements up to date!');
   }).catch((error) => {
     logger.error(error);

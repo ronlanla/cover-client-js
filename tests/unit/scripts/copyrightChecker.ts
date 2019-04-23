@@ -10,6 +10,7 @@ import checkCopyright, {
   dependencies,
   getCommittedFiles,
   getIgnoreRules,
+  hasCopyrightNotice,
   mapRootRelativeRules,
   parseGitignore,
 } from '../../../src/scripts/copyrightChecker';
@@ -29,6 +30,39 @@ class TestError extends Error implements NodeJS.ErrnoException {
 }
 
 describe('scripts/copyright-checker', () => {
+  describe('hasCopyrightNotice', () => {
+    const year = 2010;
+    it('Returns true if content has a valid copyright notice', () => {
+      const content = 'File content. Copyright 2010 Diffblue Limited. All Rights Reserved. File content.';
+      assert.strictEqual(hasCopyrightNotice(year, content), true);
+    });
+
+    it('Returns true if content has a valid copyright notice with a date range', () => {
+      const content = 'File content. Copyright 1999-2010 Diffblue Limited. All Rights Reserved. File content.';
+      assert.strictEqual(hasCopyrightNotice(year, content), true);
+    });
+
+    it('Returns false if content has no valid copyright notice', () => {
+      const content = 'File content. Copyright 2010 Company Name. All Rights Reserved. File content.';
+      assert.strictEqual(hasCopyrightNotice(year, content), false);
+    });
+
+    it('Returns false if content has a copyright notice with the wrong year', () => {
+      const content = 'File content. Copyright 2009 Company Name. All Rights Reserved. File content.';
+      assert.strictEqual(hasCopyrightNotice(year, content), false);
+    });
+
+    it('Returns false if content has a copyright notice with the wrong year in a date range', () => {
+      const content = 'File content. Copyright 2008-2009 Company Name. All Rights Reserved. File content.';
+      assert.strictEqual(hasCopyrightNotice(year, content), false);
+    });
+
+    it('Returns false if content has a copyright notice with an impossible date range', () => {
+      const content = 'File content. Copyright 2012-2010 Company Name. All Rights Reserved. File content.';
+      assert.strictEqual(hasCopyrightNotice(year, content), false);
+    });
+  });
+
   describe('parseGitignore', () => {
     it('Splits gitignore format files into lines', () => {
       const gitignore = '/foo\nbar.zim\ngir/*\n';
@@ -187,10 +221,10 @@ describe('scripts/copyright-checker', () => {
       const readFile = sinon.stub(dependencies, 'readFile');
       readFile.resolves(`Copyright ${year} Company`);
 
-      const copyrightPattern = /Copyright 2010 Company/;
+      const copyrightChecker = (year: number, content: string) => Boolean(content.match(`Copyright ${year} Company`));
       const baseIgnoreFiles = ['/.git', '.DS_Store'];
 
-      await checkCopyright(year, copyrightPattern, baseIgnoreFiles);
+      await checkCopyright(year, copyrightChecker, baseIgnoreFiles);
 
       assert.calledWith(readFile, [
         ['folder/config.yml'],
@@ -200,31 +234,29 @@ describe('scripts/copyright-checker', () => {
 
     it('Rejects when not all files have valid copyright notices', sinonTest(async (sinon) => {
       const buildFileList = sinon.stub(components, 'buildFileList');
-      buildFileList.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
+      buildFileList.resolves(['docs.txt', 'folder/config.yml']);
 
       const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
       getIgnoreRules.resolves(['/node_modules']);
 
       const getCommittedFiles = sinon.stub(components, 'getCommittedFiles');
-      getCommittedFiles.resolves(new Set(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
+      getCommittedFiles.resolves(new Set(['docs.txt', 'folder/config.yml', 'other.txt']));
 
       const readFile = sinon.stub(dependencies, 'readFile');
-      readFile.withArgs('docs.txt').resolves('Copyright 2000-2010 Company');
+      readFile.withArgs('docs.txt').resolves('Copyright 2011 Company');
       readFile.withArgs('folder/config.yml').resolves('# Copyright 2010 Company ');
-      readFile.withArgs('folder/subfolder/script.js').resolves("console.log('nope');");
 
       assert.notOtherwiseCalled(readFile, 'readFile');
 
-      const copyrightPattern = /Copyright (\d{4}-)?2010 Company/;
+      const copyrightChecker = (year: number, content: string) => Boolean(content.match('Copyright 2011 Company'));
       const baseIgnoreFiles = ['/.git', '.DS_Store'];
-      const expectedError = new Error('No valid 2010 copyright statement found in:\nfolder/subfolder/script.js');
+      const expectedError = new Error('No valid 2010 copyright statement found in:\nfolder/config.yml');
 
-      await assert.rejectsWith(checkCopyright(year, copyrightPattern, baseIgnoreFiles), expectedError);
+      await assert.rejectsWith(checkCopyright(year, copyrightChecker, baseIgnoreFiles), expectedError);
 
       assert.calledWith(readFile, [
         ['docs.txt'],
         ['folder/config.yml'],
-        ['folder/subfolder/script.js'],
       ]);
     }));
   });
