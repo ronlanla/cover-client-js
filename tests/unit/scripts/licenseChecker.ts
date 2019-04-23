@@ -71,15 +71,11 @@ const sampleCommands: Command[] = [
   },
 ];
 
-const expectedHelpMessage = `Generates an acceptable license file containing all licenses in
-npm dependencies by using the yarn command \`yarn licenses\`.
-Can compare this file against the current dependencies for discrepancies.
-
-Usage: ts-node ./license-checker/script.ts <command> [--help]
-
-Commands:
+const expectedHelpCommands = (
+`Commands:
   success-command - Command to test success
-  failure-command - Command to test failure`;
+  failure-command - Command to test failure`
+);
 
 
 describe('scripts/license-checker', () => {
@@ -271,21 +267,21 @@ describe('scripts/license-checker', () => {
 
     it('Resolves the help message', async () => {
       const result = await licenseChecker(sampleCommands, ['--help']);
-      assert.strictEqual(result, expectedHelpMessage);
+      assert.matches(result || '', expectedHelpCommands);
     });
 
     it('Resolves the help message rather than running a command', sinonTest(async (sinon) => {
       const runCommand = sinon.spy(sampleCommands[0], 'run');
 
       const result = await licenseChecker(sampleCommands, ['success-command', '--help']);
-      assert.strictEqual(result, expectedHelpMessage);
+      assert.matches(result || '', expectedHelpCommands);
       assert.notCalled(runCommand);
     }));
 
     it('Rejects with an error and help message when given no command', async () => {
       await assert.rejectsWith(
         licenseChecker(sampleCommands, []),
-        new Error(`No valid command given\n\n${expectedHelpMessage}`),
+        /No valid command given\n/,
       );
     });
   });
