@@ -63,7 +63,7 @@ describe('scripts/copyright-checker', () => {
   });
 
   describe('mapRootRelativeRules', () => {
-    it('Returns rules, mapping root-relative to include their full path ', () => {
+    it('Returns rules, mapping root-relative to include their full path', () => {
       const result = mapRootRelativeRules('folder/subfolder', ['/node_modules', '*.log', '!test.log']);
       assert.deepStrictEqual(result, ['/folder/subfolder/node_modules', '*.log', '!test.log']);
     });
