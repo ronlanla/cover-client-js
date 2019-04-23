@@ -39,7 +39,7 @@ const assertExtra = {
   },
 
   // Asserts a promise rejects with a particular error
-  rejectsWith: async <Resolve>(promise: Promise<Resolve>, expectedError: Error | string) => {
+  rejectsWith: async <Resolve>(promise: Promise<Resolve>, expectedError: Error | string | RegExp) => {
     let rejected = false;
     return promise.catch((error: Error | string) => {
       rejected = true;
@@ -47,7 +47,12 @@ const assertExtra = {
     })
     .then((error: Error | string) => {
       assert.strictEqual(rejected, true, 'Promise did not reject');
-      assert.strictEqual(String(error), String(expectedError));
+
+      if (expectedError instanceof RegExp) {
+        assertExtra.matches(String(error), expectedError);
+      } else {
+        assert.strictEqual(String(error), String(expectedError));
+      }
     });
   },
 
@@ -55,7 +60,12 @@ const assertExtra = {
     stub.callsFake(async (...args) => {
       throw new Error(`Unexpected call to ${name} with args ${JSON.stringify(args)}`);
     });
-  }
+  },
+
+  matches: (value: string, matcher: RegExp | string) => {
+    const matches = value.match(matcher);
+    assert.strictEqual(matches && matches.length > 0, true, `Pattern "${matcher}" did not match "${value}"`);
+  },
 };
 
 export default { ...assert, ...assertExtra };
