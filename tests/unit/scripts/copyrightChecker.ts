@@ -76,7 +76,7 @@ describe('scripts/copyright-checker', () => {
         'folder/file.md',
         'folder/submodule/file.log',
       ];
-      const childProcess = sinon.stub(dependencies, 'childProcess');
+      const childProcess = sinon.stub(dependencies, 'exec');
       childProcess.resolves({ stdout: files.join('\n'), stderr: '' });
 
       const result = await getCommittedFiles();
@@ -91,25 +91,25 @@ describe('scripts/copyright-checker', () => {
       const fileSettings = (ignore: string[]) => ({ ignore: ignore, nodir: true, dot: true });
       const folderSettings = (ignore: string[]) => ({ ignore: ignore, dot: true });
 
-      const listFiles = sinon.stub(dependencies, 'listFiles');
+      const globGitignore = sinon.stub(dependencies, 'globGitignore');
       const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
 
       const baseIgnore = ['/node_modules'];
       const nestedIgnore = ['/node_modules', '*.md'];
 
       getIgnoreRules.withArgs('.', baseIgnore).resolves(baseIgnore);
-      listFiles.withArgs('*', fileSettings(baseIgnore)).resolves(['README.md']);
-      listFiles.withArgs('*/', folderSettings(baseIgnore)).resolves(['folder/']);
+      globGitignore.withArgs('*', fileSettings(baseIgnore)).resolves(['README.md']);
+      globGitignore.withArgs('*/', folderSettings(baseIgnore)).resolves(['folder/']);
 
       getIgnoreRules.withArgs('folder/', baseIgnore).resolves(nestedIgnore);
-      listFiles.withArgs('folder/*', fileSettings(nestedIgnore)).resolves(['folder/test.log']);
-      listFiles.withArgs('folder/*/', folderSettings(nestedIgnore)).resolves(['folder/subfolder/']);
+      globGitignore.withArgs('folder/*', fileSettings(nestedIgnore)).resolves(['folder/test.log']);
+      globGitignore.withArgs('folder/*/', folderSettings(nestedIgnore)).resolves(['folder/subfolder/']);
 
       getIgnoreRules.withArgs('folder/subfolder/', nestedIgnore).resolves(nestedIgnore);
-      listFiles.withArgs('folder/subfolder/*', fileSettings(nestedIgnore)).resolves(['folder/subfolder/temp.txt']);
-      listFiles.withArgs('folder/subfolder/*/', folderSettings(nestedIgnore)).resolves([]);
+      globGitignore.withArgs('folder/subfolder/*', fileSettings(nestedIgnore)).resolves(['folder/subfolder/temp.txt']);
+      globGitignore.withArgs('folder/subfolder/*/', folderSettings(nestedIgnore)).resolves([]);
 
-      assert.notOtherwiseCalled(listFiles, 'listFiles');
+      assert.notOtherwiseCalled(globGitignore, 'globGitignore');
       assert.notOtherwiseCalled(getIgnoreRules, 'getIgnoreRules');
 
       const result = await buildFileList('.', ['/node_modules']);
@@ -125,18 +125,18 @@ describe('scripts/copyright-checker', () => {
       const fileSettings = { ignore: ['/node_modules'], nodir: true, dot: true };
       const folderSettings = { ignore: ['/node_modules'], dot: true };
 
-      const listFiles = sinon.stub(dependencies, 'listFiles');
+      const globGitignore = sinon.stub(dependencies, 'globGitignore');
       const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
 
       getIgnoreRules.withArgs('.', ['/node_modules']).resolves(['/node_modules']);
-      listFiles.withArgs('*', fileSettings).resolves([]);
-      listFiles.withArgs('*/', folderSettings).resolves(['folder/']);
+      globGitignore.withArgs('*', fileSettings).resolves([]);
+      globGitignore.withArgs('*/', folderSettings).resolves(['folder/']);
 
       getIgnoreRules.withArgs('folder/', ['/node_modules']).resolves(['/node_modules']);
-      listFiles.withArgs('folder/*', fileSettings).resolves([]);
-      listFiles.withArgs('folder/*/', folderSettings).resolves([]);
+      globGitignore.withArgs('folder/*', fileSettings).resolves([]);
+      globGitignore.withArgs('folder/*/', folderSettings).resolves([]);
 
-      assert.notOtherwiseCalled(listFiles, 'listFiles');
+      assert.notOtherwiseCalled(globGitignore, 'globGitignore');
       assert.notOtherwiseCalled(getIgnoreRules, 'getIgnoreRules');
 
       const result = await buildFileList('.', ['/node_modules']);

@@ -3,7 +3,7 @@
 import { filter, mapSeries } from 'bluebird';
 import { exec } from 'child_process';
 import { readFile } from 'fs';
-import { glob } from 'glob-gitignore';
+import { glob as globGitignore } from 'glob-gitignore';
 import { flatten } from 'lodash';
 import { join } from 'path';
 import { promisify } from 'util';
@@ -15,9 +15,9 @@ const copyrightPattern = new RegExp(`Copyright (\\d{4}-)?${currentYear} Diffblue
 const baseIgnoreFiles = ['/.git', '.DS_Store'];
 
 export const dependencies = {
-  listFiles: glob,
+  globGitignore: globGitignore,
   readFile: promisify(readFile),
-  childProcess: promisify(exec),
+  exec: promisify(exec),
 };
 
 export const components = {
@@ -54,7 +54,7 @@ export function mapRootRelativeRules(path: string, rules: string[]) {
 
 /** Gets the list of committed files from git */
 export async function getCommittedFiles() {
-  return new Set((await dependencies.childProcess('git ls-files')).stdout.split('\n'));
+  return new Set((await dependencies.exec('git ls-files')).stdout.split('\n'));
 }
 
 /** Gets ignore rules from .gitignore and .copyrightignore in a directory, and combines with existing rules */
@@ -71,8 +71,8 @@ export async function getIgnoreRules(path: string, existingIgnoreRules: string[]
 /** Recursively builds a list of files, checking nested ignore files */
 export async function buildFileList(path: string, existingIgnoreRules: string[]): Promise<string[]> {
   const ignoreRules = await components.getIgnoreRules(path, existingIgnoreRules);
-  const directories = await dependencies.listFiles(join(path, '*/'), { ignore: ignoreRules, dot: true });
-  const files = await dependencies.listFiles(join(path, '*'), { ignore: ignoreRules, nodir: true, dot: true });
+  const directories = await dependencies.globGitignore(join(path, '*/'), { ignore: ignoreRules, dot: true });
+  const files = await dependencies.globGitignore(join(path, '*'), { ignore: ignoreRules, nodir: true, dot: true });
 
   if (!files) {
     return [];
