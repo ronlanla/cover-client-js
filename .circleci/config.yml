@@ -1,5 +1,15 @@
 ## Copyright 2019 Diffblue Limited. All Rights Reserved.
+
 version: 2.1
+
+references:
+  yarn_cache_key: &yarn_cache_key
+    v1-dependency-yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
+  yarn_backup_cache_key: &yarn_backup_cache_key
+    v1-dependency-yarn-{{ .Branch }}-
+  yarn_backup_cache_key_no_branch: &yarn_backup_cache_key_no_branch
+    v1-dependency-yarn-
+
 commands:
   test-nodejs:
     steps:
@@ -11,7 +21,10 @@ commands:
           command: node --version
       - checkout
       - restore_cache:
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          keys:
+            - *yarn_cache_key
+            - *yarn_backup_cache_key
+            - *yarn_backup_cache_key_no_branch
       - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
@@ -20,9 +33,10 @@ commands:
           command: yarn test
       - save_cache:
           name: Save yarn package cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          key: *yarn_cache_key
           paths:
-            - ~/.cache/yarn  
+            - ~/.cache/yarn
+
 jobs:
   test-node-v8:
     docker:
