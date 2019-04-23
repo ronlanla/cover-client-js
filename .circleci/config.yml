@@ -32,6 +32,12 @@ commands:
           name: Lint
           command: yarn lint-ts
       - run:
+          name: Copyright check
+          command: yarn copyright-check
+      - run:
+          name: License check
+          command: yarn license-check check-file
+      - run:
           name: Test
           command: yarn test
       - save_cache:
