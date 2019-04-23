@@ -18,7 +18,14 @@ const sinonTest = sinonTestFactory();
 
 /** Error class for testing catchMissingFile */
 class TestError extends Error implements NodeJS.ErrnoException {
-  public code?: string;
+  public code: string;
+
+  public constructor(message: string, code: string) {
+    super(message);
+    this.code = code;
+    // Work around TypeScript bug because we are transpiling to ES5
+    Object.setPrototypeOf(this, TestError.prototype);
+  }
 }
 
 describe('scripts/copyright-checker', () => {
@@ -46,19 +53,15 @@ describe('scripts/copyright-checker', () => {
 
   describe('catchMissingFile', () => {
     it('Returns an empty string when given a file not found exception', () => {
-      const error = new TestError('File not found');
-      error.code = 'ENOENT';
-
+      const error = new TestError('File not found', 'ENOENT');
       const result = catchMissingFile(error);
 
       assert.strictEqual(result, '');
     });
 
     it('Rethrows any other error it is passed', () => {
-      const error = new TestError('Some error');
-      error.code = 'OTHER';
-
-      assert.throws(() => catchMissingFile(error), 'Some error');
+      const error = new TestError('Some error', 'OTHER');
+      assert.throws(() => catchMissingFile(error), TestError);
     });
   });
 
