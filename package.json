@@ -15,7 +15,7 @@
   "homepage": "https://github.com/diffblue/cover-client-js#readme",
   "scripts": {
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
-    "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 100 mocha --require ts-node/register 'tests/unit/**/*.ts'",
+    "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 80 mocha --require ts-node/register 'tests/unit/**/*.ts'",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
