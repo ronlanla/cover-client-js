@@ -65,16 +65,16 @@ const sampleCommands: Command[] = [
     help: 'Command to test success',
   },
   {
-    name: 'failure-command',
+    name: 'error-command',
     run: async () => { throw new Error('Error message'); },
-    help: 'Command to test failure',
+    help: 'Command to test error',
   },
 ];
 
 const expectedHelpCommands = (
 `Commands:
-  success-command - Command to test success
-  failure-command - Command to test failure`
+  success-command  Command to test success
+  error-command    Command to test error`
 );
 
 
@@ -262,7 +262,7 @@ describe('scripts/license-checker', () => {
     });
 
     it('Runs a command, rejecting its error', async () => {
-      await assert.rejectsWith(licenseChecker(sampleCommands, ['failure-command']), new Error('Error message'));
+      await assert.rejectsWith(licenseChecker(sampleCommands, ['error-command']), new Error('Error message'));
     });
 
     it('Resolves the help message', async () => {

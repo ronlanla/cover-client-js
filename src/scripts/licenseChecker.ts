@@ -2,7 +2,7 @@
 
 import { exec } from 'child_process';
 import { readFile, writeFile } from 'fs';
-import { groupBy, mapValues } from 'lodash';
+import { groupBy, mapValues, maxBy, padEnd } from 'lodash';
 import { promisify } from 'util';
 
 import logger from '../utils/log';
@@ -119,13 +119,15 @@ export async function generateAcceptableLicenses(filePath: string) {
 
 /** Returns the help message for the command */
 export function helpMessage(commands: Command[]) {
+  const longestName = maxBy(commands, (command) => command.name.length);
+  const padding = longestName ? longestName.name.length : 0;
   return [
     'Generates an acceptable license file containing all licenses in',
     'npm dependencies by using the yarn command `yarn licenses`.',
     'Can compare this file against the current dependencies for discrepancies.\n',
     'Usage: ts-node ./license-checker/script.ts <command> [--help]\n',
     'Commands:',
-    ...commands.map((option) => `  ${option.name} - ${option.help}`),
+    ...commands.map((option) => `  ${padEnd(option.name, padding)}  ${option.help}`),
   ].join('\n');
 }
 
