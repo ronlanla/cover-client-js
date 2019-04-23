@@ -89,10 +89,6 @@ export async function buildFileList(path: string, existingIgnoreRules: string[])
   const directories = await dependencies.globGitignore(join(path, '*/'), { ignore: ignoreRules, dot: true });
   const files = await dependencies.globGitignore(join(path, '*'), { ignore: ignoreRules, nodir: true, dot: true });
 
-  if (!files) {
-    return [];
-  }
-
   return files.concat(flatten(await mapSeries(directories, async (childDirectory) => {
     return buildFileList(childDirectory, ignoreRules);
   })));
