@@ -81,13 +81,13 @@ describe('scripts/copyright-checker', () => {
         'folder/file.md',
         'folder/submodule/file.log',
       ];
-      const childProcess = sinon.stub(dependencies, 'exec');
-      childProcess.resolves({ stdout: files.join('\n'), stderr: '' });
+      const exec = sinon.stub(dependencies, 'exec');
+      exec.resolves({ stdout: files.join('\n'), stderr: '' });
 
       const result = await getCommittedFiles();
 
       assert.deepStrictEqual(result, new Set(files));
-      assert.calledOnceWith(childProcess, ['git ls-files']);
+      assert.calledOnceWith(exec, ['git ls-files']);
     }));
   });
 
@@ -175,11 +175,11 @@ describe('scripts/copyright-checker', () => {
       const buildFileList = sinon.stub(components, 'buildFileList');
       buildFileList.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
 
-      const getIgnoreList = sinon.stub(components, 'getIgnoreRules');
-      getIgnoreList.resolves(['/node_modules']);
+      const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
+      getIgnoreRules.resolves(['/node_modules']);
 
-      const childProcess = sinon.stub(components, 'getCommittedFiles');
-      childProcess.resolves(new Set(['folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
+      const getCommittedFiles = sinon.stub(components, 'getCommittedFiles');
+      getCommittedFiles.resolves(new Set(['folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
 
       const readFile = sinon.stub(dependencies, 'readFile');
       readFile.resolves(`Copyright ${year} Company`);
@@ -199,11 +199,11 @@ describe('scripts/copyright-checker', () => {
       const buildFileList = sinon.stub(components, 'buildFileList');
       buildFileList.resolves(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js']);
 
-      const getIgnoreList = sinon.stub(components, 'getIgnoreRules');
-      getIgnoreList.resolves(['/node_modules']);
+      const getIgnoreRules = sinon.stub(components, 'getIgnoreRules');
+      getIgnoreRules.resolves(['/node_modules']);
 
-      const childProcess = sinon.stub(components, 'getCommittedFiles');
-      childProcess.resolves(new Set(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
+      const getCommittedFiles = sinon.stub(components, 'getCommittedFiles');
+      getCommittedFiles.resolves(new Set(['docs.txt', 'folder/config.yml', 'folder/subfolder/script.js', 'other.txt']));
 
       const readFile = sinon.stub(dependencies, 'readFile');
       readFile.withArgs('docs.txt').resolves('Copyright 2000-2010 Company');

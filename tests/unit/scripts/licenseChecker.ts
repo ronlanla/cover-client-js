@@ -218,8 +218,8 @@ describe('scripts/license-checker', () => {
       const readFile = sinon.stub(dependencies, 'readFile');
       readFile.resolves(sampleAcceptableLicenseFile);
 
-      const licenses = sinon.stub(components, 'getLicenseInfo');
-      licenses.resolves(sampleLicenseData.data.body);
+      const getLicenseInfo = sinon.stub(components, 'getLicenseInfo');
+      getLicenseInfo.resolves(sampleLicenseData.data.body);
 
       await checkLicenses(filePath);
     }));
@@ -230,8 +230,8 @@ describe('scripts/license-checker', () => {
       const readFile = sinon.stub(dependencies, 'readFile');
       readFile.resolves(sampleAcceptableLicenseFile);
 
-      const licenses = sinon.stub(components, 'getLicenseInfo');
-      licenses.resolves(sampleBadLicenseData.data.body);
+      const getLicenseInfo = sinon.stub(components, 'getLicenseInfo');
+      getLicenseInfo.resolves(sampleBadLicenseData.data.body);
 
       await assert.rejectsWith(checkLicenses(filePath), missingLicenseError);
     }));
@@ -247,8 +247,8 @@ describe('scripts/license-checker', () => {
       const writeFile = sinon.stub(dependencies, 'writeFile');
       writeFile.resolves();
 
-      const licenses = sinon.stub(components, 'getLicenseInfo');
-      licenses.resolves(sampleLicenseData.data.body);
+      const getLicenseInfo = sinon.stub(components, 'getLicenseInfo');
+      getLicenseInfo.resolves(sampleLicenseData.data.body);
 
       await generateAcceptableLicenses(filePath);
       assert.calledOnceWith(writeFile, ['file.json', sampleAcceptableLicenseFile]);
