@@ -238,7 +238,7 @@ describe('scripts/license-checker', () => {
   });
 
   describe('generateAcceptableLicenses', () => {
-    it('Writes an acceptable license file based on the curernt licenses', sinonTest(async (sinon) => {
+    it('Writes an acceptable license file based on the current licenses', sinonTest(async (sinon) => {
       const filePath = 'file.json';
 
       const readFile = sinon.stub(dependencies, 'readFile');
