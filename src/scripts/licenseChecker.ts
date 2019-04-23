@@ -5,7 +5,7 @@ import { readFile, writeFile } from 'fs';
 import { groupBy, mapValues } from 'lodash';
 import { promisify } from 'util';
 
-import * as logger from '../utils/log';
+import logger from '../utils/log';
 
 /** A dictionary for module licenses */
 interface ModuleLicenses {
@@ -54,7 +54,7 @@ export const components = {
 
 /** Get the license information from yarn and return as a json object */
 export async function getLicenseInfo(): Promise<string[][]> {
-  const data = await dependencies.exec('yarn licenses list --json --no-progress');
+  const data = await dependencies.exec('yarn licenses list --json --no-progress --prod');
   return JSON.parse(data.stdout).data.body;
 }
 
@@ -131,7 +131,7 @@ export function helpMessage(commands: Command[]) {
 
 /** Generate or verify a license file */
 export default async function licenseChecker(commands: Command[], args: string[]) {
-  const filePath = './acceptable-licenses.json.json';
+  const filePath = './acceptable-licenses.json';
 
   const command = commands.find((searchCommand) => args.includes(searchCommand.name));
 
