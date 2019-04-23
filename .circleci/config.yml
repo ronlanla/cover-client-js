@@ -40,17 +40,17 @@ commands:
 jobs:
   test-node-v8:
     docker:
-      - image: node:8
+      - image: circleci/node:8.16.0
     steps:
       - test-nodejs
   test-node-v10:
     docker:
-      - image: node:10
+      - image: circleci/node:10.15.3
     steps:
       - test-nodejs
   test-node-v11:
     docker:
-      - image: node:11
+      - image: circleci/node:11.14.0
     steps:
       - test-nodejs
 
