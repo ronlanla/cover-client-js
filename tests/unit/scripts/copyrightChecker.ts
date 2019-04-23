@@ -28,14 +28,19 @@ describe('scripts/copyright-checker', () => {
       assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*']);
     });
 
-    it('Ignores empty lines', () => {
+    it('Splits gitignore format files into lines, ignoring empty lines', () => {
       const gitignore = '\n/foo\n\nbar.zim\ngir/*\n\n';
       assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*']);
     });
 
-    it('Ignores comments', () => {
+    it('Splits gitignore format files into lines, ignoring comments', () => {
       const gitignore = '# Comment 1\n/foo\n# Comment 1\nbar.zim\ngir/*\n';
       assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*']);
+    });
+
+    it('Splits gitignore format files into lines for any line separator', () => {
+      const gitignore = '/foo\nbar.zim\r\ngir/*\r*.zim\n';
+      assert.deepStrictEqual(parseGitignore(gitignore), ['/foo', 'bar.zim', 'gir/*', '*.zim']);
     });
   });
 
