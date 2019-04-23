@@ -5,14 +5,14 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:diffblue/diffblue-cover-client-js.git"
+    "url": "git@github.com:diffblue/cover-client-js.git"
   },
   "author": "Diffblue Limited",
   "bugs": {
-    "url": "https://github.com/diffblue/diffblue-cover-client-js/issues"
+    "url": "https://github.com/diffblue/cover-client-js/issues"
   },
   "license": "MIT",
-  "homepage": "https://github.com/diffblue/diffblue-cover-client-js#readme",
+  "homepage": "https://github.com/diffblue/cover-client-js#readme",
   "scripts": {
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 100 mocha -require ts-node/register 'tests/unit/**/*.ts'",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts'",
