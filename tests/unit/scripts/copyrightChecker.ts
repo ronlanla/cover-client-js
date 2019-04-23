@@ -1,6 +1,7 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 import checkCopyright, {
   buildFileList,
@@ -12,7 +13,6 @@ import checkCopyright, {
   mapRootRelativeRules,
   parseGitignore,
 } from '../../../src/scripts/copyrightChecker';
-import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 
