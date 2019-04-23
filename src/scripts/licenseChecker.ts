@@ -154,6 +154,6 @@ if (require.main === module) {
   }).catch((error) => {
     // Only show the stack trace for unexpected errors
     logger.error(error instanceof ExpectedError ? error.toString() : error);
-    return process.exit(1);
+    process.exit(1);
   });
 }
