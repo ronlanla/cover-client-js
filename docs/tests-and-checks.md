@@ -77,6 +77,15 @@ Internal components are specified as properties in the `components` object, whic
 
 Note that for mocking to work, we must internally refer to these via the `dependencies` and `components` objects.
 
+If you use `withArgs` to specify responses to specific inputs, you should also use an `assert.notOtherwiseCalled` to ensure that the mock isn't called with any other inputs:
+
+```ts
+const readFile = sinon.stub(dependencies, 'readFile');
+readFile.withArgs('foo.txt').resolves('Foo');
+readFile.withArgs('bar.txt').resolves('Bar');
+assert.notOtherwiseCalled(readFile, 'readFile');
+```
+
 ## CLI tests
 
 ### Copyright checker
