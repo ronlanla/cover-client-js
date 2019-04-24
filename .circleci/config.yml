@@ -29,8 +29,17 @@ commands:
           name: Install dependencies
           command: yarn install --frozen-lockfile
       - run:
-          name: Test
-          command: yarn test
+          name: Lint
+          command: yarn lint-ts
+      - run:
+          name: Copyright check
+          command: yarn copyright-check
+      - run:
+          name: License check
+          command: yarn license-check check-file
+      - run:
+          name: Unit tests
+          command: yarn coverage
       - save_cache:
           name: Save yarn package cache
           key: *yarn_cache_key

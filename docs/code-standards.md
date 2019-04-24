@@ -222,3 +222,5 @@ export function padLeft(text: string, length: number, character = ' ') {
 ```
 
 Additional docblock parameters, such as arguments and return values are not necessary because these are tracked by Typescript.
+
+Copyright 2019 Diffblue Limited. All Rights Reserved.

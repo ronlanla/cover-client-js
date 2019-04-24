@@ -8,7 +8,7 @@
     "array-type": [true, "array-simple"],
     "arrow-parens": true,
     "arrow-return-shorthand": true,
-    "await-promise": true,
+    "await-promise": [true, "Promise", "PromiseLike", "Bluebird"],
     "ban-comma-operator": true,
     "ban-types": {
       "options": [
@@ -99,7 +99,6 @@
     "no-reference-import": true,
     "no-require-imports": true,
     "no-return-await": true,
-    "no-shadowed-variable": true,
     "no-sparse-arrays": true,
     "no-string-literal": true,
     "no-string-throw": true,
