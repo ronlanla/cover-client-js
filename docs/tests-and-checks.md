@@ -2,6 +2,8 @@
 
 ## Linting
 
+You can lint all Typescript code with `yarn lint-ts`. The linting rules are in [tslint.json](./tslint.json)
+
 ## Unit tests
 
 You can run the unit tests with `yarn test` or run the unit tests with a coverage report with `yarn coverage`.
