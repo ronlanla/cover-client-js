@@ -27,6 +27,56 @@ For example
 describe.skip('Skip this suite', () => {
 ```
 
+### Mocking
+
+When writing unit tests with I/O (e.g. filesystem access or HTTP requests), we use Sinon to mock behaviour.
+
+Specifically we use a helper to wrap test cases like this:
+
+```ts
+import sinonTestFactory from '../../../src/utils/sinonTest';
+import someScript, { dependencies } from '../../../src/someScript';
+
+const sinonTest = sinonTestFactory();
+
+it('Skip this suite', sinonTest(async (sinon) => {
+  const readFile = sinon.stub(dependencies, 'readFile');
+  readFile.resolves('File content');
+
+  assert.strictEqual(await someScript(), 'File content');
+}));
+```
+
+The `sinon` variable is a Sinon sandbox which can be used to mock functions. The sinonTest helper ensures that mocks are removed after the test has finished.
+
+In the above example we mock `dependencies.readFile`, replacing it with a function that returns a promise which resolves with `'File content'`. This means that when `someScript` is called, it uses the mocked version, rather than trying to read a file from the filesystem.
+
+We use two dependency injection objects to make mocking easier, dependencies and components:
+
+```ts
+export const dependencies = {
+  readFile: promisify(readFile),
+};
+
+export const components = {
+  convertName: convertName,
+};
+
+export function convertName(name: string) {
+  return name + '.txt';
+}
+
+export default async function someScript(name: string) {
+  return dependencies.readFile(components.convertName(name));
+}
+```
+
+External I/O dependencies are specified as properties in the `dependencies` object, which is exported, allowing tests to mock them easily. This is also a convenient place to promisify any callback based dependencies.
+
+Internal components are specified as properties in the `components` object, which exported for the same reason.
+
+Note that for mocking to work, we must internally refer to these via the `dependencies` and `components` objects.
+
 ## CLI tests
 
 ### Copyright checker
