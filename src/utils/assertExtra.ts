@@ -62,8 +62,8 @@ const assertExtra = {
    * This should be called before calling the function under test
    */
   notOtherwiseCalled: (stub: sinon.SinonStub, name: string) => {
-    stub.callsFake(async (...args) => {
-      throw new Error(`Unexpected call to ${name} with args ${JSON.stringify(args)}`);
+    stub.callsFake((...args) => {
+      throw new assert.AssertionError({ message: `Unexpected call to ${name} with args ${JSON.stringify(args)}` });
     });
   },
 
