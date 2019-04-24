@@ -70,7 +70,7 @@ const assertExtra = {
   /** Checks if a value matches a regex or string pattern */
   matches: (value: string, pattern: RegExp | string) => {
     const matches = value.match(pattern);
-    assert.strictEqual(matches && matches.length > 0, true, `Pattern "${pattern}" did not match "${value}"`);
+    assert.strictEqual(Boolean(matches && matches.length > 0), true, `Pattern "${pattern}" did not match "${value}"`);
   },
 };
 

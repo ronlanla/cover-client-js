@@ -5,15 +5,21 @@ import * as sinon from 'sinon';
 
 import assertExtra from '../../../src/utils/assertExtra';
 
-// Regex which supports multiple versions of Node assert (6+)
-const assertionRegex = /^AssertionError( \[ERR_ASSERTION\])?: /;
+/** Returns the error thrown by a callback */
+function getError(callback: () => void) {
+  try {
+    callback();
+  }
+  catch (error) {
+    return error;
+  }
+  throw new Error('Expected callback to throw an error');
+}
 
-/** Higher order callback function for assert.throws which checks an error message */
-function checkAssertionError(message: string) {
+/** Higher order function which checks errors match in `assert.throws` */
+function errorEquals(expectedError: Error) {
   return (error: Error | string) => {
-    const errorMessage = String(error);
-    assert(errorMessage.match(assertionRegex), `"${errorMessage}" does not start with "AssertionError"`);
-    assert.strictEqual(errorMessage.replace(assertionRegex, ''), message);
+    assert.deepStrictEqual(error, expectedError);
     return true;
   };
 }
@@ -24,7 +30,13 @@ describe('assertExtra', () => {
     it('Throws an exception when a spy has been called', () => {
       const spy = sinon.spy();
       spy();
-      assert.throws(() => assertExtra.notCalled(spy), checkAssertionError('Called 1 times'));
+
+      const expectedError = getError(() => assert.strictEqual(1, 0, 'Called 1 times'));
+
+      assert.throws(
+        () => assertExtra.notCalled(spy),
+        errorEquals(expectedError),
+      );
     });
 
     it('Does not throw an exception when a spy has not been called', () => {
@@ -36,14 +48,21 @@ describe('assertExtra', () => {
   describe('calledOnce', () => {
     it('Throws an exception when a spy has not been called', () => {
       const spy = sinon.spy();
-      assert.throws(() => assertExtra.calledOnce(spy), checkAssertionError('Called 0 times'));
+
+      const expectedError = getError(() => assert.strictEqual(0, 1, 'Called 0 times'));
+
+      assert.throws(() => assertExtra.calledOnce(spy), errorEquals(expectedError));
     });
 
     it('Throws an exception when a spy has been called more than once', () => {
       const spy = sinon.spy();
       spy();
       spy();
-      assert.throws(() => assertExtra.calledOnce(spy), checkAssertionError('Called 2 times'));
+
+      const timesCalled = 2;
+      const expectedError = getError(() => assert.strictEqual(timesCalled, 1, 'Called 2 times'));
+
+      assert.throws(() => assertExtra.calledOnce(spy), errorEquals(expectedError));
     });
 
     it('Does not throw an exception when a spy has been called once', () => {
@@ -56,14 +75,21 @@ describe('assertExtra', () => {
   describe('calledOnceWith', () => {
     it('Throws an exception when a spy has not been called', () => {
       const spy = sinon.spy();
-      assert.throws(() => assertExtra.calledOnceWith(spy, []), checkAssertionError('Called 0 times'));
+
+      const expectedError = getError(() => assert.strictEqual(0, 1, 'Called 0 times'));
+
+      assert.throws(() => assertExtra.calledOnceWith(spy, []), errorEquals(expectedError));
     });
 
     it('Throws an exception when a spy has been called more than once', () => {
       const spy = sinon.spy();
       spy();
       spy();
-      assert.throws(() => assertExtra.calledOnceWith(spy, []), checkAssertionError('Called 2 times'));
+
+      const timesCalled = 2;
+      const expectedError = getError(() => assert.strictEqual(timesCalled, 1, 'Called 2 times'));
+
+      assert.throws(() => assertExtra.calledOnceWith(spy, []), errorEquals(expectedError));
     });
 
     it('Does not throw an exception when a spy has been called once with the correct arguments (empty)', () => {
@@ -85,26 +111,38 @@ describe('assertExtra', () => {
       spy('foo');
       spy('bar');
 
-      const expectedError = "[ [ 'foo' ], [ 'bar' ] ] deepStrictEqual [ [ 'foo' ] ]";
-      assert.throws(() => assertExtra.calledWith(spy, [['foo']]), checkAssertionError(expectedError));
+      const expectedCalls = [['foo']];
+      const actualCalls = [['foo'], ['bar']];
+      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+      assert.throws(() => assertExtra.calledWith(spy, expectedCalls), errorEquals(expectedError));
     });
 
     it('Throws an exception when a spy has been called less times than expected', () => {
       const spy = sinon.spy();
       spy('foo');
 
-      const expectedError = "[ [ 'foo' ] ] deepStrictEqual [ [ 'foo' ], [ 'bar' ] ]";
-      assert.throws(() => assertExtra.calledWith(spy, [['foo'], ['bar']]), checkAssertionError(expectedError));
+      const expectedCalls = [['foo'], ['bar']];
+      const actualCalls = [['foo']];
+      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+      assert.throws(() => assertExtra.calledWith(spy, expectedCalls), errorEquals(expectedError));
     });
 
-    it('Throws an exception when a spy has been called the expected number of times with the wrong arguments', () => {
-      const spy = sinon.spy();
-      spy('foo');
-      spy('bar', 'zim');
+    it(
+      'Throws an exception when a spy has been called the expected number of times with the wrong arguments',
+      () => {
+        const spy = sinon.spy();
+        spy('foo');
+        spy('bar', 'zim');
 
-      const expectedError = "[ [ 'foo' ], [ 'bar', 'zim' ] ] deepStrictEqual [ [ 'foo' ], [ 'bar' ] ]";
-      assert.throws(() => assertExtra.calledWith(spy, [['foo'], ['bar']]), checkAssertionError(expectedError));
-    });
+        const expectedCalls = [['foo'], ['bar']];
+        const actualCalls = [['foo'], ['bar', 'zim']];
+        const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+        assert.throws(() => assertExtra.calledWith(spy, expectedCalls), errorEquals(expectedError));
+      },
+    );
 
     it(
       'Does not throw an exception when a spy has been called the expected number of times with the correct arguments',
@@ -124,26 +162,38 @@ describe('assertExtra', () => {
       spy('foo');
       spy('bar');
 
-      const expectedError = "[ [ 'foo' ], [ 'bar' ] ] deepStrictEqual [ [ 'foo' ] ]";
-      assert.throws(() => assertExtra.calledStartingWith(spy, [['foo']]), checkAssertionError(expectedError));
+      const expectedCalls = [['foo']];
+      const actualCalls = [['foo'], ['bar']];
+      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+      assert.throws(() => assertExtra.calledStartingWith(spy, expectedCalls), errorEquals(expectedError));
     });
 
     it('Throws an exception when a spy has been called less times than expected', () => {
       const spy = sinon.spy();
       spy('foo');
 
-      const expectedError = "[ [ 'foo' ] ] deepStrictEqual [ [ 'foo' ], [ 'bar' ] ]";
-      assert.throws(() => assertExtra.calledStartingWith(spy, [['foo'], ['bar']]), checkAssertionError(expectedError));
+      const expectedCalls = [['foo'], ['bar']];
+      const actualCalls = [['foo']];
+      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+      assert.throws(() => assertExtra.calledStartingWith(spy, expectedCalls), errorEquals(expectedError));
     });
 
-    it('Throws an exception when a spy has been called the expected number of times with the wrong arguments', () => {
-      const spy = sinon.spy();
-      spy('foo');
-      spy('bar', 'zim');
+    it(
+      'Throws an exception when a spy has been called the expected number of times with the wrong arguments',
+      () => {
+        const spy = sinon.spy();
+        spy('foo');
+        spy('bar', 'zim');
 
-      const expectedError = "[ [ 'foo' ], [ 'bar' ] ] deepStrictEqual [ [ 'foo' ], [ 'zim' ] ]";
-      assert.throws(() => assertExtra.calledStartingWith(spy, [['foo'], ['zim']]), checkAssertionError(expectedError));
-    });
+        const expectedCalls = [['foo'], ['zim']];
+        const actualCalls = [['foo'], ['bar']];
+        const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+        assert.throws(() => assertExtra.calledStartingWith(spy, expectedCalls), errorEquals(expectedError));
+      },
+    );
 
     it(
       'Does not throw an exception when a spy has been called the expected number of times with the correct arguments',
@@ -176,24 +226,33 @@ describe('assertExtra', () => {
       spy('foo');
       spy('bar');
 
-      const expectedError = 'Called 2 times';
-      assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), checkAssertionError(expectedError));
+      const timesCalled = 2;
+      const expectedError = getError(() => assert.strictEqual(timesCalled, 1, 'Called 2 times'));
+
+      assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), errorEquals(expectedError));
     });
 
     it('Throws an exception when a spy has been called less times than expected', () => {
       const spy = sinon.spy();
 
-      const expectedError = 'Called 0 times';
-      assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), checkAssertionError(expectedError));
+      const expectedError = getError(() => assert.strictEqual(0, 1, 'Called 0 times'));
+
+      assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), errorEquals(expectedError));
     });
 
-    it('Throws an exception when a spy has been called the expected number of times with the wrong arguments', () => {
-      const spy = sinon.spy();
-      spy('bar', 'zim');
+    it(
+      'Throws an exception when a spy has been called the expected number of times with the wrong arguments',
+      () => {
+        const spy = sinon.spy();
+        spy('bar', 'zim');
 
-      const expectedError = "[ 'bar' ] deepStrictEqual [ 'zim' ]";
-      assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['zim']), checkAssertionError(expectedError));
-    });
+        const expectedCalls = ['zim'];
+        const actualCalls = ['bar'];
+        const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+
+        assert.throws(() => assertExtra.calledOnceStartingWith(spy, expectedCalls), errorEquals(expectedError));
+      },
+    );
 
     it(
       'Does not throw an exception when a spy has been called the expected number of times with the correct arguments',
@@ -266,6 +325,10 @@ describe('assertExtra', () => {
       stub.withArgs('foo').returns(true);
       stub.withArgs('bar', 'zim').returns(true);
 
+      const expectedError = new assert.AssertionError({
+        message: 'Unexpected call to stub with args ["gir","zig","pew"]',
+      });
+
       assert.throws(
         () => {
           assertExtra.notOtherwiseCalled(stub, 'stub');
@@ -273,7 +336,7 @@ describe('assertExtra', () => {
           stub('bar', 'zim');
           stub('gir', 'zig', 'pew');
         },
-        checkAssertionError('Unexpected call to stub with args ["gir","zig","pew"]'),
+        errorEquals(expectedError),
       );
     });
 
@@ -293,10 +356,11 @@ describe('assertExtra', () => {
 
   describe('matches', () => {
     it('Throws an exception when a string does not match a regex', () => {
-      assert.throws(
-        () => assertExtra.matches('Foo AB', /Foo \d\d/),
-        checkAssertionError('Pattern "/Foo \\d\\d/" did not match "Foo AB"'),
-      );
+      const expectedError = getError(() => {
+        assert.strictEqual(false, true, 'Pattern "/Foo \\d\\d/" did not match "Foo AB"');
+      });
+
+      assert.throws(() => assertExtra.matches('Foo AB', /Foo \d\d/), errorEquals(expectedError));
     });
 
     it('Does not throw an exception when a string matches a regex', () => {
