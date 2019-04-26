@@ -6,7 +6,7 @@ import {
   AnalysisCancel, AnalysisObjectStatusEnum, AnalysisPhases, AnalysisProgress, AnalysisResult,
   AnalysisResultsApiResponse, AnalysisSettings, AnalysisStartApiResponse,
   AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
-} from './types/api';
+} from './types';
 
 export const components = {
   cancel: cancel,

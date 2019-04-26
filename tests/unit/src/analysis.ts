@@ -7,7 +7,7 @@ import sinonTestFactory from '../../../src/utils/sinonTest';
 
 import Analysis, { components } from '../../../src/analysis';
 import { AnalysisError, AnalysisErrorCodeEnum } from '../../../src/errors';
-import { AnalysisObjectStatusEnum, AnalysisStatusEnum } from '../../../src/types/api';
+import { AnalysisObjectStatusEnum, AnalysisStatusEnum } from '../../../src/types';
 
 const sinonTest = sinonTestFactory();
 
