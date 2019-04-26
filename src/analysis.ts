@@ -112,4 +112,44 @@ export default class Analysis {
     this.apiVersion = response.version;
     return response;
   }
+
+  /** Check if status is not started */
+  public isNotStarted(): boolean {
+    return this.status === AnalysisObjectStatusEnum.NOT_STARTED;
+  }
+
+  /** Check if status is running */
+  public isRunning(): boolean {
+    return this.status === AnalysisObjectStatusEnum.RUNNING;
+  }
+
+  /** Check if status is completed */
+  public isCompleted(): boolean {
+    return this.status === AnalysisObjectStatusEnum.COMPLETED;
+  }
+
+  /** Check if status is errored */
+  public isErrored(): boolean {
+    return this.status === AnalysisObjectStatusEnum.ERRORED;
+  }
+
+  /** Check if status is canceled */
+  public isCanceled(): boolean {
+    return this.status === AnalysisObjectStatusEnum.CANCELED;
+  }
+
+  /** Check if status indicates that analysis has started */
+  public isStarted(): boolean {
+    return this.status !== AnalysisObjectStatusEnum.NOT_STARTED;
+  }
+
+  /** Check if status indicates that analysis has ended */
+  public isEnded(): boolean {
+    const endedStatuses = new Set([
+      AnalysisObjectStatusEnum.COMPLETED,
+      AnalysisObjectStatusEnum.ERRORED,
+      AnalysisObjectStatusEnum.CANCELED,
+    ]);
+    return endedStatuses.has(this.status);
+  }
 }

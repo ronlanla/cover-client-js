@@ -343,5 +343,75 @@ describe('src/analysis', () => {
         },
       );
     }));
+    it('Knows if its status is not started', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.NOT_STARTED;
+      assert.strictEqual(analysis.isNotStarted(), true);
+    });
+    it('Knows if its status is not not started', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.RUNNING;
+      assert.strictEqual(analysis.isNotStarted(), false);
+    });
+    it('Knows if its status is running', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.RUNNING;
+      assert.strictEqual(analysis.isRunning(), true);
+    });
+    it('Knows if its status is not running', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.COMPLETED;
+      assert.strictEqual(analysis.isRunning(), false);
+    });
+    it('Knows if its status is canceled', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.CANCELED;
+      assert.strictEqual(analysis.isCanceled(), true);
+    });
+    it('Knows if its status is not canceled', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.ERRORED;
+      assert.strictEqual(analysis.isCanceled(), false);
+    });
+    it('Knows if its status is errored', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.ERRORED;
+      assert.strictEqual(analysis.isErrored(), true);
+    });
+    it('Knows if its status is not errored', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.COMPLETED;
+      assert.strictEqual(analysis.isErrored(), false);
+    });
+    it('Knows if its status is completed', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.COMPLETED;
+      assert.strictEqual(analysis.isCompleted(), true);
+    });
+    it('Knows if its status is not completed', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.RUNNING;
+      assert.strictEqual(analysis.isCompleted(), false);
+    });
+    it('Knows if it has started', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.RUNNING;
+      assert.strictEqual(analysis.isStarted(), true);
+    });
+    it('Knows if it has not started', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.NOT_STARTED;
+      assert.strictEqual(analysis.isStarted(), false);
+    });
+    it('Knows if it has ended', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.CANCELED;
+      assert.strictEqual(analysis.isEnded(), true);
+    });
+    it('Knows if it has not ended', () => {
+      const analysis = new Analysis(apiUrl);
+      analysis.status = AnalysisObjectStatusEnum.RUNNING;
+      assert.strictEqual(analysis.isEnded(), false);
+    });
   });
 });
