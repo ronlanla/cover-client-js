@@ -57,7 +57,7 @@ describe('src/analysis', () => {
       const analysis = clone(baseAnalysis);
       const returnValue = await analysis.start(buildPath, settings);
       const changes = {
-        id: returnValue.id,
+        analysisId: returnValue.id,
         buildPath: buildPath,
         settings: settings,
         dependenciesBuildPath: undefined,
@@ -76,7 +76,7 @@ describe('src/analysis', () => {
       const analysis = clone(baseAnalysis);
       const returnValue = await analysis.start(buildPath, settings, dependenciesBuildPath, baseBuildPath);
       const changes = {
-        id: returnValue.id,
+        analysisId: returnValue.id,
         buildPath: buildPath,
         settings: settings,
         dependenciesBuildPath: dependenciesBuildPath,
@@ -167,12 +167,25 @@ describe('src/analysis', () => {
     }));
     it('Fails to cancel an analysis, if already completed', sinonTest(async (sinon) => {
       const analysis = new Analysis(apiUrl);
-      analysis.id = analysisId;
+      analysis.analysisId = analysisId;
       analysis.status = AnalysisObjectStatusEnum.COMPLETED;
       await assert.rejects(
         async () => analysis.cancel(),
         (err: Error) => {
           return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.NOT_RUNNING;
+        },
+      );
+    }));
+    it('Fails to cancel an analysis, if id not set', sinonTest(async (sinon) => {
+      const analysis = new Analysis(apiUrl);
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      await analysis.start(buildPath, settings);
+      analysis.analysisId = '';
+      await assert.rejects(
+        async () => analysis.cancel(),
+        (err: Error) => {
+          return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.NO_ID;
         },
       );
     }));
@@ -242,12 +255,25 @@ describe('src/analysis', () => {
     }));
     it('Fails to get the status of an analysis, if already completed', sinonTest(async (sinon) => {
       const analysis = new Analysis(apiUrl);
-      analysis.id = analysisId;
+      analysis.analysisId = analysisId;
       analysis.status = AnalysisObjectStatusEnum.COMPLETED;
       await assert.rejects(
         async () => analysis.getStatus(),
         (err: Error) => {
           return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.NOT_RUNNING;
+        },
+      );
+    }));
+    it('Fails to get the status an analysis, if id not set', sinonTest(async (sinon) => {
+      const analysis = new Analysis(apiUrl);
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      await analysis.start(buildPath, settings);
+      analysis.analysisId = '';
+      await assert.rejects(
+        async () => analysis.getStatus(),
+        (err: Error) => {
+          return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.NO_ID;
         },
       );
     }));
@@ -334,12 +360,25 @@ describe('src/analysis', () => {
     }));
     it('Fails to get the results of an analysis, if already completed', sinonTest(async (sinon) => {
       const analysis = new Analysis(apiUrl);
-      analysis.id = analysisId;
+      analysis.analysisId = analysisId;
       analysis.status = AnalysisObjectStatusEnum.COMPLETED;
       await assert.rejects(
         async () => analysis.getResults(),
         (err: Error) => {
           return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.NOT_RUNNING;
+        },
+      );
+    }));
+    it('Fails to get the results an analysis, if id not set', sinonTest(async (sinon) => {
+      const analysis = new Analysis(apiUrl);
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      await analysis.start(buildPath, settings);
+      analysis.analysisId = '';
+      await assert.rejects(
+        async () => analysis.getResults(),
+        (err: Error) => {
+          return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.NO_ID;
         },
       );
     }));

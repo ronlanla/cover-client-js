@@ -34,6 +34,8 @@ export enum AnalysisErrorCodeEnum {
   NOT_RUNNING = 'NOT_STARTED',
   /** Analysis already started */
   ALREADY_STARTED = 'ALREADY_STARTED',
+  /** Analysis id is not set */
+  NO_ID = 'NO_ID',
 }
 
 /** Error thrown by Analysis object with additional error code */

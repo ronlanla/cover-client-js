@@ -20,7 +20,7 @@ export const components = {
 export default class Analysis {
 
   public apiUrl: string;
-  public id = '';
+  public analysisId = '';
   public buildPath?: string;
   public settings?: AnalysisSettings;
   public dependenciesBuildPath?: string;
@@ -39,14 +39,17 @@ export default class Analysis {
 
   /** Check if analysis is running */
   private checkRunning(): void {
-    if (!this.id || this.status !== AnalysisObjectStatusEnum.RUNNING) {
+    if (!this.isRunning()) {
       throw new AnalysisError(`Analysis is not running (status: ${this.status}).`, AnalysisErrorCodeEnum.NOT_RUNNING);
+    }
+    if (!this.analysisId) {
+      throw new AnalysisError('Analysis is running but the analysis id is not set.', AnalysisErrorCodeEnum.NO_ID);
     }
   }
 
   /** Check if analysis has started */
   private checkNotStarted(): void {
-    if (this.status !== AnalysisObjectStatusEnum.NOT_STARTED) {
+    if (this.isStarted()) {
       throw new AnalysisError(
         `Analysis has already started (status: ${this.status}).`,
         AnalysisErrorCodeEnum.ALREADY_STARTED,
@@ -74,7 +77,7 @@ export default class Analysis {
     this.settings = settings;
     this.dependenciesBuildPath = dependenciesBuildPath;
     this.baseBuildPath = baseBuildPath;
-    this.id = response.id;
+    this.analysisId = response.id;
     this.phases = response.phases;
     this.status = AnalysisObjectStatusEnum.RUNNING;
     return response;
@@ -83,7 +86,7 @@ export default class Analysis {
   /** Cancel analysis */
   public async cancel(): Promise<AnalysisCancel> {
     this.checkRunning();
-    const response = await components.cancel(this.apiUrl, this.id);
+    const response = await components.cancel(this.apiUrl, this.analysisId);
     this.updateStatus(response.status);
     return response;
   }
@@ -91,7 +94,7 @@ export default class Analysis {
   /** Get analysis status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
     this.checkRunning();
-    const response = await components.getStatus(this.apiUrl, this.id);
+    const response = await components.getStatus(this.apiUrl, this.analysisId);
     this.updateStatus(response);
     return response;
   }
@@ -99,7 +102,7 @@ export default class Analysis {
   /** Get analysis results */
   public async getResults(paginate: boolean = true): Promise<AnalysisResultsApiResponse> {
     this.checkRunning();
-    const response = await components.results(this.apiUrl, this.id, paginate ? this.cursor : undefined);
+    const response = await components.results(this.apiUrl, this.analysisId, paginate ? this.cursor : undefined);
     this.updateStatus(response.status);
     this.cursor = response.cursor;
     this.results = paginate ? [...this.results, ...response.results] : response.results;
