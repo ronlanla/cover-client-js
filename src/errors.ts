@@ -27,3 +27,24 @@ export class CombinerError extends Error {
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
+
+/** Error codes usable by AnalysisError */
+export enum AnalysisErrorCodeEnum {
+  /** Analysis not running */
+  NOT_RUNNING = 'NOT_STARTED',
+  /** Analysis already started */
+  ALREADY_STARTED = 'ALREADY_STARTED',
+}
+
+/** Error thrown by Analysis object with additional error code */
+export class AnalysisError extends Error {
+
+  public message: string;
+  public code: AnalysisErrorCodeEnum;
+
+  public constructor(message: string, code: AnalysisErrorCodeEnum) {
+    super(message);
+    this.code = code;
+
+  }
+}
