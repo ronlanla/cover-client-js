@@ -1,9 +1,11 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import Analysis from './src/analysis';
 import { generateTestClass, groupResults, mergeIntoTestClass } from './src/combiner';
 
 exports = {
+  Analysis: Analysis,
   generateTestClass: generateTestClass,
   groupResults: groupResults,
   mergeIntoTestClass: mergeIntoTestClass,
-}
+};
