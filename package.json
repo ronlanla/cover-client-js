@@ -10,6 +10,10 @@
     "type": "git",
     "url": "git@github.com:diffblue/cover-client-js.git"
   },
+  "files": [
+    "/build",
+    "/npm-shrinkwrap.json"
+  ],
   "author": "Diffblue Limited",
   "bugs": {
     "url": "https://github.com/diffblue/cover-client-js/issues"
