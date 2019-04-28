@@ -62,6 +62,9 @@ export default async function publishPackage(args: string[] , options: Options) 
     throw new Error('Please provide a token to authenticate with NPM');
   }
 
+  await dependencies.exec('yarn install');
+  await dependencies.exec('npm shrinkwrap');
+
   await authenticateNpm(token, async (environment) => {
     await dependencies.writeFile(npmConfig, `//registry.npmjs.org/:_authToken=${token}`);
     const username = await getAuthUser(environment);
