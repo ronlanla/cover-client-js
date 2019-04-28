@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Diffblue Cover client library - Node.js API for Diffblue Cover",
   "main": "index.js",
+  "engines": {
+    "node": "8.* || >= 10.*"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:diffblue/cover-client-js.git"
