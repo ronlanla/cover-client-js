@@ -22,6 +22,7 @@
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
+    "publish-package": "ts-node src/scripts/publishPackage.ts",
     "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
   },
   "dependencies": {
