@@ -193,6 +193,7 @@ Other files should use kebab case e.g. `file-name.md`, except where there are ex
 ## Branches
 
 All branches should be have one of the following prefixes:
+
 - `feature/` - A new feature being added
 - `bugfix/` - A bug being fixed
 - `code-quality/` - An improvement in code quality, such as tests or refactoring
