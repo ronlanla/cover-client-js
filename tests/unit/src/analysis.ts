@@ -1,6 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { clone } from 'lodash';
+import { Readable, Writable } from 'readable-stream';
 
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
@@ -31,11 +32,43 @@ const sampleResult = {
   'created-time': 'created',
 };
 
+/** Create a dummy writable stream for testing */
+function createTestWriteable() {
+  const writeable = new Writable({ objectMode: true });
+  (writeable as any).data = []; // tslint:disable-line:no-any
+  writeable._write = (chunk) => {
+    (writeable as any).data.push(chunk); // tslint:disable-line:no-any
+  };
+  return writeable;
+}
+
 describe('src/analysis', () => {
   describe('Analysis object', () => {
     it('Can be instantiated', sinonTest(async (sinon) => {
       const analysis = new Analysis(apiUrl);
       assert.strictEqual(analysis.status, AnalysisObjectStatusEnum.NOT_STARTED);
+    }));
+    it('Can be instantiated with a writable results stream', sinonTest(async (sinon) => {
+      const writableStream = new Writable({ objectMode: true });
+      const analysis = new Analysis(apiUrl, writableStream);
+      assert.strictEqual(analysis.results, writableStream);
+    }));
+    it('Cannot be instantiated with the wrong results data type', sinonTest(async (sinon) => {
+      assert.throws(
+        () => new Analysis(apiUrl, new Readable() as unknown as Writable),
+        (err: Error) => {
+          return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.STREAM_NOT_WRITABLE;
+        },
+      );
+    }));
+    it('Cannot be instantiated with a non object mode results stream', sinonTest(async (sinon) => {
+      const writableStream = new Writable();
+      assert.throws(
+        () => new Analysis(apiUrl, writableStream),
+        (err: Error) => {
+          return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.STREAM_NOT_OBJECT_MODE;
+        },
+      );
     }));
     it('Can get the api version', sinonTest(async (sinon) => {
       const version = sinon.stub(components, 'version');
@@ -129,7 +162,7 @@ describe('src/analysis', () => {
       const cancelStatus = { status: AnalysisStatusEnum.CANCELED, progress: { completed: 10, total: 20 }};
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
-      cancel.resolves({ message: cancelMessage, status: cancelStatus });
+      cancel.resolves(cancelResponse);
       const startedAnalysis = new Analysis(apiUrl);
       await startedAnalysis.start(buildPath, settings);
       const canceledAnalysis = clone(startedAnalysis);
@@ -142,6 +175,21 @@ describe('src/analysis', () => {
       assert.deepStrictEqual(returnValue, cancelResponse);
       assert.calledOnceWith(cancel, [apiUrl, analysisId]);
       assert.changedProperties(startedAnalysis, canceledAnalysis, changes);
+    }));
+    it('Can end the readable stream when canceling an analysis', sinonTest(async (sinon) => {
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      const cancel = sinon.stub(components, 'cancel');
+      const cancelStatus = { status: AnalysisStatusEnum.CANCELED, progress: { completed: 10, total: 20 }};
+      const cancelMessage = 'Analysis cancelled successfully';
+      const cancelResponse = { message: cancelMessage, status: cancelStatus };
+      cancel.resolves(cancelResponse);
+      const writableStream = createTestWriteable();
+      const analysis = new Analysis(apiUrl, writableStream);
+      await analysis.start(buildPath, settings);
+      await analysis.cancel();
+      assert.ok((analysis._readable as Readable)._readableState.ended);
+      assert.ok((analysis._readable as Readable)._readableState.destroyed);
     }));
     it('Fails to cancel an analysis, if api method throws', sinonTest(async (sinon) => {
       const start = sinon.stub(components, 'start');
@@ -335,6 +383,63 @@ describe('src/analysis', () => {
       assert.deepStrictEqual(returnValue, resultsResponse);
       assert.calledOnceWith(results, [apiUrl, analysisId, undefined]);
       assert.changedProperties(startedAnalysis, analysis, changes);
+    }));
+    it('Can get the paginated results of an analysis with a results stream', sinonTest(async (sinon) => {
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      const results = sinon.stub(components, 'results');
+      const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
+      const resultsResponse = {
+        status: responseStatus,
+        cursor: 'abcdef',
+        results: [sampleResult],
+      };
+      results.resolves(resultsResponse);
+      const writableStream = createTestWriteable();
+      const startedAnalysis = new Analysis(apiUrl, writableStream);
+      await startedAnalysis.start(buildPath, settings);
+      startedAnalysis.cursor = '123456';
+      const extantResult = clone(sampleResult);
+      extantResult['test-id'] = 'extant-result';
+      startedAnalysis.results = [extantResult];
+      const analysis = clone(startedAnalysis);
+      const returnValue = await analysis.getResults();
+      const changes = {
+        status: returnValue.status.status,
+        progress: returnValue.status.progress,
+        error: undefined,
+        cursor: returnValue.cursor,
+      };
+      assert.deepStrictEqual(returnValue, resultsResponse);
+      assert.calledOnceWith(results, [apiUrl, analysisId, startedAnalysis.cursor]);
+      assert.changedProperties(startedAnalysis, analysis, changes);
+      assert.deepStrictEqual((writableStream as any).data, resultsResponse.results); // tslint:disable-line:no-any
+    }));
+    it('Fails to get the full results of an analysis with a results stream', sinonTest(async (sinon) => {
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      const results = sinon.stub(components, 'results');
+      const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
+      const resultsResponse = {
+        status: responseStatus,
+        cursor: 'abcdef',
+        results: [sampleResult],
+      };
+      results.resolves(resultsResponse);
+      const writableStream = createTestWriteable();
+      const startedAnalysis = new Analysis(apiUrl, writableStream);
+      await startedAnalysis.start(buildPath, settings);
+      startedAnalysis.cursor = '123456';
+      const extantResult = clone(sampleResult);
+      extantResult['test-id'] = 'extant-result';
+      startedAnalysis.results = [extantResult];
+      const analysis = clone(startedAnalysis);
+      await assert.rejects(
+        async () => analysis.getResults(false),
+        (err: Error) => {
+          return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.STREAM_MUST_PAGINATE;
+        },
+      );
     }));
     it('Fails to get the results of an analysis, if api method throws', sinonTest(async (sinon) => {
       const start = sinon.stub(components, 'start');

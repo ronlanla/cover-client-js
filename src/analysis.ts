@@ -1,5 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import { writable as isWritableStream } from 'is-stream';
+import { Readable, Writable } from 'readable-stream';
 import { cancel, getStatus, results, start, version } from './dummy-api';
 import { AnalysisError, AnalysisErrorCodeEnum } from './errors';
 import {
@@ -7,6 +9,7 @@ import {
   AnalysisResultsApiResponse, AnalysisSettings, AnalysisStartApiResponse,
   AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
 } from './types';
+
 
 export const components = {
   cancel: cancel,
@@ -16,7 +19,7 @@ export const components = {
   version: version,
 };
 
-/** Class to run an analysis and keep track of the analysis's state */
+/** Class to run an analysis and keep track of its state */
 export default class Analysis {
 
   public apiUrl: string;
@@ -29,12 +32,34 @@ export default class Analysis {
   public progress?: AnalysisProgress;
   public error?: ApiError;
   public phases?: AnalysisPhases;
-  public results: AnalysisResult[] = [];
+  public results: AnalysisResult[] | Writable;
   public cursor?: string;
   public apiVersion?: string;
+  public isStreaming = false;
+  public readonly _readable?: Readable;
 
-  public constructor(apiUrl: string) {
+  public constructor(apiUrl: string, resultsStream?: Writable) {
     this.apiUrl = apiUrl;
+    this.results = [];
+    if (resultsStream) {
+      if (!isWritableStream(resultsStream)) {
+        throw new AnalysisError(
+          'Results stream is not writeable stream.',
+          AnalysisErrorCodeEnum.STREAM_NOT_WRITABLE,
+        );
+      }
+      if (resultsStream._writableState && !resultsStream._writableState.objectMode) {  // tslint:disable-line:no-any
+        throw new AnalysisError(
+          'Results stream is not in object mode.',
+          AnalysisErrorCodeEnum.STREAM_NOT_OBJECT_MODE,
+        );
+      }
+      this._readable = new Readable({ objectMode: true });
+      this._readable._read = () => {};  // tslint:disable-line:no-empty
+      this._readable.pipe(resultsStream);
+      this.results = resultsStream;
+      this.isStreaming = true;
+    }
   }
 
   /** Check if analysis is running */
@@ -57,11 +82,15 @@ export default class Analysis {
     }
   }
 
-  /** Update status related properties */
+  /** Update status related properties and end the internal readable stream if required */
   private updateStatus(status: AnalysisStatusApiResponse): void {
     this.status = AnalysisObjectStatusEnum[status.status];
     this.progress = status.progress;
     this.error = status.message;
+    if (this.isStreaming && this.isEnded() && this._readable) {
+      this._readable.push(null);
+      this._readable.destroy();
+    }
   }
 
   /** Start analysis */
@@ -101,11 +130,21 @@ export default class Analysis {
 
   /** Get analysis results */
   public async getResults(paginate: boolean = true): Promise<AnalysisResultsApiResponse> {
+    if (this.isStreaming && !paginate) {
+      throw new AnalysisError(
+        'Cannot disable pagination when writing to a results stream.',
+        AnalysisErrorCodeEnum.STREAM_MUST_PAGINATE,
+      );
+    }
     this.checkRunning();
     const response = await components.results(this.apiUrl, this.analysisId, paginate ? this.cursor : undefined);
-    this.updateStatus(response.status);
     this.cursor = response.cursor;
-    this.results = paginate ? [...this.results, ...response.results] : response.results;
+    if (this.isStreaming) {
+      response.results.forEach((result) => this._readable && this._readable.push(result));
+    } else if (Array.isArray(this.results)) {
+      this.results = paginate ? [...this.results, ...response.results] : response.results;
+    }
+    this.updateStatus(response.status);
     return response;
   }
 
