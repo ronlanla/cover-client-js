@@ -9,8 +9,7 @@ import assertExtra from '../../../src/utils/assertExtra';
 function getError(callback: () => void) {
   try {
     callback();
-  }
-  catch (error) {
+  } catch (error) {
     return error;
   }
   throw new Error('Expected callback to throw an error');
@@ -289,8 +288,7 @@ describe('assertExtra', () => {
       let rejected = false;
       try {
         await assertExtra.rejectsWith(Promise.reject('Error message'), 'Wrong error message');
-      }
-      catch (e) {
+      } catch (e) {
         rejected = true;
       }
       assert.strictEqual(rejected, true, 'Promise did not reject');
@@ -300,8 +298,7 @@ describe('assertExtra', () => {
       let rejected = false;
       try {
         await assertExtra.rejectsWith(Promise.reject('Error message'), /Wrong error message/);
-      }
-      catch (e) {
+      } catch (e) {
         rejected = true;
       }
       assert.strictEqual(rejected, true, 'Promise did not reject');
@@ -311,8 +308,7 @@ describe('assertExtra', () => {
       let rejected = false;
       try {
         await assertExtra.rejectsWith(Promise.resolve(), 'Error message');
-      }
-      catch (e) {
+      } catch (e) {
         rejected = true;
       }
       assert.strictEqual(rejected, true, 'Promise did not reject');
