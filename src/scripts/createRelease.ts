@@ -7,6 +7,7 @@ import * as semver from 'semver';
 import * as simplegit from 'simple-git/promise';
 import { promisify } from 'util';
 import argvParser, { Options } from '../utils/argvParser';
+import { createChangelog, renderChangelogVersion } from '../utils/changelog';
 import logger from '../utils/log';
 
 
@@ -56,8 +57,13 @@ export default async function beginRelease(args: string[], options: Options) {
 
   // generate changelog of develop:latest vs master:latest
   // show changelog to user
-  // const changelog = await createChangelog();
-  // logger.info(renderChangelog(changelog));
+  const changelog = await createChangelog();
+  let changes = '';
+  for (const version of changelog) {
+    if (version.version === 'Unreleased') {
+      changes = renderChangelogVersion(version).trim();
+    }
+  }
 
   // get version from package.json
   const packageFile = await dependencies.readFile(packageJSONFilename);
@@ -110,9 +116,10 @@ export default async function beginRelease(args: string[], options: Options) {
 
   // generate PR using github API and put in changelog (optional)
   if (!dryRun) {
-    await dependencies.exec(`hub pull-request -b master -m "<changelog goes here>"`);
+    await dependencies.exec(`hub pull-request -b master -m "${changes}"`);
   } else {
     logger.info('Would normally create pull request against master, but skipping due to dry run.');
+    logger.info(`hub pull-request -b master -m "${changes}"`);
   }
 }
 
@@ -120,9 +127,10 @@ export default async function beginRelease(args: string[], options: Options) {
 export function helpMessage() {
   return [
     'Description:',
-    '  Begins the release process for this module.\n',
+    '  Begins the release process for this module.',
+    '  Use --dry argument to avoid changing any files.\n',
     'Usage:',
-    '  ts-node createRelease.ts',
+    '  ts-node createRelease.ts [--dry]',
   ].join('\n');
 }
 
