@@ -2,9 +2,9 @@
 
 import FormData from 'form-data';
 
-import { AnalysisFiles } from './types';
-import request, { convertError } from './utils/request';
-import { routes } from './utils/routes';
+import { AnalysisFiles } from '../types/api';
+import request, { convertError } from '../utils/request';
+import { routes } from '../utils/routes';
 
 /** Gets the version used for the API */
 export async function getApiVersion(api: string) {
