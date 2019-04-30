@@ -12,22 +12,22 @@ export async function getApiVersion(api: string) {
 }
 
 /** Starts an analysis and returns the analysis id */
-export async function startAnalysis(api: string, files: AnalysisFiles) {
+export async function startAnalysis(api: string, { baseBuild, build, dependenciesBuild, settings }: AnalysisFiles) {
   const options = (filename: string, type: 'java-archive' | 'json') => ({
     contentType: `application/${type}`,
     filename: filename,
   });
 
   const formData = new FormData();
-  formData.append('build', files.build, options('build', 'java-archive'));
-  formData.append('settings', files.settings, options('settings', 'json'));
+  formData.append('build', build, options('build', 'java-archive'));
+  formData.append('settings', settings, options('settings', 'json'));
 
-  if (files.baseBuild) {
-    formData.append('base-build', files.baseBuild, options('base-build', 'java-archive'));
+  if (baseBuild) {
+    formData.append('base-build', baseBuild, options('base-build', 'java-archive'));
   }
 
-  if (files.dependenciesBuild) {
-    formData.append('dependencies-build', files.dependenciesBuild, options('dependencies-build', 'java-archive'));
+  if (dependenciesBuild) {
+    formData.append('dependencies-build', dependenciesBuild, options('dependencies-build', 'java-archive'));
   }
 
   return request.post(routes.start(api), formData, formData.getHeaders()).catch(convertError);
