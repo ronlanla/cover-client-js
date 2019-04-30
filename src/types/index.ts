@@ -8,7 +8,7 @@ import { ReadStream } from 'fs';
  */
 export interface AnalysisFiles {
   build: Buffer | ReadStream;
-  settings: Buffer | ReadStream;
+  settings: Object;
   dependenciesBuild?: Buffer | ReadStream;
   baseBuild?: Buffer | ReadStream;
 }

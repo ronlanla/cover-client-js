@@ -20,7 +20,7 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
 
   const formData = new FormData();
   formData.append('build', build, options('build', 'java-archive'));
-  formData.append('settings', settings, options('settings', 'json'));
+  formData.append('settings', JSON.stringify(settings), options('settings', 'json'));
 
   if (baseBuild) {
     formData.append('base-build', baseBuild, options('base-build', 'java-archive'));
