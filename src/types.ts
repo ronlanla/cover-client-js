@@ -118,7 +118,7 @@ export interface AnalysisCancel {
 
 /** Object returned by the API on fetching results */
 export interface AnalysisResultsApiResponse {
-  cursor: string;
+  cursor: number;
   status: AnalysisStatusApiResponse;
   results: AnalysisResult[];
 }

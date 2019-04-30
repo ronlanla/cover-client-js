@@ -332,13 +332,14 @@ describe('src/analysis', () => {
       const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
       const resultsResponse = {
         status: responseStatus,
-        cursor: 'abcdef',
+        cursor: 12345,
         results: [sampleResult],
       };
       results.resolves(resultsResponse);
       const startedAnalysis = new Analysis(apiUrl);
       await startedAnalysis.start(buildPath, settings);
-      startedAnalysis.cursor = '123456';
+      const startingCursor = 98765;
+      startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
       extantResult['test-id'] = 'extant-result';
       startedAnalysis.results = [extantResult];
@@ -362,7 +363,7 @@ describe('src/analysis', () => {
       const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
       const resultsResponse = {
         status: responseStatus,
-        cursor: 'abcdef',
+        cursor: 12345,
         results: [sampleResult],
       };
       results.resolves(resultsResponse);
@@ -391,14 +392,15 @@ describe('src/analysis', () => {
       const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
       const resultsResponse = {
         status: responseStatus,
-        cursor: 'abcdef',
+        cursor: 12345,
         results: [sampleResult],
       };
       results.resolves(resultsResponse);
       const writableStream = createTestWriteable();
       const startedAnalysis = new Analysis(apiUrl, writableStream);
       await startedAnalysis.start(buildPath, settings);
-      startedAnalysis.cursor = '123456';
+      const startingCursor = 98765;
+      startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
       extantResult['test-id'] = 'extant-result';
       startedAnalysis.results = [extantResult];
@@ -422,14 +424,15 @@ describe('src/analysis', () => {
       const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
       const resultsResponse = {
         status: responseStatus,
-        cursor: 'abcdef',
+        cursor: 12345,
         results: [sampleResult],
       };
       results.resolves(resultsResponse);
       const writableStream = createTestWriteable();
       const startedAnalysis = new Analysis(apiUrl, writableStream);
       await startedAnalysis.start(buildPath, settings);
-      startedAnalysis.cursor = '123456';
+      const startingCursor = 98765;
+      startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
       extantResult['test-id'] = 'extant-result';
       startedAnalysis.results = [extantResult];

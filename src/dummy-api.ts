@@ -51,8 +51,8 @@ export const cancel = async (apiUrl: string, id: string): Promise<AnalysisCancel
 
 /** Dummy get results */
 /* istanbul ignore next */
-export const results = async (apiUrl: string, id: string, cursor?: string): Promise<AnalysisResultsApiResponse> => {
-  return { cursor: '12345', status: dummyStatus, results: [dummyResult] };
+export const results = async (apiUrl: string, id: string, cursor?: number): Promise<AnalysisResultsApiResponse> => {
+  return { cursor: 12345, status: dummyStatus, results: [dummyResult] };
 };
 
 /** Dummy version */

@@ -33,7 +33,7 @@ export default class Analysis {
   public error?: ApiError;
   public phases?: AnalysisPhases;
   public results: AnalysisResult[] | Writable;
-  public cursor?: string;
+  public cursor?: number;
   public apiVersion?: string;
   public isStreaming = false;
   public readonly _readable?: Readable;
