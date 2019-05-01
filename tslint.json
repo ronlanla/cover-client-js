@@ -34,7 +34,6 @@
       true,
       "classes",
       "enums",
-      "enum-members",
       "functions",
       "interfaces",
       "methods",
@@ -165,7 +164,7 @@
     "ter-computed-property-spacing": true,
     "ter-func-call-spacing": [true, "never"],
     "ter-indent": [true, 2, { "SwitchCase": 1 }],
-    "trailing-comma": [true, { "multiline": "always", "singleline": "never" }],
+    "trailing-comma": [true, { "multiline": "always", "singleline": "never" , "esSpecCompliant": true }],
     "triple-equals": true,
     "typedef": true,
     "typedef-whitespace": [

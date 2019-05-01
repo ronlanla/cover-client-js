@@ -40,6 +40,9 @@ commands:
       - run:
           name: Unit tests
           command: yarn coverage --forbid-only --forbid-pending
+      - run:
+          name: Integration tests
+          command: yarn integration-test --forbid-only --forbid-pending
       - save_cache:
           name: Save yarn package cache
           key: *yarn_cache_key

@@ -1,0 +1,684 @@
+{
+    "results": [
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638431939,
+            "testId": "hasItemOutputFalse000002478500056a72c",
+            "testName": "hasItemOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.hasItem:()Z",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 12 branch to line 13\n   */\n\n  @org.junit.Test\n  public void hasItemOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n\n    // Act\n    final boolean retval = objectUnderTest.hasItem();\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638432009,
+            "testId": "hasItemOutputTrue001289396b6ed133fd6",
+            "testName": "hasItemOutputTrue",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.hasItem:()Z",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 12 branch to line 15\n   */\n\n  @org.junit.Test\n  public void hasItemOutputTrue() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item = new com.diffblue.javademo.nestedobjects.subpackage.Item();\n    objectUnderTest.setItem(item);\n\n    // Act\n    final boolean retval = objectUnderTest.hasItem();\n\n    // Assert result\n    Assert.assertEquals(true, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638437531,
+            "testId": "constructorOutputVoid000f4eb42f706b62ec2",
+            "testName": "constructorOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.<init>:()V",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorOutputVoid() {\n\n    // Act, creating object to test constructor\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638441494,
+            "testId": "setItemInputNullOutputFalse0002b3fd0a1432d7acb",
+            "testName": "setItemInputNullOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.setItem:(Lcom/diffblue/javademo/nestedobjects/subpackage/Item;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void setItemInputNullOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item = null;\n\n    // Act\n    final boolean retval = objectUnderTest.setItem(item);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638445957,
+            "testId": "getItemOutputNull000fb3c915799377f38",
+            "testName": "getItemOutputNull",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.getItem:()Lcom/diffblue/javademo/nestedobjects/subpackage/Item;",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void getItemOutputNull() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n\n    // Act\n    final com.diffblue.javademo.nestedobjects.subpackage.Item retval = objectUnderTest.getItem();\n\n    // Assert result\n    Assert.assertNull(retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638450142,
+            "testId": "constructorOutputVoid00007d76d2c63dba6f1",
+            "testName": "constructorOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Item.<init>:()V",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Item.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorOutputVoid() {\n\n    // Act, creating object to test constructor\n    final com.diffblue.javademo.nestedobjects.subpackage.Item objectUnderTest = new com.diffblue.javademo.nestedobjects.subpackage.Item();\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.Search",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638454975,
+            "testId": "constructorOutputVoid000a0d75135ed099cc4",
+            "testName": "constructorOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.Search.<init>:()V",
+            "sourceFilePath": "/com/diffblue/javademo/Search.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorOutputVoid() {\n\n    // Act, creating object to test constructor\n    final com.diffblue.javademo.Search objectUnderTest = new com.diffblue.javademo.Search();\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.Search",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638459660,
+            "testId": "containsInput1ZeroOutputTrue002ea108cd4cf6cca1c",
+            "testName": "containsInput1ZeroOutputTrue",
+            "testedFunction": "java::com.diffblue.javademo.Search.contains:([II)Z",
+            "sourceFilePath": "/com/diffblue/javademo/Search.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - com/diffblue/javademo/Search.java:14: loop: 1 iterations\n   *  - iteration 1\n   *     - conditional line 15 branch to line 16\n   */\n\n  @org.junit.Test\n  public void containsInput1ZeroOutputTrue() {\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = new com.diffblue.javademo.Search();\n    final int[] array = { 0 };\n    final int target = 0;\n\n    // Act\n    final boolean retval = objectUnderTest.contains(array, target);\n\n    // Assert result\n    Assert.assertEquals(true, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.Search",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638459661,
+            "testId": "containsInput1ZeroOutputFalse0014ef82084290a8e5e",
+            "testName": "containsInput1ZeroOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.Search.contains:([II)Z",
+            "sourceFilePath": "/com/diffblue/javademo/Search.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - com/diffblue/javademo/Search.java:14: loop: 1 iterations\n   *  - iteration 1\n   *     - conditional line 15 branch to line 14\n   */\n\n  @org.junit.Test\n  public void containsInput1ZeroOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = new com.diffblue.javademo.Search();\n    final int[] array = { 1 };\n    final int target = 0;\n\n    // Act\n    final boolean retval = objectUnderTest.contains(array, target);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.Search",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638459669,
+            "testId": "containsInput0ZeroOutputFalse000f017e78343ab0a66",
+            "testName": "containsInput0ZeroOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.Search.contains:([II)Z",
+            "sourceFilePath": "/com/diffblue/javademo/Search.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *\n   */\n\n  @org.junit.Test\n  public void containsInput0ZeroOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = new com.diffblue.javademo.Search();\n    final int[] array = { };\n    final int target = 0;\n\n    // Act\n    final boolean retval = objectUnderTest.contains(array, target);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.Search",
+                "org.apache.commons.codec.digest.DigestUtils",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull",
+                "org.powermock.api.mockito.PowerMockito.mockStatic"
+            ],
+            "createdTime": 1556638467064,
+            "testId": "isNeedleInHaystackInputNullOutputFalse000486ec3594ccc3dc0",
+            "testName": "isNeedleInHaystackInputNullOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.Search.isNeedleInHaystack:(Ljava/lang/String;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/Search.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 30 branch to line 33\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest(org.apache.commons.codec.digest.DigestUtils.class)\n  @org.junit.Test\n  public void isNeedleInHaystackInputNullOutputFalse() throws Exception {\n\n    // Setup mocks\n    org.powermock.api.mockito.PowerMockito.mockStatic(org.apache.commons.codec.digest.DigestUtils.class);\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = new com.diffblue.javademo.Search();\n    final String input = null;\n    final java.lang.reflect.Method sha1HexMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(org.apache.commons.codec.digest.DigestUtils.class, \"sha1Hex\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(null).when(org.apache.commons.codec.digest.DigestUtils.class, sha1HexMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n\n    // Act\n    final boolean retval = objectUnderTest.isNeedleInHaystack(input);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.nestedobjects.User",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638474620,
+            "testId": "constructorInputNullOutputVoid0000cae24d076e02b0e",
+            "testName": "constructorInputNullOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.User.<init>:(Lcom/diffblue/javademo/nestedobjects/subpackage/Order;)V",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/User.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorInputNullOutputVoid() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order order = null;\n\n    // Act, creating object to test constructor\n    final com.diffblue.javademo.nestedobjects.User objectUnderTest = new com.diffblue.javademo.nestedobjects.User(order);\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.User",
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638477973,
+            "testId": "checkItemCostInputNullOutputFalse00095fd0fb4c2c6b984",
+            "testName": "checkItemCostInputNullOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.User.checkItemCost:(Lcom/diffblue/javademo/nestedobjects/subpackage/Item;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/User.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 17 branch to line 18\n   */\n\n  @org.junit.Test\n  public void checkItemCostInputNullOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order order = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n    final com.diffblue.javademo.nestedobjects.User objectUnderTest = new com.diffblue.javademo.nestedobjects.User(order);\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item = null;\n\n    // Act\n    final boolean retval = objectUnderTest.checkItemCost(item);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.InvocationTargetException",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.javademo.nestedobjects.User",
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638478538,
+            "testId": "checkItemCostInputNotNullOutputFalse0014f9ae45868175501",
+            "testName": "checkItemCostInputNotNullOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.User.checkItemCost:(Lcom/diffblue/javademo/nestedobjects/subpackage/Item;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/User.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 17 branch to line 20\n   *  - conditional line 20 branch to line 20\n   */\n\n  @org.junit.Test\n  public void checkItemCostInputNotNullOutputFalse() throws java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.User objectUnderTest = (com.diffblue.javademo.nestedobjects.User) Reflector.getInstance(\"com.diffblue.javademo.nestedobjects.User\");\n    final com.diffblue.javademo.nestedobjects.subpackage.Order order = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item1 = new com.diffblue.javademo.nestedobjects.subpackage.Item();\n    item1.cost = -2_147_483_648;\n    order.item = item1;\n    Reflector.setField(objectUnderTest, \"order\", order);\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item = new com.diffblue.javademo.nestedobjects.subpackage.Item();\n\n    // Act\n    final boolean retval = objectUnderTest.checkItemCost(item);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.User",
+                "com.diffblue.javademo.nestedobjects.subpackage.Item",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638478650,
+            "testId": "checkItemCostInputNotNullOutputTrue0024322453be5334ead",
+            "testName": "checkItemCostInputNotNullOutputTrue",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.User.checkItemCost:(Lcom/diffblue/javademo/nestedobjects/subpackage/Item;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/User.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 17 branch to line 20\n   *  - conditional line 20 branch to line 20\n   */\n\n  @org.junit.Test\n  public void checkItemCostInputNotNullOutputTrue() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.User objectUnderTest = new com.diffblue.javademo.nestedobjects.User(null);\n    final com.diffblue.javademo.nestedobjects.subpackage.Order order = new com.diffblue.javademo.nestedobjects.subpackage.Order();\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item1 = new com.diffblue.javademo.nestedobjects.subpackage.Item();\n    order.setItem(item1);\n    objectUnderTest.setOrder(order);\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item = new com.diffblue.javademo.nestedobjects.subpackage.Item();\n\n    // Act\n    final boolean retval = objectUnderTest.checkItemCost(item);\n\n    // Assert result\n    Assert.assertEquals(true, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.User",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638482504,
+            "testId": "setOrderInputNullOutputNotNull00021be91177d2cbd66",
+            "testName": "setOrderInputNullOutputNotNull",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.User.setOrder:(Lcom/diffblue/javademo/nestedobjects/subpackage/Order;)Lcom/diffblue/javademo/nestedobjects/User;",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/User.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void setOrderInputNullOutputNotNull() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.User objectUnderTest = new com.diffblue.javademo.nestedobjects.User(null);\n    final com.diffblue.javademo.nestedobjects.subpackage.Order newOrder = null;\n\n    // Act\n    final com.diffblue.javademo.nestedobjects.User retval = objectUnderTest.setOrder(newOrder);\n\n    // Assert result\n    Assert.assertNotNull(retval);\n    Assert.assertNull(retval.getOrder());\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.nestedobjects.User",
+                "com.diffblue.javademo.nestedobjects.subpackage.Order",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638486006,
+            "testId": "getOrderOutputNull00060c54410d284c396",
+            "testName": "getOrderOutputNull",
+            "testedFunction": "java::com.diffblue.javademo.nestedobjects.User.getOrder:()Lcom/diffblue/javademo/nestedobjects/subpackage/Order;",
+            "sourceFilePath": "/com/diffblue/javademo/nestedobjects/User.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void getOrderOutputNull() {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.User objectUnderTest = new com.diffblue.javademo.nestedobjects.User(null);\n\n    // Act\n    final com.diffblue.javademo.nestedobjects.subpackage.Order retval = objectUnderTest.getOrder();\n\n    // Assert result\n    Assert.assertNull(retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.TicTacToe",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638489533,
+            "testId": "constructorOutputVoid000b6c1a18bb55bbd78",
+            "testName": "constructorOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.TicTacToe.<init>:()V",
+            "sourceFilePath": "/com/diffblue/javademo/TicTacToe.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorOutputVoid() {\n\n    // Act, creating object to test constructor\n    final com.diffblue.javademo.TicTacToe objectUnderTest = new com.diffblue.javademo.TicTacToe();\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.TicTacToe",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638493011,
+            "testId": "checkTicTacToePositionInput0OutputIllegalArgumentException000000b84d103fc4807",
+            "testName": "checkTicTacToePositionInput0OutputIllegalArgumentException",
+            "testedFunction": "java::com.diffblue.javademo.TicTacToe.checkTicTacToePosition:([I)I",
+            "sourceFilePath": "/com/diffblue/javademo/TicTacToe.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 20 branch to line 21\n   */\n\n  @org.junit.Test\n  public void checkTicTacToePositionInput0OutputIllegalArgumentException() {\n\n    // Arrange\n    final com.diffblue.javademo.TicTacToe objectUnderTest = new com.diffblue.javademo.TicTacToe();\n    final int[] board = { };\n\n    // Act\n    thrown.expect(IllegalArgumentException.class);\n    objectUnderTest.checkTicTacToePosition(board);\n\n    // Method is not expected to return due to exception thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.serveraccess.DatabaseDao",
+                "com.mongodb.MongoClient",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.anyInt",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull"
+            ],
+            "createdTime": 1556638496790,
+            "testId": "getInstanceOutputNotNull000a66866087714bceb",
+            "testName": "getInstanceOutputNotNull",
+            "testedFunction": "java::com.diffblue.javademo.serveraccess.DatabaseDao.getInstance:()Lcom/diffblue/javademo/serveraccess/DatabaseDao;",
+            "sourceFilePath": "/com/diffblue/javademo/serveraccess/DatabaseDao.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 29 branch to line 30\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest({com.mongodb.MongoClient.class, com.diffblue.javademo.serveraccess.DatabaseDao.class})\n  @org.junit.Test\n  public void getInstanceOutputNotNull() throws Exception {\n\n    // Arrange\n    final com.mongodb.MongoClient mongoClient = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.MongoClient.class);\n    final java.lang.reflect.Method getDatabaseMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.MongoClient.class, \"getDatabase\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(null).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(com.mongodb.MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);\n\n    // Act\n    final com.diffblue.javademo.serveraccess.DatabaseDao retval = com.diffblue.javademo.serveraccess.DatabaseDao.getInstance();\n\n    // Assert result\n    Assert.assertNotNull(retval);\n    Assert.assertEquals(27_017, Reflector.getInstanceField(retval, \"port\"));\n    Assert.assertEquals(\"localhost\", Reflector.getInstanceField(retval, \"hostname\"));\n    Assert.assertEquals(\"java-demo\", Reflector.getInstanceField(retval, \"dbName\"));\n    Assert.assertNull(Reflector.getInstanceField(retval, \"mongoDatabase\"));\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.InvocationTargetException",
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.serveraccess.DatabaseDao",
+                "com.mongodb.client.MongoCollection",
+                "com.mongodb.client.MongoDatabase",
+                "org.bson.Document",
+                "org.bson.conversions.Bson",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull"
+            ],
+            "createdTime": 1556638504501,
+            "testId": "getCountFromDbInputNullNullOutputZero000cf32365ba2cce347",
+            "testName": "getCountFromDbInputNullNullOutputZero",
+            "testedFunction": "java::com.diffblue.javademo.serveraccess.DatabaseDao.getCountFromDb:(Ljava/lang/String;Lorg/bson/Document;)I",
+            "sourceFilePath": "/com/diffblue/javademo/serveraccess/DatabaseDao.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest({com.mongodb.client.MongoCollection.class, com.mongodb.client.MongoDatabase.class})\n  @org.junit.Test\n  public void getCountFromDbInputNullNullOutputZero() throws Exception, java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.serveraccess.DatabaseDao objectUnderTest = (com.diffblue.javademo.serveraccess.DatabaseDao) Reflector.getInstance(\"com.diffblue.javademo.serveraccess.DatabaseDao\");\n    Reflector.setField(objectUnderTest, \"port\", 0);\n    Reflector.setField(objectUnderTest, \"hostname\", null);\n    Reflector.setField(objectUnderTest, \"dbName\", null);\n    final com.mongodb.client.MongoDatabase mongoDatabase = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoDatabase.class);\n    final com.mongodb.client.MongoCollection mongoCollection = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoCollection.class);\n    final java.lang.reflect.Method countMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoCollection.class, \"count\", org.bson.conversions.Bson.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(0L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(org.bson.conversions.Bson.class), org.mockito.Matchers.isNull(org.bson.conversions.Bson.class)));\n    final java.lang.reflect.Method getCollectionMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoDatabase.class, \"getCollection\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    Reflector.setField(objectUnderTest, \"mongoDatabase\", mongoDatabase);\n    final String collectionName = null;\n    final org.bson.Document searchFor = null;\n\n    // Act\n    final int retval = objectUnderTest.getCountFromDb(collectionName, searchFor);\n\n    // Assert result\n    Assert.assertEquals(0, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Constructor",
+                "java.lang.reflect.InvocationTargetException",
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.javademo.serveraccess.DatabaseDao",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638511166,
+            "testId": "constructorOutputVoid0003d004d67d17982fa",
+            "testName": "constructorOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.serveraccess.DatabaseDao.<init>:()V",
+            "sourceFilePath": "/com/diffblue/javademo/serveraccess/DatabaseDao.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorOutputVoid() throws java.lang.reflect.InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {\n\n    // Act, creating object to test constructor\n    final Class<?> classUnderTest = Reflector.forName(\"com.diffblue.javademo.serveraccess.DatabaseDao\");\n    final Constructor<?> ctor = classUnderTest.getDeclaredConstructor();\n    ctor.setAccessible(true);\n    final com.diffblue.javademo.serveraccess.DatabaseDao objectUnderTest = (com.diffblue.javademo.serveraccess.DatabaseDao) ctor.newInstance();\n\n    // Assert side effects\n    Assert.assertEquals(27_017, Reflector.getInstanceField(objectUnderTest, \"port\"));\n    Assert.assertEquals(\"localhost\", Reflector.getInstanceField(objectUnderTest, \"hostname\"));\n    Assert.assertEquals(\"java-demo\", Reflector.getInstanceField(objectUnderTest, \"dbName\"));\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.InvocationTargetException",
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.serveraccess.DatabaseDao",
+                "com.mongodb.MongoClient",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.anyInt",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull"
+            ],
+            "createdTime": 1556638515098,
+            "testId": "connectToDbOutputVoid0000a4f6501193d3ac3",
+            "testName": "connectToDbOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.serveraccess.DatabaseDao.connectToDb:()V",
+            "sourceFilePath": "/com/diffblue/javademo/serveraccess/DatabaseDao.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest({com.mongodb.MongoClient.class, com.diffblue.javademo.serveraccess.DatabaseDao.class})\n  @org.junit.Test\n  public void connectToDbOutputVoid() throws Exception, java.lang.reflect.InvocationTargetException, IllegalAccessException, NoSuchMethodException {\n\n    // Arrange\n    final com.diffblue.javademo.serveraccess.DatabaseDao objectUnderTest = (com.diffblue.javademo.serveraccess.DatabaseDao) Reflector.getInstance(\"com.diffblue.javademo.serveraccess.DatabaseDao\");\n    Reflector.setField(objectUnderTest, \"port\", 0);\n    Reflector.setField(objectUnderTest, \"hostname\", null);\n    Reflector.setField(objectUnderTest, \"dbName\", null);\n    Reflector.setField(objectUnderTest, \"mongoDatabase\", null);\n    final com.mongodb.MongoClient mongoClient = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.MongoClient.class);\n    final java.lang.reflect.Method getDatabaseMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.MongoClient.class, \"getDatabase\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(null).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(com.mongodb.MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);\n\n    // Act\n    final Class<?> classUnderTest = Reflector.forName(\"com.diffblue.javademo.serveraccess.DatabaseDao\");\n    final Method methodUnderTest = classUnderTest.getDeclaredMethod(\"connectToDb\");\n    methodUnderTest.setAccessible(true);\n    methodUnderTest.invoke(objectUnderTest);\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.javademo.UserAccess",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638522340,
+            "testId": "constructorOutputVoid0009186e4ac27552e24",
+            "testName": "constructorOutputVoid",
+            "testedFunction": "java::com.diffblue.javademo.UserAccess.<init>:()V",
+            "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void constructorOutputVoid() {\n\n    // Act, creating object to test constructor\n    final com.diffblue.javademo.UserAccess objectUnderTest = new com.diffblue.javademo.UserAccess();\n\n    // Method returns void, testing that no exception is thrown\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.UserAccess",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638526394,
+            "testId": "getCurrentUserOutputNull000b4e0faa6d7896e93",
+            "testName": "getCurrentUserOutputNull",
+            "testedFunction": "java::com.diffblue.javademo.UserAccess.getCurrentUser:()Ljava/lang/String;",
+            "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers the entire method.\n   */\n\n  @org.junit.Test\n  public void getCurrentUserOutputNull() {\n\n    // Arrange\n    final com.diffblue.javademo.UserAccess objectUnderTest = new com.diffblue.javademo.UserAccess();\n\n    // Act\n    final String retval = objectUnderTest.getCurrentUser();\n\n    // Assert result\n    Assert.assertNull(retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.UserAccess",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638531959,
+            "testId": "loginUserInputNotNullNullOutputFalse000aa7960cd86920e28",
+            "testName": "loginUserInputNotNullNullOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.UserAccess.loginUser:(Ljava/lang/String;Ljava/lang/String;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 24 branch to line 25\n   */\n\n  @org.junit.Test\n  public void loginUserInputNotNullNullOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.UserAccess objectUnderTest = new com.diffblue.javademo.UserAccess();\n    final String username = \"\";\n    final String password = null;\n\n    // Act\n    final boolean retval = objectUnderTest.loginUser(username, password);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [],
+            "imports": [
+                "com.diffblue.javademo.UserAccess",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException"
+            ],
+            "staticImports": [],
+            "createdTime": 1556638532221,
+            "testId": "loginUserInputNotNullNotNullOutputFalse0017cfc693b609533d5",
+            "testName": "loginUserInputNotNullNotNullOutputFalse",
+            "testedFunction": "java::com.diffblue.javademo.UserAccess.loginUser:(Ljava/lang/String;Ljava/lang/String;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 24 branch to line 24\n   *  - conditional line 24 branch to line 25\n   */\n\n  @org.junit.Test\n  public void loginUserInputNotNullNotNullOutputFalse() {\n\n    // Arrange\n    final com.diffblue.javademo.UserAccess objectUnderTest = new com.diffblue.javademo.UserAccess();\n    final String username = \"AAAAAAAA\";\n    final String password = \"\";\n\n    // Act\n    final boolean retval = objectUnderTest.loginUser(username, password);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.InvocationTargetException",
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.UserAccess",
+                "com.diffblue.javademo.serveraccess.DatabaseDao",
+                "com.mongodb.MongoClient",
+                "com.mongodb.client.MongoCollection",
+                "com.mongodb.client.MongoDatabase",
+                "org.bson.Document",
+                "org.bson.conversions.Bson",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.anyInt",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull"
+            ],
+            "createdTime": 1556638532862,
+            "testId": "loginUserInputNotNullNotNullOutputTrue00268ab6e8656faabec",
+            "testName": "loginUserInputNotNullNotNullOutputTrue",
+            "testedFunction": "java::com.diffblue.javademo.UserAccess.loginUser:(Ljava/lang/String;Ljava/lang/String;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 24 branch to line 24\n   *  - conditional line 24 branch to line 28\n   *  - conditional line 33 branch to line 34\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest({com.mongodb.client.MongoDatabase.class, com.diffblue.javademo.UserAccess.class, com.mongodb.client.MongoCollection.class, org.bson.Document.class, com.mongodb.MongoClient.class, com.diffblue.javademo.serveraccess.DatabaseDao.class})\n  @org.junit.Test\n  public void loginUserInputNotNullNotNullOutputTrue() throws Exception, java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.UserAccess objectUnderTest = new com.diffblue.javademo.UserAccess();\n    final String username = \"AAAAAAAA\";\n    final String password = \" \";\n    final com.mongodb.MongoClient mongoClient = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.MongoClient.class);\n    final com.mongodb.client.MongoDatabase mongoDatabase = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoDatabase.class);\n    final com.mongodb.client.MongoCollection mongoCollection = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoCollection.class);\n    final java.lang.reflect.Method countMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoCollection.class, \"count\", org.bson.conversions.Bson.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(1L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(org.bson.conversions.Bson.class), org.mockito.Matchers.isNull(org.bson.conversions.Bson.class)));\n    final java.lang.reflect.Method getCollectionMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoDatabase.class, \"getCollection\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    final java.lang.reflect.Method getDatabaseMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.MongoClient.class, \"getDatabase\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(com.mongodb.MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);\n    final org.bson.Document document = org.powermock.api.mockito.PowerMockito.mock(org.bson.Document.class);\n    final org.bson.Document document1 = (org.bson.Document) Reflector.getInstance(\"org.bson.Document\");\n    final java.lang.reflect.Method appendMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(org.bson.Document.class, \"append\", String.class, Object.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(document1).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(org.bson.Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);\n\n    // Act\n    final boolean retval = objectUnderTest.loginUser(username, password);\n\n    // Assert side effects\n    Assert.assertEquals(\"AAAAAAAA\", objectUnderTest.getCurrentUser());\n\n    // Assert result\n    Assert.assertEquals(true, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.InvocationTargetException",
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.Reflector",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.UserAccess",
+                "com.diffblue.javademo.serveraccess.DatabaseDao",
+                "com.mongodb.MongoClient",
+                "com.mongodb.client.MongoCollection",
+                "com.mongodb.client.MongoDatabase",
+                "org.bson.Document",
+                "org.bson.conversions.Bson",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.anyInt",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull"
+            ],
+            "createdTime": 1556638532864,
+            "testId": "loginUserInputNotNullNotNullOutputFalse0037880985dcffb03f6",
+            "testName": "loginUserInputNotNullNotNullOutputFalse2",
+            "testedFunction": "java::com.diffblue.javademo.UserAccess.loginUser:(Ljava/lang/String;Ljava/lang/String;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 24 branch to line 24\n   *  - conditional line 24 branch to line 28\n   *  - conditional line 33 branch to line 38\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest({com.mongodb.client.MongoDatabase.class, com.diffblue.javademo.UserAccess.class, com.mongodb.client.MongoCollection.class, org.bson.Document.class, com.mongodb.MongoClient.class, com.diffblue.javademo.serveraccess.DatabaseDao.class})\n  @org.junit.Test\n  public void loginUserInputNotNullNotNullOutputFalse2() throws Exception, java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.UserAccess objectUnderTest = new com.diffblue.javademo.UserAccess();\n    final String username = \"AAAAAAAA\";\n    final String password = \" \";\n    final com.mongodb.MongoClient mongoClient = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.MongoClient.class);\n    final com.mongodb.client.MongoDatabase mongoDatabase = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoDatabase.class);\n    final com.mongodb.client.MongoCollection mongoCollection = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoCollection.class);\n    final java.lang.reflect.Method countMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoCollection.class, \"count\", org.bson.conversions.Bson.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(2_147_483_649L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(org.bson.conversions.Bson.class), org.mockito.Matchers.isNull(org.bson.conversions.Bson.class)));\n    final java.lang.reflect.Method getCollectionMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoDatabase.class, \"getCollection\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    final java.lang.reflect.Method getDatabaseMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.MongoClient.class, \"getDatabase\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(com.mongodb.MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);\n    final org.bson.Document document = org.powermock.api.mockito.PowerMockito.mock(org.bson.Document.class);\n    final org.bson.Document document1 = (org.bson.Document) Reflector.getInstance(\"org.bson.Document\");\n    final java.lang.reflect.Method appendMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(org.bson.Document.class, \"append\", String.class, Object.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(document1).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(org.bson.Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);\n\n    // Act\n    final boolean retval = objectUnderTest.loginUser(username, password);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+            "tags": []
+        },
+        {
+            "classAnnotations": [
+                "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+            ],
+            "imports": [
+                "java.lang.reflect.Method",
+                "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+                "com.diffblue.javademo.Search",
+                "org.apache.commons.codec.digest.DigestUtils",
+                "org.junit.Assert",
+                "org.junit.Rule",
+                "org.junit.Test",
+                "org.junit.rules.ExpectedException",
+                "org.junit.runner.RunWith",
+                "org.powermock.api.mockito.PowerMockito",
+                "org.powermock.core.classloader.annotations.PrepareForTest",
+                "org.powermock.modules.junit4.PowerMockRunner"
+            ],
+            "staticImports": [
+                "org.mockito.AdditionalMatchers.or",
+                "org.mockito.Matchers.isA",
+                "org.mockito.Matchers.isNull",
+                "org.powermock.api.mockito.PowerMockito.mockStatic"
+            ],
+            "createdTime": 1556638545549,
+            "testId": "isNeedleInHaystackInputNullOutputTrue000adff201b946ea792",
+            "testName": "isNeedleInHaystackInputNullOutputTrue",
+            "testedFunction": "java::com.diffblue.javademo.Search.isNeedleInHaystack:(Ljava/lang/String;)Z",
+            "sourceFilePath": "/com/diffblue/javademo/Search.java",
+            "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 30 branch to line 31\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest(org.apache.commons.codec.digest.DigestUtils.class)\n  @org.junit.Test\n  public void isNeedleInHaystackInputNullOutputTrue() throws Exception {\n\n    // Setup mocks\n    org.powermock.api.mockito.PowerMockito.mockStatic(org.apache.commons.codec.digest.DigestUtils.class);\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = new com.diffblue.javademo.Search();\n    final String input = null;\n    final java.lang.reflect.Method sha1HexMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(org.apache.commons.codec.digest.DigestUtils.class, \"sha1Hex\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(\"3b6e258214f894ab41c9deaaeb38d1fd9aeca9c7\").when(org.apache.commons.codec.digest.DigestUtils.class, sha1HexMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n\n    // Act\n    final boolean retval = objectUnderTest.isNeedleInHaystack(input);\n\n    // Assert result\n    Assert.assertEquals(true, retval);\n\n  }",
+            "tags": []
+        }
+    ],
+    "cursor": 1556639125864,
+    "status": {
+        "status": "COMPLETED"
+    }
+}

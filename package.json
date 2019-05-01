@@ -27,7 +27,8 @@
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
     "publish-package": "ts-node src/scripts/publishPackage.ts",
-    "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
+    "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'",
+    "integration-test": "mocha --require ts-node/register 'tests/integration/**/*.ts'"
   },
   "dependencies": {
     "@diffblue/java-combiner": "0.0.11",
