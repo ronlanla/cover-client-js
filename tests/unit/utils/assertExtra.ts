@@ -58,8 +58,7 @@ describe('assertExtra', () => {
       spy();
       spy();
 
-      const timesCalled = 2;
-      const expectedError = getError(() => assert.strictEqual(timesCalled, 1, 'Called 2 times'));
+      const expectedError = getError(() => assert.strictEqual(2, 1, 'Called 2 times'));
 
       assert.throws(() => assertExtra.calledOnce(spy), errorEquals(expectedError));
     });
@@ -85,8 +84,7 @@ describe('assertExtra', () => {
       spy();
       spy();
 
-      const timesCalled = 2;
-      const expectedError = getError(() => assert.strictEqual(timesCalled, 1, 'Called 2 times'));
+      const expectedError = getError(() => assert.strictEqual(2, 1, 'Called 2 times'));
 
       assert.throws(() => assertExtra.calledOnceWith(spy, []), errorEquals(expectedError));
     });
@@ -225,8 +223,7 @@ describe('assertExtra', () => {
       spy('foo');
       spy('bar');
 
-      const timesCalled = 2;
-      const expectedError = getError(() => assert.strictEqual(timesCalled, 1, 'Called 2 times'));
+      const expectedError = getError(() => assert.strictEqual(2, 1, 'Called 2 times'));
 
       assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), errorEquals(expectedError));
     });

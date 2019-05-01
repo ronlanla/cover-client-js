@@ -63,9 +63,8 @@ export async function getLicenseInfo(): Promise<string[][]> {
  * object containing the licenses for each module
  */
 export function parseLicenseInfo(licenseInfo: string[][]) {
-  const licenseIndex = 2;
   const dataByModule = groupBy(licenseInfo, ([name]) => name.toLowerCase());
-  return mapValues(dataByModule, (moduleData) => new Set(moduleData.map((data) => data[licenseIndex].toLowerCase())));
+  return mapValues(dataByModule, (moduleData) => new Set(moduleData.map((data) => data[2].toLowerCase())));
 }
 
 /**
@@ -110,10 +109,9 @@ export async function checkLicenses(filePath: string) {
 export async function generateAcceptableLicenses(filePath: string) {
   const licenses = await components.getLicenseInfo();
 
-  const padding = 2;
   const fileData = mapValues(parseLicenseInfo(licenses), (info) => Array.from(info));
 
-  await dependencies.writeFile(filePath, `${JSON.stringify(fileData, null, padding)}\n`);
+  await dependencies.writeFile(filePath, `${JSON.stringify(fileData, null, 2)}\n`);
   return `File ${filePath} has been generated!`;
 }
 

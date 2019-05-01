@@ -30,15 +30,13 @@ export const components = {
 
 /** Checks if a copyright notice is present in a document */
 export function hasCopyrightNotice(year: number, content: string) {
-  const startYearIndex = 1;
-  const endYearIndex = 2;
   const copyrightPattern = new RegExp(`Copyright (?:(\\d{4})-)?(${year}) Diffblue Limited. All Rights Reserved.`);
   const match = content.match(copyrightPattern);
   if (!match) {
     return false;
   }
   // Check for impossible year ranges
-  return !match[startYearIndex] || match[endYearIndex] >= match[startYearIndex];
+  return !match[1] || match[2] >= match[1];
 }
 
 /** Parse git ignore */
