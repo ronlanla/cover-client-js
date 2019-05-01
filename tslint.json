@@ -86,7 +86,7 @@
     "no-internal-module": true,
     "no-invalid-template-strings": true,
     "no-irregular-whitespace": true,
-    "no-magic-numbers": true,
+    "no-magic-numbers": [true, -1, 0, 1, 2, 3, 4],
     "no-mergeable-namespace": true,
     "no-misused-new": true,
     "no-multi-spaces": true,

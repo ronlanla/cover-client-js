@@ -62,15 +62,15 @@ const assertExtra = {
    * This should be called before calling the function under test
    */
   notOtherwiseCalled: (stub: sinon.SinonStub, name: string) => {
-    stub.callsFake(async (...args) => {
-      throw new Error(`Unexpected call to ${name} with args ${JSON.stringify(args)}`);
+    stub.callsFake((...args) => {
+      throw new assert.AssertionError({ message: `Unexpected call to ${name} with args ${JSON.stringify(args)}` });
     });
   },
 
   /** Checks if a value matches a regex or string pattern */
   matches: (value: string, pattern: RegExp | string) => {
     const matches = value.match(pattern);
-    assert.strictEqual(matches && matches.length > 0, true, `Pattern "${pattern}" did not match "${value}"`);
+    assert.strictEqual(Boolean(matches && matches.length), true, `Pattern "${pattern}" did not match "${value}"`);
   },
 };
 
