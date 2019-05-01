@@ -3,12 +3,17 @@
 import FormData from 'form-data';
 
 import { AnalysisFiles } from '../types/api';
-import request, { convertError } from '../utils/request';
+import request from '../utils/request';
 import { routes } from '../utils/routes';
+
+export const components = {
+  ...request,
+  ...routes,
+};
 
 /** Gets the version used for the API */
 export async function getApiVersion(api: string) {
-  return request.get(routes.version(api)).catch(convertError);
+  return components.get(components.version(api));
 }
 
 /** Starts an analysis and returns the analysis id */
@@ -30,7 +35,7 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
     formData.append('dependencies-build', dependenciesBuild, options('dependencies-build', 'java-archive'));
   }
 
-  return request.post(routes.start(api), formData, formData.getHeaders()).catch(convertError);
+  return components.post(components.start(api), formData, formData.getHeaders());
 }
 
 /**
@@ -38,15 +43,15 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
  * and an optional cursor to get the results since the last download
  */
 export async function getAnalysisResults(api: string, id: string, cursor?: number) {
-  return request.get(routes.result(api, id), { params: { cursor: cursor }}).catch(convertError);
+  return components.get(components.result(api, id), { params: { cursor: cursor }});
 }
 
 /** Cancel the analysis tied to the specified id */
 export async function cancelAnalysis(api: string, id: string) {
-  return request.post(routes.cancel(api, id)).catch(convertError);
+  return components.post(components.cancel(api, id));
 }
 
 /** Get the status of the analysis tied to the specified id */
 export async function getAnalysisStatus(api: string, id: string) {
-  return request.get(routes.status(api, id)).catch(convertError);
+  return components.get(components.status(api, id));
 }
