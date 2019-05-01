@@ -39,7 +39,7 @@ commands:
           command: yarn license-check check-file
       - run:
           name: Unit tests
-          command: yarn coverage
+          command: yarn coverage --forbid-only --forbid-pending
       - save_cache:
           name: Save yarn package cache
           key: *yarn_cache_key
