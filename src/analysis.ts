@@ -7,7 +7,7 @@ import { AnalysisError, AnalysisErrorCodeEnum } from './errors';
 import {
   AnalysisCancel, AnalysisObjectStatusEnum, AnalysisPhases, AnalysisProgress, AnalysisResult,
   AnalysisResultsApiResponse, AnalysisSettings, AnalysisStartApiResponse,
-  AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
+  AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse, AnalysisFiles,
 } from './types';
 
 
@@ -24,10 +24,7 @@ export default class Analysis {
 
   public apiUrl: string;
   public analysisId = '';
-  public buildPath?: string;
   public settings?: AnalysisSettings;
-  public dependenciesBuildPath?: string;
-  public baseBuildPath?: string;
   public status: AnalysisObjectStatusEnum = AnalysisObjectStatusEnum.NOT_STARTED;
   public progress?: AnalysisProgress;
   public error?: ApiError;
@@ -95,17 +92,12 @@ export default class Analysis {
 
   /** Start analysis */
   public async start(
-    buildPath: string,
     settings: AnalysisSettings,
-    dependenciesBuildPath?: string,
-    baseBuildPath?: string,
+    files: AnalysisFiles,
   ): Promise<AnalysisStartApiResponse> {
     this.checkNotStarted();
-    const response = await components.start(this.apiUrl, buildPath, settings, dependenciesBuildPath, baseBuildPath);
-    this.buildPath = buildPath;
+    const response = await components.start(this.apiUrl, settings, files);
     this.settings = settings;
-    this.dependenciesBuildPath = dependenciesBuildPath;
-    this.baseBuildPath = baseBuildPath;
     this.analysisId = response.id;
     this.phases = response.phases;
     this.status = AnalysisObjectStatusEnum.RUNNING;

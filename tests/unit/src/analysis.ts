@@ -14,10 +14,11 @@ const sinonTest = sinonTestFactory();
 
 const apiUrl = 'https://dummy-url.com';
 const analysisId = 'analysis-id-12345';
-const buildPath = './build.jar';
 const settings = {};
-const dependenciesBuildPath = './dependenciesBuild.jar';
-const baseBuildPath = './baseBuild.jar';
+const build = Buffer.alloc(0);
+const dependenciesBuild = Buffer.alloc(0);
+const baseBuild = Buffer.alloc(0);
+const files = { build: build };
 const sampleResult = {
   'test-id': 'id',
   'test-name': 'name',
@@ -88,18 +89,15 @@ describe('src/analysis', () => {
       start.resolves(startResponse);
       const baseAnalysis = new Analysis(apiUrl);
       const analysis = clone(baseAnalysis);
-      const returnValue = await analysis.start(buildPath, settings);
+      const returnValue = await analysis.start(settings, files);
       const changes = {
         analysisId: returnValue.id,
-        buildPath: buildPath,
         settings: settings,
-        dependenciesBuildPath: undefined,
-        baseBuildPath: undefined,
         status: AnalysisObjectStatusEnum.RUNNING,
         phases: returnValue.phases,
       };
       assert.deepStrictEqual(returnValue, startResponse);
-      assert.calledOnceWith(start, [apiUrl, buildPath, settings, undefined, undefined]);
+      assert.calledOnceWith(start, [apiUrl, settings, files]);
       assert.changedProperties(baseAnalysis, analysis, changes);
     }));
     it('Can start an analysis with all arguments', sinonTest(async (sinon) => {
@@ -107,17 +105,15 @@ describe('src/analysis', () => {
       start.resolves({ id: analysisId, phases: {}});
       const baseAnalysis = new Analysis(apiUrl);
       const analysis = clone(baseAnalysis);
-      const returnValue = await analysis.start(buildPath, settings, dependenciesBuildPath, baseBuildPath);
+      const allFiles = { build: build, dependenciesBuild: dependenciesBuild, baseBuild:baseBuild };
+      const returnValue = await analysis.start(settings, allFiles);
       const changes = {
         analysisId: returnValue.id,
-        buildPath: buildPath,
         settings: settings,
-        dependenciesBuildPath: dependenciesBuildPath,
-        baseBuildPath: baseBuildPath,
         status: AnalysisObjectStatusEnum.RUNNING,
         phases: returnValue.phases,
       };
-      assert.calledOnceWith(start, [apiUrl, buildPath, settings, dependenciesBuildPath, baseBuildPath]);
+      assert.calledOnceWith(start, [apiUrl, settings, allFiles]);
       assert.changedProperties(baseAnalysis, analysis, changes);
     }));
     it('Fails to start an analysis, if api method throws', sinonTest(async (sinon) => {
@@ -125,17 +121,17 @@ describe('src/analysis', () => {
       sinon.stub(components, 'start').throws(startError);
       const baseAnalysis = new Analysis(apiUrl);
       const analysis = clone(baseAnalysis);
-      await assert.rejects(async () => analysis.start(buildPath, settings), startError);
+      await assert.rejects(async () => analysis.start(settings, files), startError);
       assert.changedProperties(baseAnalysis, analysis, {});
     }));
     it('Fails to start an analysis, if already started', sinonTest(async (sinon) => {
       const start = sinon.stub(components, 'start');
       start.resolves({ id: analysisId, phases: {}});
       const analysis = new Analysis(apiUrl);
-      await analysis.start(buildPath, settings);
+      await analysis.start(settings, files);
       assert.strictEqual(analysis.status, AnalysisObjectStatusEnum.RUNNING);
       await assert.rejects(
-        async () => analysis.start(buildPath, settings),
+        async () => analysis.start(settings, files),
         (err: Error) => {
           return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.ALREADY_STARTED;
         },
@@ -145,11 +141,11 @@ describe('src/analysis', () => {
       const start = sinon.stub(components, 'start');
       start.resolves({ id: analysisId, phases: {}});
       const analysis = new Analysis(apiUrl);
-      await analysis.start(buildPath, settings);
+      await analysis.start(settings, files);
       await analysis.cancel();
       assert.strictEqual(analysis.status, AnalysisObjectStatusEnum.RUNNING);
       await assert.rejects(
-        async () => analysis.start(buildPath, settings),
+        async () => analysis.start(settings, files),
         (err: Error) => {
           return (err instanceof AnalysisError) && err.code === AnalysisErrorCodeEnum.ALREADY_STARTED;
         },
@@ -164,7 +160,7 @@ describe('src/analysis', () => {
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
       cancel.resolves(cancelResponse);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const canceledAnalysis = clone(startedAnalysis);
       const returnValue = await canceledAnalysis.cancel();
       const changes = {
@@ -186,7 +182,7 @@ describe('src/analysis', () => {
       cancel.resolves(cancelResponse);
       const writableStream = createTestWriteable();
       const analysis = new Analysis(apiUrl, writableStream);
-      await analysis.start(buildPath, settings);
+      await analysis.start(settings, files);
       await analysis.cancel();
       assert.ok((analysis._readable as Readable)._readableState.ended);
       assert.ok((analysis._readable as Readable)._readableState.destroyed);
@@ -198,7 +194,7 @@ describe('src/analysis', () => {
       const cancel = sinon.stub(components, 'cancel');
       cancel.throws(cancelError);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const analysis = clone(startedAnalysis);
       await assert.rejects(async () => analysis.cancel(), cancelError);
       assert.changedProperties(startedAnalysis, analysis, {});
@@ -228,7 +224,7 @@ describe('src/analysis', () => {
       const analysis = new Analysis(apiUrl);
       const start = sinon.stub(components, 'start');
       start.resolves({ id: analysisId, phases: {}});
-      await analysis.start(buildPath, settings);
+      await analysis.start(settings, files);
       analysis.analysisId = '';
       await assert.rejects(
         async () => analysis.cancel(),
@@ -244,7 +240,7 @@ describe('src/analysis', () => {
       const statusResponse = { status: AnalysisStatusEnum.COMPLETED, progress: { completed: 100, total: 100 }};
       getStatus.resolves(statusResponse);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const analysis = clone(startedAnalysis);
       const returnValue = await analysis.getStatus();
       const changes = {
@@ -267,7 +263,7 @@ describe('src/analysis', () => {
       };
       getStatus.resolves(statusResponse);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const analysis = clone(startedAnalysis);
       const returnValue = await analysis.getStatus();
       const changes = {
@@ -286,7 +282,7 @@ describe('src/analysis', () => {
       const getStatus = sinon.stub(components, 'getStatus');
       getStatus.throws(statusError);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const analysis = clone(startedAnalysis);
       await assert.rejects(async () => analysis.getStatus(), statusError);
       assert.changedProperties(startedAnalysis, analysis, {});
@@ -316,7 +312,7 @@ describe('src/analysis', () => {
       const analysis = new Analysis(apiUrl);
       const start = sinon.stub(components, 'start');
       start.resolves({ id: analysisId, phases: {}});
-      await analysis.start(buildPath, settings);
+      await analysis.start(settings, files);
       analysis.analysisId = '';
       await assert.rejects(
         async () => analysis.getStatus(),
@@ -337,7 +333,7 @@ describe('src/analysis', () => {
       };
       results.resolves(resultsResponse);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
@@ -368,7 +364,7 @@ describe('src/analysis', () => {
       };
       results.resolves(resultsResponse);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const extantResult = clone(sampleResult);
       extantResult['test-id'] = 'overwritten';
       startedAnalysis.results = [extantResult];
@@ -398,7 +394,7 @@ describe('src/analysis', () => {
       results.resolves(resultsResponse);
       const writableStream = createTestWriteable();
       const startedAnalysis = new Analysis(apiUrl, writableStream);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
@@ -430,7 +426,7 @@ describe('src/analysis', () => {
       results.resolves(resultsResponse);
       const writableStream = createTestWriteable();
       const startedAnalysis = new Analysis(apiUrl, writableStream);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
@@ -451,7 +447,7 @@ describe('src/analysis', () => {
       const results = sinon.stub(components, 'results');
       results.throws(resultsError);
       const startedAnalysis = new Analysis(apiUrl);
-      await startedAnalysis.start(buildPath, settings);
+      await startedAnalysis.start(settings, files);
       const analysis = clone(startedAnalysis);
       await assert.rejects(async () => analysis.getResults(), resultsError);
       assert.changedProperties(startedAnalysis, analysis, {});
@@ -481,7 +477,7 @@ describe('src/analysis', () => {
       const analysis = new Analysis(apiUrl);
       const start = sinon.stub(components, 'start');
       start.resolves({ id: analysisId, phases: {}});
-      await analysis.start(buildPath, settings);
+      await analysis.start(settings, files);
       analysis.analysisId = '';
       await assert.rejects(
         async () => analysis.getResults(),

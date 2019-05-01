@@ -1,9 +1,9 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import {
-    AnalysisCancel, AnalysisResultsApiResponse, AnalysisSettings,
-    AnalysisStartApiResponse, AnalysisStatusApiResponse, AnalysisStatusEnum,
-    ApiVersionApiResponse,
+    AnalysisCancel, AnalysisFiles, AnalysisResultsApiResponse,
+    AnalysisSettings, AnalysisStartApiResponse, AnalysisStatusApiResponse,
+    AnalysisStatusEnum, ApiVersionApiResponse,
 } from './types';
 
 ///////////////////////
@@ -29,10 +29,12 @@ const dummyResult = {
 /* istanbul ignore next */
 export const start = async (
   apiUrl: string,
-  buildPath: string,
   settings: AnalysisSettings,
-  dependenciesBuildPath?: string,
-  baseBuildPath?: string,
+  {
+    build,
+    dependenciesBuild,
+    baseBuild,
+  }: AnalysisFiles,
 ): Promise<AnalysisStartApiResponse> => {
   return { id: 'analysis-id-12345', phases: {}};
 };

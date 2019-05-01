@@ -1,5 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import { ReadStream } from 'fs';
+
 /** Possible analysis states, extends the api status */
 export enum AnalysisStatusEnum {
   /** Analysis is running */
@@ -24,6 +26,16 @@ export enum AnalysisObjectStatusEnum {
   ERRORED = 'ERRORED',
   /** Analysis is completed */
   COMPLETED = 'COMPLETED',
+}
+
+/**
+ * An interface that contains all the possible files for
+ * submitting a request using the Platform Lite API
+ */
+export interface AnalysisFiles {
+  build: Buffer | ReadStream;
+  dependenciesBuild?: Buffer | ReadStream;
+  baseBuild?: Buffer | ReadStream;
 }
 
 /** Analysis progress returned by the API */
