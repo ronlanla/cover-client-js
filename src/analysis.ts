@@ -5,9 +5,9 @@ import { Readable, Writable } from 'readable-stream';
 import { cancel, getStatus, results, start, version } from './dummy-api';
 import { AnalysisError, AnalysisErrorCodeEnum } from './errors';
 import {
-  AnalysisCancel, AnalysisObjectStatusEnum, AnalysisPhases, AnalysisProgress, AnalysisResult,
-  AnalysisResultsApiResponse, AnalysisSettings, AnalysisStartApiResponse,
-  AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse, AnalysisFiles,
+  AnalysisCancel, AnalysisFiles, AnalysisObjectStatusEnum, AnalysisPhases, AnalysisProgress,
+  AnalysisResult, AnalysisResultsApiResponse, AnalysisSettings,
+  AnalysisStartApiResponse, AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
 } from './types';
 
 

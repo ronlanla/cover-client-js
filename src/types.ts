@@ -52,17 +52,17 @@ export interface ApiError {
 
 /** Analysis result returned by API */
 export interface AnalysisResult {
-  'test-id': string;
-  'test-name': string;
-  'tested-function': string;
-  'source-file-path': string;
-  'test-body': string;
+  testId: string;
+  testName: string;
+  testedFunction: string;
+  sourceFilePath: string;
+  testBody: string;
   imports: string[];
-  'static-imports': string[];
-  'class-annotations': string[];
+  staticImports: string[];
+  classAnnotations: string[];
   tags: string[];
-  'phase-generated': string;
-  'created-time': string;
+  phaseGenerated: string;
+  createdTime: string;
 }
 
 /** Analysis phase returned and consumed by the API */
@@ -71,16 +71,16 @@ export interface AnalysisPhase {
   timeout?: number;
   classpath?: string;
   depth?: number;
-  'java-external-code-action'?: string;
-  'java-load-class'?: string[];
-  'java-max-vla-length'?: number;
-  'java-mock-class'?: string[];
-  'java-unwind-enum-static'?: boolean;
-  'max-nondet-string-length'?: number;
+  javaExternalCodeAction?: string;
+  javaLoadClass?: string[];
+  javaMaxVlaLength?: number;
+  javaMockClass?: string[];
+  javaUnwindEnumStatic?: boolean;
+  maxNondetStringLength?: number;
   unwind?: number;
-  'string-printable'?: boolean;
-  'max-nondet-array-length'?: number;
-  'next-phase'?: {
+  stringPrintable?: boolean;
+  maxNondetArrayLength?: number;
+  nextPhase?: {
     [event: string]: string;
   };
 }
@@ -101,11 +101,11 @@ export interface AnalysisSettings {
     include?: string[];
     exclude?: string[];
   };
-  'ignore-defaults'?: boolean;
+  ignoreDefaults?: boolean;
   phases?: AnalysisPhases;
   webhooks?: {
     finish?: string[];
-    'test-generated'?: string[];
+    testGenerated?: string[];
   };
 }
 

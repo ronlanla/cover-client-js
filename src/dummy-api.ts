@@ -12,17 +12,17 @@ import {
 
 const dummyStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
 const dummyResult = {
-  'test-id': 'string',
-  'test-name': 'string',
-  'tested-function': 'string',
-  'source-file-path': 'string',
-  'test-body': 'string',
+  testId: 'string',
+  testName: 'string',
+  testedFunction: 'string',
+  sourceFilePath: 'string',
+  testBody: 'string',
   imports: [],
-  'static-imports': [],
-  'class-annotations': [],
+  staticImports: [],
+  classAnnotations: [],
   tags: [],
-  'phase-generated': 'string',
-  'created-time': 'string',
+  phaseGenerated: 'string',
+  createdTime: 'string',
 };
 
 /** Dummy start */

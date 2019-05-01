@@ -20,17 +20,17 @@ const dependenciesBuild = Buffer.alloc(0);
 const baseBuild = Buffer.alloc(0);
 const files = { build: build };
 const sampleResult = {
-  'test-id': 'id',
-  'test-name': 'name',
-  'tested-function': 'func',
-  'source-file-path': './path',
-  'test-body': 'body',
+  testId: 'id',
+  testName: 'name',
+  testedFunction: 'func',
+  sourceFilePath: './path',
+  testBody: 'body',
   imports: ['import'],
-  'static-imports': ['static import'],
-  'class-annotations': ['class annotation'],
+  staticImports: ['static import'],
+  classAnnotations: ['class annotation'],
   tags: ['tag'],
-  'phase-generated': 'phase',
-  'created-time': 'created',
+  phaseGenerated: 'phase',
+  createdTime: 'created',
 };
 
 /** Create a dummy writable stream for testing */
@@ -337,7 +337,7 @@ describe('src/analysis', () => {
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
-      extantResult['test-id'] = 'extant-result';
+      extantResult.testId = 'extant-result';
       startedAnalysis.results = [extantResult];
       const analysis = clone(startedAnalysis);
       const returnValue = await analysis.getResults();
@@ -366,7 +366,7 @@ describe('src/analysis', () => {
       const startedAnalysis = new Analysis(apiUrl);
       await startedAnalysis.start(settings, files);
       const extantResult = clone(sampleResult);
-      extantResult['test-id'] = 'overwritten';
+      extantResult.testId = 'overwritten';
       startedAnalysis.results = [extantResult];
       const analysis = clone(startedAnalysis);
       const returnValue = await analysis.getResults(false);
@@ -398,7 +398,7 @@ describe('src/analysis', () => {
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
-      extantResult['test-id'] = 'extant-result';
+      extantResult.testId = 'extant-result';
       startedAnalysis.results = [extantResult];
       const analysis = clone(startedAnalysis);
       const returnValue = await analysis.getResults();
@@ -430,7 +430,7 @@ describe('src/analysis', () => {
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
       const extantResult = clone(sampleResult);
-      extantResult['test-id'] = 'extant-result';
+      extantResult.testId = 'extant-result';
       startedAnalysis.results = [extantResult];
       const analysis = clone(startedAnalysis);
       await assert.rejects(
