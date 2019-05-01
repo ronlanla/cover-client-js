@@ -30,6 +30,7 @@
     "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
   },
   "dependencies": {
+    "@diffblue/java-combiner": "0.0.11",
     "axios": "0.18.0",
     "form-data": "2.3.3",
     "lodash": "4.17.11",

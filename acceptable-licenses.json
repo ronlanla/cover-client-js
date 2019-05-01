@@ -1,4 +1,7 @@
 {
+  "@diffblue/java-combiner": [
+    "mit"
+  ],
   "asynckit": [
     "mit"
   ],
@@ -12,6 +15,9 @@
     "mit"
   ],
   "delayed-stream": [
+    "mit"
+  ],
+  "duplex-child-process": [
     "mit"
   ],
   "follow-redirects": [
