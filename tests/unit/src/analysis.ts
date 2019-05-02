@@ -6,6 +6,7 @@ import { Readable, Writable } from 'readable-stream';
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
+import { SinonSpy } from 'sinon';
 import Analysis, { components } from '../../../src/analysis';
 import { AnalysisError, AnalysisErrorCodeEnum } from '../../../src/errors';
 import { AnalysisObjectStatusEnum, AnalysisStatusEnum } from '../../../src/types';
@@ -37,8 +38,9 @@ const sampleResult = {
 function createTestWriteable() {
   const writeable = new Writable({ objectMode: true });
   (writeable as any).data = []; // tslint:disable-line:no-any
-  writeable._write = (chunk) => {
+  writeable.write = (chunk: any, next?: any): boolean => { // tslint:disable-line:no-any
     (writeable as any).data.push(chunk); // tslint:disable-line:no-any
+    return true;
   };
   return writeable;
 }
@@ -181,11 +183,11 @@ describe('src/analysis', () => {
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
       cancel.resolves(cancelResponse);
       const writableStream = createTestWriteable();
+      writableStream.end = sinon.spy();
       const analysis = new Analysis(apiUrl, writableStream);
       await analysis.start(settings, files);
       await analysis.cancel();
-      assert.ok((analysis._readable as Readable)._readableState.ended);
-      assert.ok((analysis._readable as Readable)._readableState.destroyed);
+      assert.calledOnce(writableStream.end as SinonSpy);
     }));
     it('Fails to cancel an analysis, if api method throws', sinonTest(async (sinon) => {
       const start = sinon.stub(components, 'start');
@@ -397,9 +399,6 @@ describe('src/analysis', () => {
       await startedAnalysis.start(settings, files);
       const startingCursor = 98765;
       startedAnalysis.cursor = startingCursor;
-      const extantResult = clone(sampleResult);
-      extantResult.testId = 'extant-result';
-      startedAnalysis.results = [extantResult];
       const analysis = clone(startedAnalysis);
       const returnValue = await analysis.getResults();
       const changes = {
@@ -410,6 +409,33 @@ describe('src/analysis', () => {
       };
       assert.deepStrictEqual(returnValue, resultsResponse);
       assert.calledOnceWith(results, [apiUrl, analysisId, startedAnalysis.cursor]);
+      assert.changedProperties(startedAnalysis, analysis, changes);
+      assert.deepStrictEqual((writableStream as any).data, resultsResponse.results); // tslint:disable-line:no-any
+    }));
+    it('Can get the initial paginated results of an analysis with a results stream', sinonTest(async (sinon) => {
+      const start = sinon.stub(components, 'start');
+      start.resolves({ id: analysisId, phases: {}});
+      const results = sinon.stub(components, 'results');
+      const responseStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
+      const resultsResponse = {
+        status: responseStatus,
+        cursor: 12345,
+        results: [sampleResult],
+      };
+      results.resolves(resultsResponse);
+      const writableStream = createTestWriteable();
+      const startedAnalysis = new Analysis(apiUrl, writableStream);
+      await startedAnalysis.start(settings, files);
+      const analysis = clone(startedAnalysis);
+      const returnValue = await analysis.getResults();
+      const changes = {
+        status: returnValue.status.status,
+        progress: returnValue.status.progress,
+        error: undefined,
+        cursor: returnValue.cursor,
+      };
+      assert.deepStrictEqual(returnValue, resultsResponse);
+      assert.calledOnceWith(results, [apiUrl, analysisId, undefined]);
       assert.changedProperties(startedAnalysis, analysis, changes);
       assert.deepStrictEqual((writableStream as any).data, resultsResponse.results); // tslint:disable-line:no-any
     }));

@@ -1,7 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { writable as isWritableStream } from 'is-stream';
-import { Readable, Writable } from 'readable-stream';
+import { Writable } from 'readable-stream';
 import { cancel, getStatus, results, start, version } from './dummy-api';
 import { AnalysisError, AnalysisErrorCodeEnum } from './errors';
 import {
@@ -33,7 +33,6 @@ export default class Analysis {
   public cursor?: number;
   public apiVersion?: string;
   public isStreaming = false;
-  public readonly _readable?: Readable;
 
   public constructor(apiUrl: string, resultsStream?: Writable) {
     this.apiUrl = apiUrl;
@@ -45,15 +44,12 @@ export default class Analysis {
           AnalysisErrorCodeEnum.STREAM_NOT_WRITABLE,
         );
       }
-      if (resultsStream._writableState && !resultsStream._writableState.objectMode) {  // tslint:disable-line:no-any
+      if (resultsStream._writableState && !resultsStream._writableState.objectMode) {
         throw new AnalysisError(
           'Results stream is not in object mode.',
           AnalysisErrorCodeEnum.STREAM_NOT_OBJECT_MODE,
         );
       }
-      this._readable = new Readable({ objectMode: true });
-      this._readable._read = () => {};  // tslint:disable-line:no-empty
-      this._readable.pipe(resultsStream);
       this.results = resultsStream;
       this.isStreaming = true;
     }
@@ -84,9 +80,8 @@ export default class Analysis {
     this.status = AnalysisObjectStatusEnum[status.status];
     this.progress = status.progress;
     this.error = status.message;
-    if (this.isStreaming && this.isEnded() && this._readable) {
-      this._readable.push(null);
-      this._readable.destroy();
+    if (this.isStreaming && this.isEnded()) {
+      (this.results as Writable).end();
     }
   }
 
@@ -132,7 +127,7 @@ export default class Analysis {
     const response = await components.results(this.apiUrl, this.analysisId, paginate ? this.cursor : undefined);
     this.cursor = response.cursor;
     if (this.isStreaming) {
-      response.results.forEach((result) => this._readable && this._readable.push(result));
+      response.results.forEach((result) => (this.results as Writable).write(result));
     } else if (Array.isArray(this.results)) {
       this.results = paginate ? [...this.results, ...response.results] : response.results;
     }
