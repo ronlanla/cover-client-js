@@ -1,5 +1,41 @@
 {
+  "asynckit": [
+    "mit"
+  ],
+  "axios": [
+    "mit"
+  ],
+  "combined-stream": [
+    "mit"
+  ],
+  "debug": [
+    "mit"
+  ],
+  "delayed-stream": [
+    "mit"
+  ],
+  "follow-redirects": [
+    "mit"
+  ],
+  "form-data": [
+    "mit"
+  ],
+  "is-buffer": [
+    "mit"
+  ],
   "lodash": [
+    "mit"
+  ],
+  "mime-db": [
+    "mit"
+  ],
+  "mime-types": [
+    "mit"
+  ],
+  "ms": [
+    "mit"
+  ],
+  "url-join": [
     "mit"
   ]
 }
