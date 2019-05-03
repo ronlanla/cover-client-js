@@ -1,6 +1,6 @@
 // Copyright 2018-2019 Diffblue Limited. All Rights Reserved.
 
-import urljoin from 'url-join';
+import urlJoin from 'url-join';
 
 export const generateApiUrl = (params: string[]) => {
   if (params.length <= 1) {
@@ -13,7 +13,7 @@ export const generateApiUrl = (params: string[]) => {
     }
   }
 
-  return urljoin(params);
+  return urlJoin(params);
 };
 
 export const routes = {
