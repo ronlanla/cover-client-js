@@ -24,15 +24,15 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
   });
 
   const formData = new FormData();
-  formData.append('build', build, options('build', 'java-archive'));
-  formData.append('settings', JSON.stringify(settings), options('settings', 'json'));
+  formData.append('build', build, options('build.jar', 'java-archive'));
+  formData.append('settings', JSON.stringify(settings), options('settings.json', 'json'));
 
   if (baseBuild) {
-    formData.append('base-build', baseBuild, options('base-build', 'java-archive'));
+    formData.append('baseBuild', baseBuild, options('baseBuild.jar', 'java-archive'));
   }
 
   if (dependenciesBuild) {
-    formData.append('dependencies-build', dependenciesBuild, options('dependencies-build', 'java-archive'));
+    formData.append('dependenciesBuild', dependenciesBuild, options('dependenciesBuild.jar', 'java-archive'));
   }
 
   return components.post(components.start(api), formData, formData.getHeaders());

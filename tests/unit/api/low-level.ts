@@ -81,7 +81,7 @@ describe('src/api/low-level', () => {
       await startAnalysis(api, { build: build, settings: settings, baseBuild: baseBuild });
 
       const actualFiles = getFormDataFiles(post);
-      const expectedFiles = ['build', 'settings', 'base-build'];
+      const expectedFiles = ['build', 'settings', 'baseBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
     }));
@@ -96,7 +96,7 @@ describe('src/api/low-level', () => {
       await startAnalysis(api, { build: build, settings: settings, dependenciesBuild: dependenciesBuild });
 
       const actualFiles = getFormDataFiles(post);
-      const expectedFiles = ['build', 'settings', 'dependencies-build'];
+      const expectedFiles = ['build', 'settings', 'dependenciesBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
     }));
@@ -116,7 +116,7 @@ describe('src/api/low-level', () => {
       });
 
       const actualFiles = getFormDataFiles(post);
-      const expectedFiles = ['build', 'settings', 'base-build', 'dependencies-build'];
+      const expectedFiles = ['build', 'settings', 'baseBuild', 'dependenciesBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
     }));
