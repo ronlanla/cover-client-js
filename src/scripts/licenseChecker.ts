@@ -5,8 +5,7 @@ import { readFile, writeFile } from 'fs';
 import { groupBy, mapValues, maxBy, padEnd } from 'lodash';
 import { promisify } from 'util';
 
-import logger from '../utils/log';
-
+import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 /** A dictionary for module licenses */
 interface ModuleLicenses {
   [key: string]: Set<string>;
@@ -16,18 +15,19 @@ interface ModuleLicenses {
 export interface Command {
   name: string;
   /** Function to run the command */
-  run(filePath: string): Promise<string | void>;
+  run(filePath: string): Promise<string | undefined>;
   help: string;
 }
 
-/** An error which part of normal operation  */
-class ExpectedError extends Error {
-  public constructor(message: string) {
-    super(message);
-    // Work around TypeScript bug because we are transpiling to ES5
-    Object.setPrototypeOf(this, ExpectedError.prototype);
-  }
-}
+export const dependencies = {
+  exec: promisify(exec),
+  readFile: promisify(readFile),
+  writeFile: promisify(writeFile),
+};
+
+export const components = {
+  getLicenseInfo: getLicenseInfo,
+};
 
 const commands: Command[] = [
   {
@@ -41,16 +41,6 @@ const commands: Command[] = [
     help: 'Generate acceptable license file from npm dependencies',
   },
 ];
-
-export const dependencies = {
-  exec: promisify(exec),
-  readFile: promisify(readFile),
-  writeFile: promisify(writeFile),
-};
-
-export const components = {
-  getLicenseInfo: getLicenseInfo,
-};
 
 /** Get the license information from yarn and return as a json object */
 export async function getLicenseInfo(): Promise<string[][]> {
@@ -103,6 +93,8 @@ export async function checkLicenses(filePath: string) {
     const list = missingLicenses.map((missing) => `- ${missing}`).join('\n');
     throw new ExpectedError(`Licenses missing from acceptable list:\n ${list}`);
   }
+
+  return undefined;
 }
 
 /** Generates an acceptable license file */
@@ -115,45 +107,35 @@ export async function generateAcceptableLicenses(filePath: string) {
   return `File ${filePath} has been generated!`;
 }
 
-/** Returns the help message for the command */
-export function helpMessage(commands: Command[]) {
+/** Returns description for the command */
+export function getDescription(commands: Command[]) {
   const longestName = maxBy(commands, (command) => command.name.length);
   const padding = longestName ? longestName.name.length : 0;
   return [
     'Generates an acceptable license file containing all licenses in',
     'npm dependencies by using the yarn command `yarn licenses`.',
     'Can compare this file against the current dependencies for discrepancies.\n',
-    'Usage: ts-node ./license-checker/script.ts <command> [--help]\n',
     'Commands:',
     ...commands.map((option) => `  ${padEnd(option.name, padding)}  ${option.help}`),
   ].join('\n');
 }
 
 /** Generate or verify a license file */
-export default async function licenseChecker(commands: Command[], args: string[]) {
-  const filePath = './acceptable-licenses.json';
+export default function licenseChecker(commands: Command[]) {
+  return async (args: string[]) => {
+    const filePath = './acceptable-licenses.json';
 
-  const command = commands.find((searchCommand) => args.includes(searchCommand.name));
+    const command = commands.find((searchCommand) => args[0] === searchCommand.name);
 
-  if (args.includes('--help')) {
-    return helpMessage(commands);
-  }
-
-  if (command) {
-    return command.run(filePath);
-  } else {
-    throw new ExpectedError(`No valid command given\n\n${helpMessage(commands)}`);
-  }
+    if (command) {
+      return command.run(filePath);
+    } else {
+      throw new ExpectedError('No valid command given');
+    }
+  };
 }
 
 if (require.main === module) {
-  licenseChecker(commands, process.argv).then((message) => {
-    if (message) {
-      logger.log(message);
-    }
-  }).catch((error) => {
-    // Only show the stack trace for unexpected errors
-    logger.error(error instanceof ExpectedError ? error.toString() : error);
-    process.exit(1);
-  });
+  commandLineRunner(getDescription(commands), '<command>', licenseChecker(commands));
 }
+

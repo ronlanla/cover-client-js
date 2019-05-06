@@ -8,10 +8,15 @@ import { flatten } from 'lodash';
 import { join } from 'path';
 import { promisify } from 'util';
 
-import logger from '../utils/log';
+import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 
 /** Interface for the function to check copyright notices */
 type CopyrightNoticeCheck = (year: number, content: string) => boolean;
+
+const description = [
+  'Checks up to date copyright statements are present in all required files',
+  'Ignore files by adding gitignore rules to .copyrightignore',
+].join('\n');
 
 const currentYear = (new Date()).getFullYear();
 const baseIgnoreFiles = ['/.git', '.DS_Store'];
@@ -93,28 +98,28 @@ export async function buildFileList(path: string, existingIgnoreRules: string[])
 }
 
 /** Check for valid copyright statements in all files within current directory */
-export default async function checkCopyright(
+export default function copyrightChecker(
   currentYear: number,
   hasCopyrightNotice: CopyrightNoticeCheck,
   baseIgnoreFiles: string[],
 ) {
-  const gitFiles = await components.getCommittedFiles();
-  const files = (await components.buildFileList('.', baseIgnoreFiles)).filter((file) => gitFiles.has(file));
-  const missingFiles = await filter(files, async (file) => {
-    const fileData = (await dependencies.readFile(file)).toString();
-    return !hasCopyrightNotice(currentYear, fileData);
-  }, { concurrency: 3 });
+  return async () => {
+    const gitFiles = await components.getCommittedFiles();
+    const files = (await components.buildFileList('.', baseIgnoreFiles)).filter((file) => gitFiles.has(file));
+    const missingFiles = await filter(files, async (file) => {
+      const fileData = (await dependencies.readFile(file)).toString();
+      return !hasCopyrightNotice(currentYear, fileData);
+    }, { concurrency: 3 });
 
-  if (missingFiles.length > 0) {
-    throw new Error(`No valid ${currentYear} copyright statement found in:\n${missingFiles.join('\n')}`);
-  }
+    if (missingFiles.length > 0) {
+      const missing = missingFiles.map((file) => `  ${file}`).join('\n');
+      throw new ExpectedError(`No valid ${currentYear} copyright statement found in:\n${missing}`);
+    }
+
+    return 'Copyright statements up to date!';
+  };
 }
 
 if (require.main === module) {
-  checkCopyright(currentYear, hasCopyrightNotice, baseIgnoreFiles).then(() => {
-    logger.log('Copyright statements up to date!');
-  }).catch((error) => {
-    logger.error(error);
-    process.exit(1);
-  });
+  commandLineRunner(description, '', copyrightChecker(currentYear, hasCopyrightNotice, baseIgnoreFiles));
 }

@@ -2,14 +2,23 @@ import { exec } from 'child_process';
 import { unlink, writeFile } from 'fs';
 import { promisify } from 'util';
 
-import argvParser, { Options } from '../utils/argvParser';
-import logger from '../utils/log';
+import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 
-const dependencies = {
+/** Callback to be called when NPM authentication setup */
+type AuthenticatedCallback = (environment: NodeJS.ProcessEnv) => Promise<string | undefined>;
+
+export const dependencies = {
   writeFile: promisify(writeFile),
   unlink: promisify(unlink),
   exec: promisify(exec),
 };
+
+export const components = {
+  authenticateNpm: authenticateNpm,
+  getAuthUser: getAuthUser,
+};
+
+const description = 'Publishes this package to NPM, requires an NPM API token';
 
 const npmConfig = '.npmrc';
 
@@ -21,27 +30,15 @@ export async function getAuthUser(environment: NodeJS.ProcessEnv) {
 }
 
 /** Wrapper allowing authenticated NPM requests with a token */
-export async function authenticateNpm(token: string, callback: (environment: NodeJS.ProcessEnv) => Promise<void>) {
+export async function authenticateNpm(token: string, environment: NodeJS.ProcessEnv, callback: AuthenticatedCallback) {
   /** Environment variables without `npm_config_registry` variable injected by yarn */
-  const environment: NodeJS.ProcessEnv = { ...process.env, npm_config_registry: '' };
+  const callbackEnvironment: NodeJS.ProcessEnv = { ...environment, npm_config_registry: '' };
   await dependencies.writeFile(npmConfig, `//registry.npmjs.org/:_authToken=${token}`);
   try {
-    await callback(environment);
+    return await callback(callbackEnvironment);
   } finally {
-    await dependencies.unlink(npmConfig).catch();
+    await dependencies.unlink(npmConfig).catch(() => undefined);
   }
-}
-
-/** Returns the help message for the command */
-export function helpMessage() {
-  const isYarn = Boolean(process.env.npm_config_user_agent && process.env.npm_config_user_agent.match(/^yarn/));
-  const command = process.env.npm_config_argv && JSON.parse(process.env.npm_config_argv).cooked.join(' ');
-  return [
-    'Description:',
-    '  Publishes this package to NPM, requires an NPM API token\n',
-    'Usage:',
-    `  ${command ? `${isYarn ? 'yarn' : 'npm'} ${command}` : 'ts-node publishPackage.ts'} <token> [--help]\n`,
-  ].join('\n');
 }
 
 /** Extracts the error message from NPM output */
@@ -51,41 +48,33 @@ export function extractNpmError(output: string) {
 }
 
 /** Publishes the package */
-export default async function publishPackage(args: string[] , options: Options) {
-  if (options.help) {
-    logger.log(helpMessage());
-    return;
-  }
-
-  const token = args[0];
-  if (!token) {
-    throw new Error('Please provide a token to authenticate with NPM');
-  }
-
-  await dependencies.exec('yarn install');
-  await dependencies.exec('npm shrinkwrap');
-
-  await authenticateNpm(token, async (environment) => {
-    await dependencies.writeFile(npmConfig, `//registry.npmjs.org/:_authToken=${token}`);
-    const username = await getAuthUser(environment);
-    if (!username) {
-      throw new Error('Invalid token to authenticate with NPM');
+export default function publishPackage(environment: NodeJS.ProcessEnv) {
+  return async (args: string[]) => {
+    const token = args[0];
+    if (!token) {
+      throw new ExpectedError('Please provide a token to authenticate with NPM');
     }
-    try {
-      await dependencies.exec('npm publish --access public', { env: environment });
-      logger.log('Successfully published');
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Could not publish package\n${extractNpmError(error.toString())}`);
+
+    await dependencies.exec('yarn install');
+    await dependencies.exec('npm shrinkwrap');
+
+    return components.authenticateNpm(token, environment, async (environment) => {
+      const username = await components.getAuthUser(environment);
+      if (!username) {
+        throw new ExpectedError('Invalid token to authenticate with NPM');
       }
-    }
-  });
+      try {
+        await dependencies.exec('npm publish --access public', { env: environment });
+        return 'Successfully published';
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(`Could not publish package\n${extractNpmError(error.toString())}`);
+        }
+      }
+    });
+  };
 }
 
 if (require.main === module) {
-  const { args, options } = argvParser(process.argv);
-  publishPackage(args, options).catch((error) => {
-    logger.error(`${helpMessage()}\n${error.toString()}`);
-    process.exit(1);
-  });
+  commandLineRunner(description, '<token>', publishPackage(process.env));
 }

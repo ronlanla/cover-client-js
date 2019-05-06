@@ -3,7 +3,7 @@
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
-import checkCopyright, {
+import copyrightChecker, {
   buildFileList,
   catchMissingFile,
   components,
@@ -29,7 +29,7 @@ class TestError extends Error implements NodeJS.ErrnoException {
   }
 }
 
-describe('scripts/copyright-checker', () => {
+describe('scripts/copyrightChecker', () => {
   describe('hasCopyrightNotice', () => {
     const year = 2010;
     it('Returns true if content has a valid copyright notice', () => {
@@ -205,7 +205,7 @@ describe('scripts/copyright-checker', () => {
     }));
   });
 
-  describe('checkCopyright', () => {
+  describe('copyrightChecker', () => {
     const year = 2010;
 
     it('Resolves when all files have valid copyright notices', sinonTest(async (sinon) => {
@@ -221,10 +221,11 @@ describe('scripts/copyright-checker', () => {
       const readFile = sinon.stub(dependencies, 'readFile');
       readFile.resolves(`Copyright ${year} Company`);
 
-      const copyrightChecker = (year: number, content: string) => Boolean(content.match(`Copyright ${year} Company`));
+      const hasCopyrightNotice = (year: number, content: string) => Boolean(content.match(`Copyright ${year} Company`));
       const baseIgnoreFiles = ['/.git', '.DS_Store'];
 
-      await checkCopyright(year, copyrightChecker, baseIgnoreFiles);
+      const result = await copyrightChecker(year, hasCopyrightNotice, baseIgnoreFiles)();
+      assert.strictEqual(result, 'Copyright statements up to date!');
 
       assert.calledWith(readFile, [
         ['folder/config.yml'],
@@ -248,11 +249,11 @@ describe('scripts/copyright-checker', () => {
 
       assert.notOtherwiseCalled(readFile, 'readFile');
 
-      const copyrightChecker = (year: number, content: string) => Boolean(content.match('Copyright 2011 Company'));
+      const hasCopyrightNotice = (year: number, content: string) => Boolean(content.match('Copyright 2011 Company'));
       const baseIgnoreFiles = ['/.git', '.DS_Store'];
-      const expectedError = new Error('No valid 2010 copyright statement found in:\nfolder/config.yml');
+      const expectedError = new Error('No valid 2010 copyright statement found in:\n  folder/config.yml');
 
-      await assert.rejectsWith(checkCopyright(year, copyrightChecker, baseIgnoreFiles), expectedError);
+      await assert.rejectsWith(copyrightChecker(year, hasCopyrightNotice, baseIgnoreFiles)(), expectedError);
 
       assert.calledWith(readFile, [
         ['docs.txt'],

@@ -10,6 +10,7 @@ import licenseChecker, {
   dependencies,
   findMissingLicenses,
   generateAcceptableLicenses,
+  getDescription,
   getLicenseInfo,
   loadAcceptableLicenses,
   parseLicenseInfo,
@@ -71,14 +72,7 @@ const sampleCommands: Command[] = [
   },
 ];
 
-const expectedHelpCommands = (
-`Commands:
-  success-command  Command to test success
-  error-command    Command to test error`
-);
-
-
-describe('scripts/license-checker', () => {
+describe('scripts/licenseChecker', () => {
   describe('getLicenseInfo', () => {
     it('Loads and parses license information from yarn', sinonTest(async (sinon) => {
       const exec = sinon.stub(dependencies, 'exec');
@@ -255,33 +249,39 @@ describe('scripts/license-checker', () => {
     }));
   });
 
+  describe('getDescription', () => {
+    it('Returns a description based on the commands provided', () => {
+      const description = getDescription([
+        { name: 'foo', help: 'Foo command', run: () => Promise.resolve(undefined) },
+        { name: 'bar-zim', help: 'Bar-zim command', run: () => Promise.resolve(undefined) },
+      ]);
+      assert.endsWith(description, [
+        'Commands:',
+        '  foo      Foo command',
+        '  bar-zim  Bar-zim command',
+      ].join('\n'));
+    });
+
+    it('Returns a description with no commands', () => {
+      const description = getDescription([]);
+      assert.endsWith(description, 'Commands:');
+    });
+  });
+
   describe('licenseChecker', () => {
     it('Runs a command, resolving its value', async () => {
-      const result = await licenseChecker(sampleCommands, ['success-command']);
+      const result = await licenseChecker(sampleCommands)(['success-command']);
       assert.strictEqual(result, 'Success message');
     });
 
     it('Runs a command, rejecting its error', async () => {
-      await assert.rejectsWith(licenseChecker(sampleCommands, ['error-command']), new Error('Error message'));
+      await assert.rejectsWith(licenseChecker(sampleCommands)(['error-command']), new Error('Error message'));
     });
 
-    it('Resolves the help message', async () => {
-      const result = await licenseChecker(sampleCommands, ['--help']);
-      assert.matches(result || '', expectedHelpCommands);
-    });
-
-    it('Resolves the help message rather than running a command', sinonTest(async (sinon) => {
-      const runCommand = sinon.spy(sampleCommands[0], 'run');
-
-      const result = await licenseChecker(sampleCommands, ['success-command', '--help']);
-      assert.matches(result || '', expectedHelpCommands);
-      assert.notCalled(runCommand);
-    }));
-
-    it('Rejects with an error and help message when given no command', async () => {
+    it('Rejects with an error when given no command', async () => {
       await assert.rejectsWith(
-        licenseChecker(sampleCommands, []),
-        /No valid command given\n/,
+        licenseChecker(sampleCommands)([]),
+        /No valid command given/,
       );
     });
   });
