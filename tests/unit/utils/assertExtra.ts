@@ -349,11 +349,9 @@ describe('assertExtra', () => {
 
   describe('matches', () => {
     it('Throws an exception when a string does not match a regex', () => {
-      const expectedError = getError(() => {
-        assert.strictEqual(false, true, 'Pattern "/Foo \\d\\d/" did not match "Foo AB"');
-      });
-
-      assert.throws(() => assertExtra.matches('Foo AB', /Foo \d\d/), errorEquals(expectedError));
+      assert.throws(() => assertExtra.matches('Foo AB', /Foo \d\d/), errorEquals(getError(() => {
+        assert.strictEqual(false, true, '"Foo AB" did not match pattern "/Foo \\d\\d/"');
+      })));
     });
 
     it('Does not throw an exception when a string matches a regex', () => {
