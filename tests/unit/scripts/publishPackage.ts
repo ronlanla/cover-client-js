@@ -89,7 +89,7 @@ describe('scripts/copyrightChecker', () => {
         return callback(environment);
       });
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('yarn install').resolves();
+      exec.withArgs('yarn install --frozen-lockfile').resolves();
       exec.withArgs('npm shrinkwrap').resolves();
 
       assert.notOtherwiseCalled(exec, 'exec');
@@ -103,7 +103,7 @@ describe('scripts/copyrightChecker', () => {
         return callback(environment);
       });
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('yarn install').resolves();
+      exec.withArgs('yarn install --frozen-lockfile').resolves();
       exec.withArgs('npm shrinkwrap').resolves();
       exec.withArgs('npm publish --access public', { env: environment }).rejects(new Error('Publish error'));
 
@@ -118,7 +118,7 @@ describe('scripts/copyrightChecker', () => {
         return callback(environment);
       });
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('yarn install').resolves();
+      exec.withArgs('yarn install --frozen-lockfile').resolves();
       exec.withArgs('npm shrinkwrap').resolves();
       exec.withArgs('npm publish --access public', { env: environment }).resolves();
 
