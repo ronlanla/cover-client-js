@@ -9,10 +9,12 @@ export const generateApiUrl = (params: string[]) => {
   return urlJoin(params);
 };
 
-export const routes = {
+const routes = {
   version: (api: string) => generateApiUrl([api, 'version']),
   start: (api: string) => generateApiUrl([api, 'analysis']),
   result: (api: string, identifier: string) => generateApiUrl([api, 'analysis', identifier]),
   status: (api: string, identifier: string) => generateApiUrl([api, 'analysis', identifier, 'status']),
   cancel: (api: string, identifier: string) => generateApiUrl([api, 'analysis', identifier, 'cancel']),
 };
+
+export default routes;

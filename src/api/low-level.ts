@@ -4,7 +4,7 @@ import FormData from 'form-data';
 
 import { AnalysisFiles } from '../types/api';
 import request from '../utils/request';
-import { routes } from '../utils/routes';
+import routes from '../utils/routes';
 
 export const components = {
   ...request,
