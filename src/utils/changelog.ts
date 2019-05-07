@@ -4,6 +4,13 @@ import * as Bluebird from 'bluebird';
 import { ChildProcess, spawn } from 'child_process';
 import { uniq } from 'lodash';
 import { parseGit } from 'parse-git';
+import argvParser, { Options } from '../utils/argvParser';
+import logger from '../utils/log';
+
+
+const dependencies = {
+  spawn: spawn,
+};
 
 /** A single entry in the Git log */
 type GitLogEntry = {
@@ -49,13 +56,14 @@ async function consumeProcess(process: ChildProcess): Promise<string> {
 }
 
 /** Gets the commit log for the repo this file belongs to */
-async function gitLog(commit = 'master', previousCommit?: string, mergesOnly = true): Promise<GitLogEntry[]> {
+async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = true): Promise<GitLogEntry[]> {
   const range = previousCommit ? `${previousCommit}..${commit}` : commit;
-  const logParameters = ['--no-pager', 'log', '--name-only', range];
+  const logParameters = ['--no-pager', 'log', '--name-only', range, '--merges'];
   if (mergesOnly) {
     logParameters.push('--merges');
   }
-  return consumeProcess(spawn('git', logParameters))
+
+  return consumeProcess(dependencies.spawn('git', logParameters))
   .then((log) => {
     return parseGit(log).map((entry: GitLogEntry) => {
       const match = log.match(new RegExp(`(?:\n|^)commit ${entry.id}\nMerge: (.+)`));
@@ -103,18 +111,18 @@ function getFeatures(commits: GitLogEntry[]): string[] {
     }
     return '';
   })
-  .filter<string>((feature): feature is string => {
-    return Boolean(feature);
-  });
+  // disabling ts-lint rule due to this bug https://github.com/palantir/tslint/issues/2430
+  // tslint:disable-next-line:no-unnecessary-callback-wrapper
+  .filter<string>((feature): feature is string => Boolean(feature));
 }
 
 /** Creates changelog data which can be consumed by `renderChangelog` and `renderChangelogVersion` */
 export async function createChangelog(): Promise<LogVersion[]> {
   return gitLog().then((mergeCommits) => {
     const releaseVersions = uniq(mergeCommits.map((commit) => getReleaseVersion(commit.comment))
-    .filter<string>((version): version is string => {
-      return Boolean(version);
-    }));
+    // disabling ts-lint rule due to this bug https://github.com/palantir/tslint/issues/2430
+    // tslint:disable-next-line:no-unnecessary-callback-wrapper
+    .filter<string>((version): version is string => Boolean(version)));
 
     return Bluebird.mapSeries(releaseVersions, async (version, i) => {
       // Log all commits between this version and the previous version
@@ -153,7 +161,6 @@ export async function createChangelog(): Promise<LogVersion[]> {
  *
  * Move ticket references (e.g. TG-123) to the end of the description,
  * and ensure they use the correct format e.g. "[TG-123, TG-456]"
- * @param {string} feature A git commit message
  */
 export function normaliseTicketSyntax(feature: string) {
   const match = feature.match(/\[?\s*((TG-\d+)(\s*,\s*TG-\d+)*)\s*\]?:?/i);
@@ -166,21 +173,56 @@ export function normaliseTicketSyntax(feature: string) {
 }
 
 /**
+ * Creates a formatted string which adds an underlined title to a LogVersion based on the version name.
+ */
+function addTitleToChangelogVersion(version: LogVersion) {
+  return `${version.version}\n${Array(version.version.length + 1).join('=')}\n\n${renderChangelogVersion(version)}`;
+}
+
+/**
  * Returns a formatted string showing Git log entries, grouped by release status
- *
- * @param {LogVersion[]} changelog An array of arrays of Git log entries, grouped by release status
  */
 export function renderChangelog(changelog: LogVersion[]) {
-  return changelog.map((version) => {
-    return `${version.version}\n${Array(version.version.length + 1).join('=')}\n\n${renderChangelogVersion(version)}`;
-  }).join('\n');
+  // disabling ts-lint rule due to this bug https://github.com/palantir/tslint/issues/2430
+  // tslint:disable-next-line:no-unnecessary-callback-wrapper
+  return changelog.map((version) => addTitleToChangelogVersion(version)).join('\n');
 }
 
 /**
  * Returns a formatted string showing Git log entries
- *
- * @param {LogVersion} changelog An array of Git log entries
  */
 export function renderChangelogVersion(changelog: LogVersion) {
   return changelog.entries.map((entry) => `* ${entry}\n`).join('');
+}
+
+/**
+ * Prints out the git log, grouped in to 'Released' and 'Unreleased' changes.
+ */
+export default async function changelog(args: string[], options: Options) {
+  if (options.help) {
+    logger.log(helpMessage());
+    return;
+  }
+
+  const log = await createChangelog();
+  logger.info(renderChangelog(log));
+}
+
+/** Returns the help message for the command */
+export function helpMessage() {
+  return [
+    'Description:',
+    '  Prints out the changelog, grouped by whether they have been included in a release or not.',
+    '  Use --unreleased argument to show only unreleased changes.\n',
+    'Usage:',
+    '  ts-node changelog.ts [--unreleased]',
+  ].join('\n');
+}
+
+if (require.main === module) {
+  const { args, options } = argvParser(process.argv);
+  changelog(args, options).catch((error) => {
+    logger.error(`${helpMessage()}\n${error.toString()}`);
+    process.exit(1);
+  });
 }
