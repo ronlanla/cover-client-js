@@ -1,3 +1,5 @@
+// Copyright 2019 Diffblue Limited. All Rights Reserved.
+
 import { basename } from 'path';
 import argvParser, { Options } from './argvParser';
 import logger from './log';

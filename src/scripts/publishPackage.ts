@@ -1,3 +1,5 @@
+// Copyright 2019 Diffblue Limited. All Rights Reserved.
+
 import { exec } from 'child_process';
 import { unlink, writeFile } from 'fs';
 import { promisify } from 'util';
