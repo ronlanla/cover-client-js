@@ -3,7 +3,7 @@
 import FormData from 'form-data';
 
 import { AnalysisFiles } from '../types/api';
-import request from '../utils/request';
+import request, { ApiError } from '../utils/request';
 import routes from '../utils/routes';
 
 export const components = {
@@ -25,7 +25,12 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
 
   const formData = new FormData();
   formData.append('build', build, options('build.jar', 'java-archive'));
-  formData.append('settings', JSON.stringify(settings), options('settings.json', 'json'));
+
+  try {
+    formData.append('settings', JSON.stringify(settings), options('settings.json', 'json'));
+  } catch (error) {
+    throw new ApiError(error, 'settings-invalid');
+  }
 
   if (baseBuild) {
     formData.append('baseBuild', baseBuild, options('baseBuild.jar', 'java-archive'));
