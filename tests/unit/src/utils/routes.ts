@@ -13,11 +13,6 @@ describe('src/utils/routing', () => {
       assert.deepStrictEqual(actualString, expectedString);
     });
 
-    it('Throws when provided with an empty array', () => {
-      const expectedError = new Error('At least 2 parameters are required to generate a valid Cover URL');
-      assert.throws(() => generateApiUrl([]), errorEquals(expectedError));
-    });
-
     it('Throws when provided with an empty string parameter', () => {
       const expectedError = new Error('Route parameter cannot be an empty string');
       assert.throws(() => generateApiUrl([defaultApiUrl, '']), errorEquals(expectedError));

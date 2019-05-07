@@ -3,16 +3,9 @@
 import urlJoin from 'url-join';
 
 export const generateApiUrl = (params: string[]) => {
-  if (params.length <= 1) {
-    throw new Error('At least 2 parameters are required to generate a valid Cover URL');
+  if (params.some((param) => param === '')) {
+    throw new Error('Route parameter cannot be an empty string');
   }
-
-  for (const param of params) {
-    if (param === '') {
-      throw new Error('Route parameter cannot be an empty string');
-    }
-  }
-
   return urlJoin(params);
 };
 
