@@ -67,12 +67,12 @@ export default async function createRelease(args: string[], options: Options) {
   // Get version from package.json
   const packageFile = await dependencies.readFile(packageJsonFilename)
   .catch((err) => {
-    logger.error(`Unable to read package.json: ${err}`);
+    logger.error(`Unable to read ${packageJsonFilename}: ${err}`);
     return 1;
   });
   const packageJson = JSON.parse(packageFile.toString());
   const originalVersion = packageJson.version;
-  logger.info(`Current package.json version is ${originalVersion}`);
+  logger.info(`Current ${packageJsonFilename} version is ${originalVersion}`);
 
   // Ask user if this is major/minor/patch
   const answer: PatchTypeAnswer = await inquirer.prompt({
@@ -86,7 +86,7 @@ export default async function createRelease(args: string[], options: Options) {
 
   // Bump version according to what user said earlier
   const newVersion = semver.inc(originalVersion, answer.releaseType);
-  logger.info(`New package.json version is ${newVersion}`);
+  logger.info(`New ${packageJsonFilename} version is ${newVersion}`);
 
   // Make a branch off develop called release/x.y.z
   const newBranchName = `release/${newVersion}`;
@@ -97,7 +97,7 @@ export default async function createRelease(args: string[], options: Options) {
   const indentSpacing = 2;
   await dependencies.writeFile(packageJsonFilename, JSON.stringify(packageJson, null, indentSpacing))
   .catch((err) => {
-    logger.error(`Unable to write package.json: ${err}`);
+    logger.error(`Unable to write ${packageJsonFilename}: ${err}`);
     return 1;
   });
   await dependencies.simpleGit.add(packageJsonFilename);

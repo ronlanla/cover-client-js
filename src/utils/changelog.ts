@@ -38,13 +38,9 @@ async function consumeProcess(process: ChildProcess): Promise<string> {
       return reject('Process not set up correctly.');
     }
 
-    process.stdout.on('data', (data) => {
-      output += data;
-    });
+    process.stdout.on('data', (data) => output += data);
 
-    process.stderr.on('data', (data) => {
-      error += data;
-    });
+    process.stderr.on('data', (data) => error += data);
 
     process.on('close', (code) => {
       if (code !== 0) {
@@ -63,15 +59,13 @@ async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = 
     logParameters.push('--merges');
   }
 
-  return consumeProcess(dependencies.spawn('git', logParameters))
-  .then((log) => {
-    return parseGit(log).map((entry: GitLogEntry) => {
-      const match = log.match(new RegExp(`(?:\n|^)commit ${entry.id}\nMerge: (.+)`));
-      if (match) {
-        return { ...entry, parents: match[1].split(' ') };
-      }
-      return entry;
-    });
+  const log = await consumeProcess(dependencies.spawn('git', logParameters));
+  return parseGit(log).map((entry: GitLogEntry) => {
+    const match = log.match(new RegExp(`(?:\n|^)commit ${entry.id}\nMerge: (.+)`));
+    if (match) {
+      return { ...entry, parents: match[1].split(' ') };
+    }
+    return entry;
   });
 }
 
