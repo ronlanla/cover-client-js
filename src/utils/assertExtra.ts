@@ -99,7 +99,7 @@ const assertExtra = {
     assert.strictEqual(value.endsWith(end), true, `"${value}" does not end with "${end}"`);
   },
 
-  /** Assert that the provided changes and only the provided changes have occurred on an object */
+  /** Assert that the expected changes and only the expected changes have occurred on an object */
   // tslint:disable-next-line: no-any
   changedProperties: (originalObject: {[index: string]: any}, changedObject: object, expectedChanges: object) => {
     for (const [key, value] of Object.entries(expectedChanges)) {

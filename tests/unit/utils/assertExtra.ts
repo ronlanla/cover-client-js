@@ -374,5 +374,57 @@ describe('utils/assertExtra', () => {
       assertExtra.endsWith('abc123', '123');
     });
   });
+
+  describe('changedProperties', () => {
+    it('Throws an exception when an object has changed properties not listed in the expectedChanges', () => {
+      const originalObject = { a: 1 };
+      const changedObject = { a: 2 };
+      const expectedChanges = {};
+      const expectedError = getError(() => {
+        assert.deepStrictEqual(originalObject, changedObject);
+      });
+
+      assert.throws(
+        () => assertExtra.changedProperties(originalObject, changedObject, expectedChanges),
+        errorEquals(expectedError),
+      );
+    });
+
+    it('Throws an exception when an object does not have a changed property listed in the expectedChanges', () => {
+      const originalObject: any = { a: 1 }; // tslint:disable-line:no-any
+      const changedObject = { a: 1 };
+      const expectedChanges = { b: 2 };
+      const expectedError = getError(() => {
+        originalObject.b = 2;
+        assert.deepStrictEqual(originalObject, changedObject);
+      });
+
+      assert.throws(
+        () => assertExtra.changedProperties(originalObject, changedObject, expectedChanges),
+        errorEquals(expectedError),
+      );
+    });
+
+    it('Throws an exception when a changed property listed in the expectedChanges has the wrong value', () => {
+      const originalObject = { a: 1 };
+      const changedObject = { a: 2 };
+      const expectedChanges = { a: 3 };
+      const expectedError = getError(() => {
+        assert.deepStrictEqual({ ...originalObject, ...expectedChanges }, changedObject);
+      });
+
+      assert.throws(
+        () => assertExtra.changedProperties(originalObject, changedObject, expectedChanges),
+        errorEquals(expectedError),
+      );
+    });
+
+    it('Does not throw when the expectedChanges match the actual changes', () => {
+      const originalObject = { a: 1 };
+      const changedObject = { a: 2 };
+      const expectedChanges = { a: 2 };
+      assertExtra.changedProperties(originalObject, changedObject, expectedChanges);
+    });
+  });
 });
 
