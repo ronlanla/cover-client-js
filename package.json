@@ -1,5 +1,5 @@
 {
-  "name": "diffblue-cover-client-js",
+  "name": "@diffblue/cover-client",
   "version": "0.0.1",
   "description": "Diffblue Cover client library - Node.js API for Diffblue Cover",
   "main": "index.js",
@@ -10,6 +10,10 @@
     "type": "git",
     "url": "git@github.com:diffblue/cover-client-js.git"
   },
+  "files": [
+    "/build",
+    "/npm-shrinkwrap.json"
+  ],
   "author": "Diffblue Limited",
   "bugs": {
     "url": "https://github.com/diffblue/cover-client-js/issues"
@@ -22,6 +26,7 @@
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
+    "publish-package": "ts-node src/scripts/publishPackage.ts",
     "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
   },
   "dependencies": {

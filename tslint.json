@@ -147,7 +147,6 @@
     "quotemark": [true, "single", "avoid-escape", "avoid-template"],
     "radix": true,
     "restrict-plus-operands": true,
-    "return-undefined": true,
     "semicolon": [true, "always"],
     "space-before-function-paren": [
       true,
