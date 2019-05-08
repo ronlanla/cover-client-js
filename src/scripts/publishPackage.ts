@@ -69,9 +69,7 @@ export default function publishPackage(environment: NodeJS.ProcessEnv) {
         await dependencies.exec('npm publish --access public', { env: environment });
         return 'Successfully published';
       } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(`Could not publish package\n${extractNpmError(error.toString())}`);
-        }
+        throw new Error(`Could not publish package\n${extractNpmError(error.toString())}`);
       }
     });
   };
