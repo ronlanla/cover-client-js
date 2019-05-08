@@ -14,6 +14,7 @@ describe('src/utils/request', () => {
 
   describe('convertError', () => {
     it('Converts the axios error response in the Cover ApiError format', () => {
+      const status = 400;
       const error: AxiosError = {
         ...templateError,
         response: {
@@ -22,10 +23,11 @@ describe('src/utils/request', () => {
             message: 'Error',
             code: 'api-error',
           },
+          status: status,
         },
       };
 
-      const expectedError = new ApiError('Error', 'api-error');
+      const expectedError = new ApiError('Error', 'api-error', status);
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
 
@@ -34,10 +36,14 @@ describe('src/utils/request', () => {
         ...templateError,
         response: {
           ...templateResponse,
+          data: {
+            code: 'axios-error',
+            message: 'An unknown error occurred',
+          },
         },
       };
 
-      const expectedError = new ApiError('An unknown error occurred', 'unknown-error');
+      const expectedError = new ApiError('An unknown error occurred', 'axios-error', 0);
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
   });
