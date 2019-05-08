@@ -5,20 +5,29 @@ import FormData from 'form-data';
 
 /** Platform Lite API error class */
 export class ApiError extends Error {
-  public constructor(message: string, code: string) {
+  public constructor(message: string, code: string, status?: number) {
     super(message);
     this.code = code;
+    this.status = status;
   }
   public code: string;
+  public status?: number;
 }
 
 /** Convert an axios error into the standard Platform Lite API format */
-export const convertError = (error: AxiosError) => {
-  const data = error.response && error.response.data;
-  if (data && data.message && data.code) {
-    throw new ApiError(data.message, data.code);
+export const convertError = ({ response }: AxiosError) => {
+  const { code, message, status, statusText } = {
+    code: response && response.data.code,
+    message: response && response.data.message,
+    status: response && response.status,
+    statusText: response && response.statusText,
+  };
+
+  if (message && code) {
+    throw new ApiError(message, code, status);
   }
-  throw new ApiError('An unknown error occurred', 'unknown-error');
+
+  throw new ApiError(statusText || 'An unknown error occurred', 'axios-error', status);
 };
 
 const request = {
