@@ -30,17 +30,11 @@ export class CombinerError extends Error {
 
 /** Error codes usable by AnalysisError */
 export enum AnalysisErrorCodeEnum {
-  /** Analysis not running */
   NOT_RUNNING = 'NOT_STARTED',
-  /** Analysis already started */
   ALREADY_STARTED = 'ALREADY_STARTED',
-  /** Analysis id is not set */
   NO_ID = 'NO_ID',
-  /** Streaming results must be paginated */
   STREAM_MUST_PAGINATE = 'STREAM_MUST_PAGINATE',
-  /** Results stream must be writable */
   STREAM_NOT_WRITABLE = 'STREAM_NOT_WRITABLE',
-  /** Results stream must be in object mode */
   STREAM_NOT_OBJECT_MODE = 'STREAM_NOT_OBJECT_MODE',
 }
 
@@ -53,6 +47,6 @@ export class AnalysisError extends Error {
   public constructor(message: string, code: AnalysisErrorCodeEnum) {
     super(message);
     this.code = code;
-
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }

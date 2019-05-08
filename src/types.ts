@@ -2,29 +2,20 @@
 
 import { ReadStream } from 'fs';
 
-/** Possible analysis states, extends the api status */
+/** Possible analysis statuses */
 export enum AnalysisStatusEnum {
-  /** Analysis is running */
   RUNNING = 'RUNNING',
-  /** Analysis is canceled */
   CANCELED = 'CANCELED',
-  /** Analysis is errored */
   ERRORED = 'ERRORED',
-  /** Analysis is completed */
   COMPLETED = 'COMPLETED',
 }
 
 /** Possible Analysis object statuses, extends the api status enum */
 export enum AnalysisObjectStatusEnum {
-  /** Analysis has not been started */
   NOT_STARTED = 'NOT_STARTED',
-  /** Analysis is running */
   RUNNING = 'RUNNING',
-  /** Analysis is canceled */
   CANCELED = 'CANCELED',
-  /** Analysis is errored */
   ERRORED = 'ERRORED',
-  /** Analysis is completed */
   COMPLETED = 'COMPLETED',
 }
 
@@ -71,7 +62,7 @@ export interface AnalysisPhase {
   timeout?: number;
   classpath?: string;
   depth?: number;
-  javaExternalCodeAction?: string;
+  javaExternalCodeAction?: 'mock' | 'mock-non-jdk' | 'ignore' | 'discard-testcase';
   javaLoadClass?: string[];
   javaMaxVlaLength?: number;
   javaMockClass?: string[];
