@@ -8,7 +8,7 @@ import {
   AnalysisCancel, AnalysisFiles, AnalysisObjectStatusEnum, AnalysisPhases, AnalysisProgress,
   AnalysisResult, AnalysisResultsApiResponse, AnalysisSettings,
   AnalysisStartApiResponse, AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
-} from './types';
+} from './types/types';
 
 
 export const components = {

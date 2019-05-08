@@ -9,7 +9,7 @@ import sinonTestFactory from '../../../src/utils/sinonTest';
 import { SinonSpy } from 'sinon';
 import Analysis, { components } from '../../../src/analysis';
 import { AnalysisError, AnalysisErrorCodeEnum } from '../../../src/errors';
-import { AnalysisObjectStatusEnum, AnalysisStatusEnum } from '../../../src/types';
+import { AnalysisObjectStatusEnum, AnalysisStatusEnum } from '../../../src/types/types';
 
 const sinonTest = sinonTestFactory();
 

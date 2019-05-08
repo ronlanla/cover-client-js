@@ -4,7 +4,7 @@ import {
     AnalysisCancel, AnalysisFiles, AnalysisResultsApiResponse,
     AnalysisSettings, AnalysisStartApiResponse, AnalysisStatusApiResponse,
     AnalysisStatusEnum, ApiVersionApiResponse,
-} from './types';
+} from './types/types';
 
 ///////////////////////
 // DUMMY API METHODS //

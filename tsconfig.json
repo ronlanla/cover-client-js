@@ -13,7 +13,10 @@
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "alwaysStrict": true,
-    "typeRoots": ["./node_modules/@types/", "./src/types/"],
+    "typeRoots": [
+      "./node_modules/@types/",
+      "./src/types/external/"
+    ],
     "baseUrl": "."
   },
   "include": [
