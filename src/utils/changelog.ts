@@ -8,7 +8,7 @@ import argvParser, { Options } from '../utils/argvParser';
 import logger from '../utils/log';
 
 
-const dependencies = {
+export const dependencies = {
   spawn: spawn,
 };
 
