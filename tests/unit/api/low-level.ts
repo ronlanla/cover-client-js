@@ -1,10 +1,9 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { SinonStub } from 'sinon';
-
 import {
   cancelAnalysis,
   components,
+  dependencies,
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
@@ -14,19 +13,6 @@ import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
-
-/** Map and return the files names from a formdata object */
-function getFormDataFiles(post: SinonStub) {
-  const formContent = (post.getCalls()[0].args[1] as { _streams: string[] })._streams;
-  const actualFiles: string[] = [];
-
-  // tslint:disable:no-magic-numbers
-  for (let i = 0; i < formContent.length; i += 3) {
-    actualFiles.push(formContent[i].split(' ')[2].slice(6, -2));
-  }
-
-  return actualFiles;
-}
 
 describe('src/api/low-level', () => {
   const api = 'http://localhost/api';
@@ -72,6 +58,7 @@ describe('src/api/low-level', () => {
     }));
 
     it('Appends a base build file to the form before submitting a request', sinonTest(async (sinon) => {
+      const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const start = sinon.stub(components, 'start');
       const post = sinon.stub(components, 'post');
 
@@ -80,13 +67,14 @@ describe('src/api/low-level', () => {
 
       await startAnalysis(api, { build: build, settings: settings, baseBuild: baseBuild });
 
-      const actualFiles = getFormDataFiles(post);
+      const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'baseBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
     }));
 
     it('Appends a dependencies build file to the form before submitting a request', sinonTest(async (sinon) => {
+      const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const start = sinon.stub(components, 'start');
       const post = sinon.stub(components, 'post');
 
@@ -95,13 +83,14 @@ describe('src/api/low-level', () => {
 
       await startAnalysis(api, { build: build, settings: settings, dependenciesBuild: dependenciesBuild });
 
-      const actualFiles = getFormDataFiles(post);
+      const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'dependenciesBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
     }));
 
     it('Appends all files to the form before submitting a request', sinonTest(async (sinon) => {
+      const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const start = sinon.stub(components, 'start');
       const post = sinon.stub(components, 'post');
 
@@ -115,7 +104,7 @@ describe('src/api/low-level', () => {
         dependenciesBuild: dependenciesBuild,
       });
 
-      const actualFiles = getFormDataFiles(post);
+      const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'baseBuild', 'dependenciesBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
@@ -155,6 +144,7 @@ describe('src/api/low-level', () => {
       const resultUrl = `${api}/analysis${analysisId}`;
       const result = sinon.stub(components, 'result');
       const get = sinon.stub(components, 'get');
+      const cursor = 1234;
 
       result.withArgs(api, analysisId).returns(resultUrl);
       get.withArgs(resultUrl).resolves({
@@ -166,7 +156,7 @@ describe('src/api/low-level', () => {
         },
       });
 
-      const actualResponse = await getAnalysisResults(api, analysisId, 1234);
+      const actualResponse = await getAnalysisResults(api, analysisId, cursor);
       const expectedResults = {
         cursor: 5678,
         results: [{ testId: '34-56-78' }],

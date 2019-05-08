@@ -6,6 +6,10 @@ import { AnalysisFiles } from '../types/api';
 import request, { ApiError } from '../utils/request';
 import routes from '../utils/routes';
 
+export const dependencies = {
+  FormData: FormData,
+};
+
 export const components = {
   ...request,
   ...routes,
@@ -23,7 +27,7 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
     filename: filename,
   });
 
-  const formData = new FormData();
+  const formData = new dependencies.FormData();
   formData.append('build', build, options('build.jar', 'java-archive'));
 
   try {
