@@ -77,6 +77,7 @@ export default function publishPackage(environment: NodeJS.ProcessEnv) {
   };
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   commandLineRunner(description, '<token>', publishPackage(process.env));
 }

@@ -135,6 +135,7 @@ export default function licenseChecker(commands: Command[]) {
   };
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   commandLineRunner(getDescription(commands), '<command>', licenseChecker(commands));
 }
