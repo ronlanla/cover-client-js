@@ -5,7 +5,7 @@ import argvParser, { Options } from './argvParser';
 import logger from './log';
 
 /** Command line command interface */
-type Command = (args: string[], options: Options) => Promise<string | undefined>;
+type Command = (args: string[], options: Options) => Promise<string | undefined | void>;
 
 /** An error which is expected, so that we don't bother showing a stack trace  */
 export class ExpectedError extends Error {

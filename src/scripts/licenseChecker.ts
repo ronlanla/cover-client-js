@@ -15,7 +15,7 @@ interface ModuleLicenses {
 export interface Command {
   name: string;
   /** Function to run the command */
-  run(filePath: string): Promise<string | undefined>;
+  run(filePath: string): Promise<string | undefined | void>;
   help: string;
 }
 
@@ -93,8 +93,6 @@ export async function checkLicenses(filePath: string) {
     const list = missingLicenses.map((missing) => `- ${missing}`).join('\n');
     throw new ExpectedError(`Licenses missing from acceptable list:\n ${list}`);
   }
-
-  return undefined;
 }
 
 /** Generates an acceptable license file */
