@@ -31,19 +31,15 @@ describe('src/utils/request', () => {
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
 
-    it('Throws an unknown error in the Cover ApiError format', () => {
-      const error: AxiosError = {
-        ...templateError,
-        response: {
-          ...templateResponse,
-          data: {
-            code: 'axios-error',
-            message: 'An unknown error occurred',
-          },
-        },
-      };
+    it('Throws with statusText in the Cover ApiError format', () => {
+      const error: AxiosError = { ...templateError, response: { ...templateResponse, statusText: 'Foo bar' }};
+      const expectedError = new ApiError('Foo bar', 'axios-error', 0);
+      assert.throws(() => convertError(error), errorEquals(expectedError));
+    });
 
-      const expectedError = new ApiError('An unknown error occurred', 'axios-error', 0);
+    it('Throws an unknown error in the Cover ApiError format', () => {
+      const error: AxiosError = { ...templateError, response: undefined };
+      const expectedError = new ApiError('An unknown error occurred', 'axios-error');
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
   });
