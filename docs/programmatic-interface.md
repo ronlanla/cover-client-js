@@ -8,23 +8,58 @@ The `Analysis` class can be used to run analyses. It makes the calling the low l
 
 The `Analysis` constructor has one required parameter, which is the url of the Diffblue Cover api.
 
+In Node.js:
+
+```js
+const Analysis = require('@diffblue/cover-client').Analysis;
+const analysis = new Analysis('https://your-cover-api-domain.com');
+```
+
+In Typescript:
+
 ```ts
-const Analysis = require(`diffblue-cover-client-js`).analysis;
+import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
 ```
 
 ### Usage
 
-To start an analysis, call `Analysis.start`. This has two required parameters, the path to the build jar and a
-settings object. The third and fourth parameters are optional.
-Passing a path to a dependencies build jar as the third parameter will enable test verification.
-Passing a path to a base build jar as the fourth parameter will enable a differential analysis.
+#### Start an analysis
+
+To start an analysis, call `Analysis.start`.
+
+This has two required parameters, a settings object and an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
+
+The first parameter must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
+
+Including `dependenciesBuild` will enable test verification.
+
+Including `baseBuild` will enable a differential analysis.
 
 ```ts
 const analysis = new Analysis('https://your-cover-api-domain.com');
-await analysis.start('./buildPath.jar', settings);
+const buildFile = fs.createReadSteam('./build.jar');
+await analysis.start(settings, { build: buildFile });
 // => {id: 'unique-analysis-id', phases: {<computed phases>}}
 ```
+
+```ts
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const buildFile = fs.createReadSteam('./build.jar');
+const baseBuildFile = fs.createReadSteam('./baseBuild.jar');
+const dependenciesBuildFile = fs.createReadSteam('./dependenciesBuild.jar');
+await analysis.start(
+  settings,
+  {
+    build: buildFile,
+    baseBuild: baseBuildFile,
+    dependenciesBuild: dependenciesBuildFile,
+  },
+);
+// => {id: 'unique-analysis-id', phases: {<computed phases>}}
+```
+
+#### Get the status of an analysis
 
 To get the status of an analysis that has started, call `Analysis.getStatus`.
 
@@ -33,6 +68,8 @@ await analysis.getStatus();
 // => {status: 'RUNNING', progress: {completed: 0. total: 0}}
 ```
 
+#### Get the results of an analysis
+
 To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
 
 ```ts
@@ -40,11 +77,22 @@ await analysis.getResults();
 // => {status: {<analysis status>}, cursor: '<pagination cursor>, results: [<result objects>]'}
 ```
 
+#### Cancel an analysis
+
 To cancel an analysis that has started, call `Analysis.cancel`.
 
 ```ts
 await analysis.cancel();
 // => {status: 'CANCELLED', progress: {completed: 10. total: 10}}
+```
+
+#### Get the version of the Diffblue Cover api
+
+To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
+
+```ts
+await analysis.getApiVersion();
+// => {version: 1.0.0 }}
 ```
 
 ### Result pagination

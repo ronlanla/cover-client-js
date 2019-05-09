@@ -38,6 +38,11 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
 ## Full documentation
 
 - [Programmatic interface](docs/programmatic-interface.md)
+  - [Object orientated interface](docs/programmatic-interface.md#object-orientated-interface)
+    - [Instantiation](docs/programmatic-interface.md#instantiation)
+    - [Usage](docs/programmatic-interface.md#usage)
+    - [Result pagination](docs/programmatic-interface.md#result-pagination)
+    - [Lifecycle](docs/programmatic-interface.md#lifecycle)
   - [Combining results into test classes](docs/programmatic-interface.md#combining-results-into-test-classes)
     - [Generate a new test class](docs/programmatic-interface.md#generate-a-new-test-class)
     - [Merge results into an existing test class](docs/programmatic-interface.md#merge-results-into-an-existing-test-class)
