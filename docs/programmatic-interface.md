@@ -37,7 +37,7 @@ const fs = require('fs');
 
 const api = 'https://0.0.0.0/api';
 const build = fs.createReadStream('./build.jar');
-const settings = fs.createReadStream('./settings.json');
+const settings = { ignoreDefaults: true, phases: {}, webhooks: {} };
 return CoverClient.startAnalysis(api, { build: build, settings: settings }).then(({ id, phases }) => {
   console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
 });
@@ -54,7 +54,7 @@ const asyncReadFile = promisify(readFile);
 
 const api = 'https://0.0.0.0/api';
 const build = await asyncReadFile('./build.jar');
-const settings = await asyncReadFile('./settings.json');
+const settings = { ignoreDefaults: true, phases: {}, webhooks: {} };
 const { id, phases } = await CoverClient.startAnalysis(api, { build: build, settings: settings });
 console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
 ```
