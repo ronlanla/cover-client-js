@@ -22,6 +22,12 @@ export async function getApiVersion(api: string) {
 
 /** Starts an analysis and returns the analysis id */
 export async function startAnalysis(api: string, { baseBuild, build, dependenciesBuild, settings }: AnalysisFiles) {
+  if (!build) {
+    throw new ApiError('The required `build` JAR file was not supplied', 'buildMissing');
+  } else if (!settings) {
+    throw new ApiError('The required `settings` JSON file was not supplied', 'settingsMissing');
+  }
+
   const options = (filename: string, type: 'java-archive' | 'json') => ({
     contentType: `application/${type}`,
     filename: filename,
@@ -33,7 +39,7 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
   try {
     formData.append('settings', JSON.stringify(settings), options('settings.json', 'json'));
   } catch (error) {
-    throw new ApiError(error, 'settings-invalid');
+    throw new ApiError(error, 'settingsInvalid');
   }
 
   if (baseBuild) {
