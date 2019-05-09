@@ -33,7 +33,7 @@ describe('src/utils/routing', () => {
     });
 
     it('Correctly generates a string for the API analysis results route', () => {
-      const actualString = routes.result(defaultApiUrl, '12340-ABCDE');
+      const actualString = routes.results(defaultApiUrl, '12340-ABCDE');
       const expectedString = 'http://localhost/api/analysis/12340-ABCDE';
       assert.deepStrictEqual(actualString, expectedString);
     });

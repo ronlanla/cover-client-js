@@ -51,7 +51,7 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
  * and an optional cursor to get the results since the last download
  */
 export async function getAnalysisResults(api: string, id: string, cursor?: number) {
-  return dependencies.request.get(dependencies.routes.result(api, id), { params: { cursor: cursor }});
+  return dependencies.request.get(dependencies.routes.results(api, id), { params: { cursor: cursor }});
 }
 
 /** Cancel the analysis tied to the specified id */
