@@ -7,8 +7,8 @@ import { ReadStream } from 'fs';
  * submitting a request using the Platform Lite API
  */
 export interface AnalysisFiles {
-  build: Buffer | ReadStream;
-  settings: Object;
+  build: Buffer | ReadStream | undefined;
+  settings: Object | undefined;
   dependenciesBuild?: Buffer | ReadStream;
   baseBuild?: Buffer | ReadStream;
 }

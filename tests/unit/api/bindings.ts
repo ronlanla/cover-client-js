@@ -9,6 +9,7 @@ import {
   startAnalysis,
 } from '../../../src/api/bindings';
 import assert from '../../../src/utils/assertExtra';
+import { ApiError } from '../../../src/utils/request';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
@@ -102,6 +103,31 @@ describe('src/api/low-level', () => {
       const expectedFiles = ['build', 'settings', 'baseBuild', 'dependenciesBuild'];
 
       assert.deepStrictEqual(actualFiles, expectedFiles);
+    }));
+
+    it('Throws an error when no build is supplied', sinonTest(async () => {
+      await assert.rejectsWith(
+        startAnalysis(api, { build: undefined, settings: settings }),
+        new ApiError('The required `build` JAR file was not supplied', 'buildMissing'),
+      );
+    }));
+
+    it('Throws an error when no settings are supplied', sinonTest(async () => {
+      await assert.rejectsWith(
+        startAnalysis(api, { build: build, settings: undefined }),
+        new ApiError('The required `settings` JSON file was not supplied', 'settingsMissing'),
+      );
+    }));
+
+    it('Throws an error when the settings are invalid', sinonTest(async () => {
+      /** Infinite cycle object to throw an error for JSON.stringify */
+      const obj: { a?: Object } = {};
+      obj.a = { b: obj };
+
+      await assert.rejectsWith(
+        startAnalysis(api, { build: build, settings: obj }),
+        new ApiError('TypeError: Converting circular structure to JSON', 'settingsInvalid'),
+      );
     }));
   });
 
