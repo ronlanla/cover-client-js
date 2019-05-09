@@ -56,6 +56,9 @@ commands:
       - run:
           name: Publish package
           command: yarn publish-package $NPM_TOKEN
+      - run:
+          name: Create git tag
+          command: yarn create-release-tag
 
 jobs:
   checks:
