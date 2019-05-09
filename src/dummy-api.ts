@@ -3,14 +3,14 @@
 import {
     AnalysisCancel, AnalysisFiles, AnalysisResultsApiResponse,
     AnalysisSettings, AnalysisStartApiResponse, AnalysisStatusApiResponse,
-    AnalysisStatusEnum, ApiVersionApiResponse,
+    AnalysisStatuses, ApiVersionApiResponse,
 } from './types/types';
 
 ///////////////////////
 // DUMMY API METHODS //
 ///////////////////////
 
-const dummyStatus = { status: AnalysisStatusEnum.RUNNING, progress: { completed: 10, total: 20 }};
+const dummyStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
 const dummyResult = {
   testId: 'string',
   testName: 'string',

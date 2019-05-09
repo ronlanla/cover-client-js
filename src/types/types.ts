@@ -3,7 +3,7 @@
 import { ReadStream } from 'fs';
 
 /** Possible analysis statuses */
-export enum AnalysisStatusEnum {
+export enum AnalysisStatuses {
   RUNNING = 'RUNNING',
   CANCELED = 'CANCELED',
   ERRORED = 'ERRORED',
@@ -11,7 +11,7 @@ export enum AnalysisStatusEnum {
 }
 
 /** Possible Analysis object statuses, extends the api status enum */
-export enum AnalysisObjectStatusEnum {
+export enum AnalysisObjectStatuses {
   NOT_STARTED = 'NOT_STARTED',
   RUNNING = 'RUNNING',
   CANCELED = 'CANCELED',
@@ -102,7 +102,7 @@ export interface AnalysisSettings {
 
 /** Status object returned by the API */
 export interface AnalysisStatusApiResponse {
-  status: AnalysisStatusEnum;
+  status: AnalysisStatuses;
   progress: AnalysisProgress;
   message?: ApiError;
 }

@@ -3,9 +3,9 @@
 import { writable as isWritableStream } from 'is-stream';
 import { Writable } from 'readable-stream';
 import { cancel, getStatus, results, start, version } from './dummy-api';
-import { AnalysisError, AnalysisErrorCodeEnum } from './errors';
+import { AnalysisError, AnalysisErrorCodes } from './errors';
 import {
-  AnalysisCancel, AnalysisFiles, AnalysisObjectStatusEnum, AnalysisPhases, AnalysisProgress,
+  AnalysisCancel, AnalysisFiles, AnalysisObjectStatuses, AnalysisPhases, AnalysisProgress,
   AnalysisResult, AnalysisResultsApiResponse, AnalysisSettings,
   AnalysisStartApiResponse, AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
 } from './types/types';
@@ -25,7 +25,7 @@ export default class Analysis {
   public apiUrl: string;
   public analysisId = '';
   public settings?: AnalysisSettings;
-  public status: AnalysisObjectStatusEnum = AnalysisObjectStatusEnum.NOT_STARTED;
+  public status: AnalysisObjectStatuses = AnalysisObjectStatuses.NOT_STARTED;
   public progress?: AnalysisProgress;
   public error?: ApiError;
   public phases?: AnalysisPhases;
@@ -41,13 +41,13 @@ export default class Analysis {
       if (!isWritableStream(resultsStream)) {
         throw new AnalysisError(
           'Results stream is not writeable stream.',
-          AnalysisErrorCodeEnum.STREAM_NOT_WRITABLE,
+          AnalysisErrorCodes.STREAM_NOT_WRITABLE,
         );
       }
       if (resultsStream._writableState && !resultsStream._writableState.objectMode) {
         throw new AnalysisError(
           'Results stream is not in object mode.',
-          AnalysisErrorCodeEnum.STREAM_NOT_OBJECT_MODE,
+          AnalysisErrorCodes.STREAM_NOT_OBJECT_MODE,
         );
       }
       this.results = resultsStream;
@@ -58,10 +58,10 @@ export default class Analysis {
   /** Check if analysis is running */
   private checkRunning(): void {
     if (!this.isRunning()) {
-      throw new AnalysisError(`Analysis is not running (status: ${this.status}).`, AnalysisErrorCodeEnum.NOT_RUNNING);
+      throw new AnalysisError(`Analysis is not running (status: ${this.status}).`, AnalysisErrorCodes.NOT_RUNNING);
     }
     if (!this.analysisId) {
-      throw new AnalysisError('Analysis is running but the analysis id is not set.', AnalysisErrorCodeEnum.NO_ID);
+      throw new AnalysisError('Analysis is running but the analysis id is not set.', AnalysisErrorCodes.NO_ID);
     }
   }
 
@@ -70,14 +70,14 @@ export default class Analysis {
     if (this.isStarted()) {
       throw new AnalysisError(
         `Analysis has already started (status: ${this.status}).`,
-        AnalysisErrorCodeEnum.ALREADY_STARTED,
+        AnalysisErrorCodes.ALREADY_STARTED,
       );
     }
   }
 
   /** Update status related properties and end the internal readable stream if required */
   private updateStatus(status: AnalysisStatusApiResponse): void {
-    this.status = AnalysisObjectStatusEnum[status.status];
+    this.status = AnalysisObjectStatuses[status.status];
     this.progress = status.progress;
     this.error = status.message;
     if (this.isStreaming && this.isEnded()) {
@@ -95,7 +95,7 @@ export default class Analysis {
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
-    this.status = AnalysisObjectStatusEnum.RUNNING;
+    this.status = AnalysisObjectStatuses.RUNNING;
     return response;
   }
 
@@ -120,7 +120,7 @@ export default class Analysis {
     if (this.isStreaming && !paginate) {
       throw new AnalysisError(
         'Cannot disable pagination when writing to a results stream.',
-        AnalysisErrorCodeEnum.STREAM_MUST_PAGINATE,
+        AnalysisErrorCodes.STREAM_MUST_PAGINATE,
       );
     }
     this.checkRunning();
@@ -144,40 +144,40 @@ export default class Analysis {
 
   /** Check if status is not started */
   public isNotStarted(): boolean {
-    return this.status === AnalysisObjectStatusEnum.NOT_STARTED;
+    return this.status === AnalysisObjectStatuses.NOT_STARTED;
   }
 
   /** Check if status is running */
   public isRunning(): boolean {
-    return this.status === AnalysisObjectStatusEnum.RUNNING;
+    return this.status === AnalysisObjectStatuses.RUNNING;
   }
 
   /** Check if status is completed */
   public isCompleted(): boolean {
-    return this.status === AnalysisObjectStatusEnum.COMPLETED;
+    return this.status === AnalysisObjectStatuses.COMPLETED;
   }
 
   /** Check if status is errored */
   public isErrored(): boolean {
-    return this.status === AnalysisObjectStatusEnum.ERRORED;
+    return this.status === AnalysisObjectStatuses.ERRORED;
   }
 
   /** Check if status is canceled */
   public isCanceled(): boolean {
-    return this.status === AnalysisObjectStatusEnum.CANCELED;
+    return this.status === AnalysisObjectStatuses.CANCELED;
   }
 
   /** Check if status indicates that analysis has started */
   public isStarted(): boolean {
-    return this.status !== AnalysisObjectStatusEnum.NOT_STARTED;
+    return this.status !== AnalysisObjectStatuses.NOT_STARTED;
   }
 
   /** Check if status indicates that analysis has ended */
   public isEnded(): boolean {
     const endedStatuses = new Set([
-      AnalysisObjectStatusEnum.COMPLETED,
-      AnalysisObjectStatusEnum.ERRORED,
-      AnalysisObjectStatusEnum.CANCELED,
+      AnalysisObjectStatuses.COMPLETED,
+      AnalysisObjectStatuses.ERRORED,
+      AnalysisObjectStatuses.CANCELED,
     ]);
     return endedStatuses.has(this.status);
   }

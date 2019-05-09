@@ -29,7 +29,7 @@ export class CombinerError extends Error {
 }
 
 /** Error codes usable by AnalysisError */
-export enum AnalysisErrorCodeEnum {
+export enum AnalysisErrorCodes {
   NOT_RUNNING = 'NOT_STARTED',
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
@@ -42,9 +42,9 @@ export enum AnalysisErrorCodeEnum {
 export class AnalysisError extends Error {
 
   public message: string;
-  public code: AnalysisErrorCodeEnum;
+  public code: AnalysisErrorCodes;
 
-  public constructor(message: string, code: AnalysisErrorCodeEnum) {
+  public constructor(message: string, code: AnalysisErrorCodes) {
     super(message);
     this.code = code;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
