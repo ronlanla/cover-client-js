@@ -25,6 +25,7 @@
     "changelog": "ts-node src/utils/changelog.ts",
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 80 mocha --require ts-node/register 'tests/unit/**/*.ts'",
+    "create-release-tag": "ts-node src/scripts/createReleaseTag.ts",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
