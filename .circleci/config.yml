@@ -62,6 +62,9 @@ commands:
       - run:
           name: Create git tag
           command: yarn create-release-tag
+      - run:
+          name: Create a pull request from the release back to develop
+          command: create-post-release-pull-request $GITHUB_TOKEN
 
 jobs:
   checks:
