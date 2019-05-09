@@ -358,5 +358,29 @@ describe('assertExtra', () => {
       assertExtra.matches('Foo 12', /Foo \d\d/);
     });
   });
+
+  describe('startsWith', () => {
+    it('Throws an exception when a string does not start with a value', () => {
+      assert.throws(() => assertExtra.startsWith('abc123', 'abcd'), errorEquals(getError(() => {
+        assert.strictEqual(false, true, '"abc123" does not start with "abcd"');
+      })));
+    });
+
+    it('Does not throw an exception when a string starts with a value', () => {
+      assertExtra.startsWith('abc123', 'abc');
+    });
+  });
+
+  describe('endsWith', () => {
+    it('Throws an exception when a string does not end with a value', () => {
+      assert.throws(() => assertExtra.endsWith('abc123', '1234'), errorEquals(getError(() => {
+        assert.strictEqual(false, true, '"abc123" does not end with "1234"');
+      })));
+    });
+
+    it('Does not throw an exception when a string ends with a value', () => {
+      assertExtra.endsWith('abc123', '123');
+    });
+  });
 });
 
