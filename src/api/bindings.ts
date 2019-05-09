@@ -6,18 +6,11 @@ import { AnalysisFiles } from '../types/api';
 import request, { ApiError } from '../utils/request';
 import routes from '../utils/routes';
 
-export const dependencies = {
-  FormData: FormData,
-};
-
-export const components = {
-  ...request,
-  ...routes,
-};
+export const dependencies = { FormData: FormData, request: request, routes: routes };
 
 /** Gets the version used for the API */
 export async function getApiVersion(api: string) {
-  return components.get(components.version(api));
+  return dependencies.request.get(dependencies.routes.version(api));
 }
 
 /** Starts an analysis and returns the analysis id */
@@ -50,7 +43,7 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
     formData.append('dependenciesBuild', dependenciesBuild, options('dependenciesBuild.jar', 'java-archive'));
   }
 
-  return components.post(components.start(api), formData, formData.getHeaders());
+  return dependencies.request.post(dependencies.routes.start(api), formData, formData.getHeaders());
 }
 
 /**
@@ -58,15 +51,15 @@ export async function startAnalysis(api: string, { baseBuild, build, dependencie
  * and an optional cursor to get the results since the last download
  */
 export async function getAnalysisResults(api: string, id: string, cursor?: number) {
-  return components.get(components.result(api, id), { params: { cursor: cursor }});
+  return dependencies.request.get(dependencies.routes.result(api, id), { params: { cursor: cursor }});
 }
 
 /** Cancel the analysis tied to the specified id */
 export async function cancelAnalysis(api: string, id: string) {
-  return components.post(components.cancel(api, id));
+  return dependencies.request.post(dependencies.routes.cancel(api, id));
 }
 
 /** Get the status of the analysis tied to the specified id */
 export async function getAnalysisStatus(api: string, id: string) {
-  return components.get(components.status(api, id));
+  return dependencies.request.get(dependencies.routes.status(api, id));
 }
