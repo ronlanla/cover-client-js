@@ -11,15 +11,11 @@ references:
     v1-dependency-yarn-
 
 commands:
-  test-node:
+  install-dependencies:
     steps:
       - run:
-          name: Check yarn version
+          name: Yarn version
           command: yarn --version
-      - run:
-          name: Check node version
-          command: node --version
-      - checkout
       - restore_cache:
           keys:
             - *yarn_cache_key
@@ -28,56 +24,94 @@ commands:
       - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
-      - run:
-          name: Lint
-          command: yarn lint-ts
-      - run:
-          name: Copyright check
-          command: yarn copyright-check
-      - run:
-          name: License check
-          command: yarn license-check check-file
-      - run:
-          name: Unit tests
-          command: yarn coverage --forbid-only --forbid-pending
+
+  cache-dependencies:
+    steps:
       - save_cache:
           name: Save yarn package cache
           key: *yarn_cache_key
           paths:
             - ~/.cache/yarn
 
+  checks:
+    steps:
+      - run:
+          name: Lint Typescript code
+          command: yarn lint-ts
+      - run:
+          name: Check all files have up to date copyright notices
+          command: yarn copyright-check
+      - run:
+          name: Check all third party licenses are approved
+          command: yarn license-check check-file
+
+  tests:
+    steps:
+      - run:
+          name: Unit tests
+          command: yarn coverage --forbid-only --forbid-pending
+
+  deploy:
+    steps:
+      - run:
+          name: Publish package
+          command: yarn publish-package $NPM_TOKEN
+
 jobs:
+  checks:
+    docker:
+      - image: circleci/node:10.15.3
+    steps:
+      - checkout
+      - install-dependencies
+      - checks
+      - cache-dependencies
+
   test-node-v8:
     docker:
       - image: circleci/node:8.16.0
     steps:
-      - test-node
+      - checkout
+      - install-dependencies
+      - tests
+      - cache-dependencies
+
   test-node-v10:
     docker:
       - image: circleci/node:10.15.3
     steps:
-      - test-node
+      - checkout
+      - install-dependencies
+      - tests
+      - cache-dependencies
+
   test-node-v11:
     docker:
       - image: circleci/node:11.14.0
     steps:
-      - test-node
+      - checkout
+      - install-dependencies
+      - tests
+      - cache-dependencies
+
   deploy:
     docker:
       - image: circleci/node:10.15.3
     steps:
-      - run:
-          name: Publishing package
-          command: yarn publish-package $NPM_TOKEN
+      - checkout
+      - install-dependencies
+      - deploy
+      - cache-dependencies
 
 workflows:
-  test-supported-node-versions:
+  test:
     jobs:
+      - checks
       - test-node-v8
       - test-node-v10
       - test-node-v11
       - deploy:
-          requires: [test-node-v8, test-node-v10, test-node-v11]
+          requires: [checks, test-node-v8, test-node-v10, test-node-v11]
           filters:
             branches:
               only: master
