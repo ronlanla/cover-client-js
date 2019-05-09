@@ -2,13 +2,12 @@
 
 import {
   cancelAnalysis,
-  components,
   dependencies,
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
   startAnalysis,
-} from '../../../src/api/low-level';
+} from '../../../src/api/bindings';
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
@@ -16,19 +15,18 @@ const sinonTest = sinonTestFactory();
 
 describe('src/api/low-level', () => {
   const api = 'http://localhost/api';
-  const analysisId = 'ABCD-1234';
 
   describe('getApiVersion', () => {
     it('Returns the current version of the API', sinonTest(async (sinon) => {
       const versionUrl = `${api}/version`;
-      const version = sinon.stub(components, 'version');
-      const get = sinon.stub(components, 'get');
+      const get = sinon.stub(dependencies.request, 'get');
 
-      version.withArgs(api).returns(versionUrl);
       get.withArgs(versionUrl).resolves({ version: '1.0.1' });
+      assert.notOtherwiseCalled(get, 'get');
 
       const actualVersion = await getApiVersion(api);
       const expectedVersion = { version: '1.0.1' };
+
       assert.deepStrictEqual(actualVersion, expectedVersion);
     }));
   });
@@ -37,6 +35,7 @@ describe('src/api/low-level', () => {
     const build = new Buffer('foo');
     const baseBuild = new Buffer('bar');
     const dependenciesBuild = new Buffer('roh');
+    const startUrl = `${api}/analysis`;
     const settings = {
       ignoreDefaults: true,
       phases: {},
@@ -44,26 +43,23 @@ describe('src/api/low-level', () => {
     };
 
     it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
-      const start = sinon.stub(components, 'start');
-      const post = sinon.stub(components, 'post');
+      const post = sinon.stub(dependencies.request, 'post');
 
-      start.returns(`${api}/analysis`);
-      post.resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      assert.notOtherwiseCalled(post, 'post');
 
       const actualResponse = await startAnalysis(api, { build: build, settings: settings });
       const expectedResponse = { id: '1234-ABCD', phases: settings.phases };
 
-      assert.calledOnceWith(start, [api]);
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));
 
     it('Appends a base build file to the form before submitting a request', sinonTest(async (sinon) => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
-      const start = sinon.stub(components, 'start');
-      const post = sinon.stub(components, 'post');
+      const post = sinon.stub(dependencies.request, 'post');
 
-      start.returns(`${api}/analysis`);
-      post.resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(api, { build: build, settings: settings, baseBuild: baseBuild });
 
@@ -75,11 +71,10 @@ describe('src/api/low-level', () => {
 
     it('Appends a dependencies build file to the form before submitting a request', sinonTest(async (sinon) => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
-      const start = sinon.stub(components, 'start');
-      const post = sinon.stub(components, 'post');
+      const post = sinon.stub(dependencies.request, 'post');
 
-      start.returns(`${api}/analysis`);
-      post.resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(api, { build: build, settings: settings, dependenciesBuild: dependenciesBuild });
 
@@ -91,11 +86,10 @@ describe('src/api/low-level', () => {
 
     it('Appends all files to the form before submitting a request', sinonTest(async (sinon) => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
-      const start = sinon.stub(components, 'start');
-      const post = sinon.stub(components, 'post');
+      const post = sinon.stub(dependencies.request, 'post');
 
-      start.returns(`${api}/analysis`);
-      post.resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(api, {
         build: build,
@@ -112,12 +106,11 @@ describe('src/api/low-level', () => {
   });
 
   describe('getAnalysisResults', () => {
-    it('Returns all results from the target analysis', sinonTest(async (sinon) => {
-      const resultUrl = `${api}/analysis${analysisId}`;
-      const result = sinon.stub(components, 'result');
-      const get = sinon.stub(components, 'get');
+    const resultUrl = `${api}/analysis/ABCD-1234`;
 
-      result.withArgs(api, analysisId).returns(resultUrl);
+    it('Returns all results from the target analysis', sinonTest(async (sinon) => {
+      const get = sinon.stub(dependencies.request, 'get');
+
       get.withArgs(resultUrl).resolves({
         cursor: 1234,
         results: [{ testId: '12-34-56' }, { testId: '34-56-78' }],
@@ -126,8 +119,9 @@ describe('src/api/low-level', () => {
           progress: 100,
         },
       });
+      assert.notOtherwiseCalled(get, 'get');
 
-      const actualResponse = await getAnalysisResults(api, analysisId);
+      const actualResponse = await getAnalysisResults(api, 'ABCD-1234');
       const expectedResponse = {
         cursor: 1234,
         results: [{ testId: '12-34-56' }, { testId: '34-56-78' }],
@@ -141,12 +135,9 @@ describe('src/api/low-level', () => {
     }));
 
     it('Returns results from the target analysis using a cursor', sinonTest(async (sinon) => {
-      const resultUrl = `${api}/analysis${analysisId}`;
-      const result = sinon.stub(components, 'result');
-      const get = sinon.stub(components, 'get');
+      const get = sinon.stub(dependencies.request, 'get');
       const cursor = 1234;
 
-      result.withArgs(api, analysisId).returns(resultUrl);
       get.withArgs(resultUrl).resolves({
         cursor: 5678,
         results: [{ testId: '34-56-78' }],
@@ -155,8 +146,9 @@ describe('src/api/low-level', () => {
           progress: 100,
         },
       });
+      assert.notOtherwiseCalled(get, 'get');
 
-      const actualResponse = await getAnalysisResults(api, analysisId, cursor);
+      const actualResponse = await getAnalysisResults(api, 'ABCD-1234', cursor);
       const expectedResults = {
         cursor: 5678,
         results: [{ testId: '34-56-78' }],
@@ -172,11 +164,9 @@ describe('src/api/low-level', () => {
 
   describe('cancelAnalysis', () => {
     it('Cancels the targetted analysis', sinonTest(async (sinon) => {
-      const cancelUrl = `${api}/analysis${analysisId}/cancel`;
-      const cancel = sinon.stub(components, 'cancel');
-      const post = sinon.stub(components, 'post');
+      const cancelUrl = `${api}/analysis/ABCD-1234/cancel`;
+      const post = sinon.stub(dependencies.request, 'post');
 
-      cancel.withArgs(api, analysisId).returns(cancelUrl);
       post.withArgs(cancelUrl).resolves({
         message: 'Analysis successfully canceled',
         status: {
@@ -184,8 +174,9 @@ describe('src/api/low-level', () => {
           progress: 50,
         },
       });
+      assert.notOtherwiseCalled(post, 'post');
 
-      const actualResponse = await cancelAnalysis(api, analysisId);
+      const actualResponse = await cancelAnalysis(api, 'ABCD-1234');
       const expectedResponse = {
         message: 'Analysis successfully canceled',
         status: {
@@ -200,14 +191,13 @@ describe('src/api/low-level', () => {
 
   describe('getAnalysisStatus', () => {
     it('Cancels the targetted analysis', sinonTest(async (sinon) => {
-      const statusUrl = `${api}/analysis${analysisId}/status`;
-      const status = sinon.stub(components, 'status');
-      const get = sinon.stub(components, 'get');
+      const statusUrl = `${api}/analysis/ABCD-1234/status`;
+      const get = sinon.stub(dependencies.request, 'get');
 
-      status.withArgs(api, analysisId).returns(statusUrl);
       get.withArgs(statusUrl).resolves({ status: { status: 'RUNNING', progress: 75 }});
+      assert.notOtherwiseCalled(get, 'get');
 
-      const actualResponse = await getAnalysisStatus(api, analysisId);
+      const actualResponse = await getAnalysisStatus(api, 'ABCD-1234');
       const expectedResponse = { status: { status: 'RUNNING', progress: 75 }};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
