@@ -16,18 +16,18 @@ export class ApiError extends Error {
 
 /** Convert an axios error into the standard Platform Lite API format */
 export const convertError = ({ response }: AxiosError) => {
-  const { code, message, status, statusText } = {
-    code: response && response.data.code,
-    message: response && response.data.message,
-    status: response && response.status,
-    statusText: response && response.statusText,
-  };
+  if (response) {
+    const { data, status, statusText } = response;
+    const { code, message } = data;
 
-  if (message && code) {
-    throw new ApiError(message, code, status);
+    if (message && code) {
+      throw new ApiError(message, code, status);
+    }
+
+    throw new ApiError(statusText, 'axios-error', status);
   }
 
-  throw new ApiError(statusText || 'An unknown error occurred', 'axios-error', status);
+  throw new ApiError('An unknown error occurred', 'axios-error');
 };
 
 const request = {
