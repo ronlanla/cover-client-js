@@ -8,6 +8,7 @@ export interface Options {
 /** Splits a string by the first instance of a delimiter */
 export function splitOnce(value: string, delimiter: string | RegExp) {
   const match = value.match(delimiter);
+  /* istanbul ignore next */
   return match ? [value.slice(0, match.index), value.slice((match.index || 0) + 1)] : [value];
 }
 
