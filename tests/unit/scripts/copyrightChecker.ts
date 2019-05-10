@@ -1,5 +1,8 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
+import { mapValues } from 'lodash';
+import * as sinon from 'sinon';
+
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
@@ -17,6 +20,81 @@ import copyrightChecker, {
 
 const sinonTest = sinonTestFactory();
 
+/** X */
+// interface FunctionDictionary {
+//   // tslint:disable-next-line: no-any
+//   [key: string]: (...args: any[]) => any;
+// }
+
+// interface FunctionDictionary {
+//   // tslint:disable-next-line: no-any
+//   [key: string]: (...args: any[]) => any;
+// }
+
+/** Prototype */
+function sinonTestSuite<A extends Object>(
+  dependencies: A,
+  callback: (mocks: { [P in keyof A]: sinon.SinonStubbedMember<A[P]>; }) => void,
+) {
+  return () => {
+    const sandbox = sinon.createSandbox({ ...sinon.defaultConfig });
+    const mocks: { [P in keyof A]: sinon.SinonStubbedMember<A[P]> } = mapValues(dependencies, (dependency, key) => {
+      return sandbox.stub(dependencies, key as keyof A).callsFake((...args: any[]) => {
+        throw new assert.AssertionError({ message: `Unexpected call to ${key} with args ${JSON.stringify(args)}` });
+      }) as sinon.SinonStubbedMember<A[keyof A]>;
+    });
+
+    beforeEach(() => {
+      // mocks = mapValues(dependencies, (dependency, key) => {
+      //   return sandbox.stub(dependencies, key as keyof A).callsFake((...args: any[]) => {
+      //     throw new assert.AssertionError({ message: `Unexpected call to ${key} with args ${JSON.stringify(args)}` });
+      //   }) as sinon.SinonStubbedMember<A[Extract<keyof A, string>]>;
+      // });
+
+      // for (const key in dependencies) {
+      //   if (dependencies.hasOwnProperty(key)) {
+      //     mocks[key] = sandbox.stub(dependencies, key).callsFake((...args) => {
+      //       throw new assert.AssertionError({ message: `Unexpected call to ${key} with args ${JSON.stringify(args)}` });
+      //     }) as sinon.SinonStubbedMember<A[Extract<keyof A, string>]>;
+      //   }
+      // }
+
+      // const x = sandbox.stub(dependencies);
+
+      // for (const key in x) {
+      //   if (x.hasOwnProperty(key)) {
+      //     x[key].callsFake((...args: any[]) => {
+      //       throw new assert.AssertionError({ message: `Unexpected call to ${key} with args ${JSON.stringify(args)}` });
+      //     });
+      //   }
+      // }
+
+      // const mocks: sinon.SinonStubbedInstance<A> = mapValues(dependencies, (dependency, key: keyof A) => {
+      //   return sandbox.stub(dependencies, key).callsFake((...args) => {
+      //     throw new assert.AssertionError({ message: `Unexpected call to ${key} with args ${JSON.stringify(args)}` });
+      //   });
+      // });
+
+      // componentMocks = mapValues(components, (component: (...args: any[]) => any, key: keyof B) => {
+      //   return sandbox.stub(components, key).callsFake(component);
+      // });
+
+      // for (const key in components) {
+      //   if (components.hasOwnProperty(key)) {
+      //     const component = components[key];
+      //     if (typeof component === 'function') {
+      //       mocks[key] = sandbox.stub(components, key).callsFake(components[key]);
+      //     }
+      //   }
+      // }
+    });
+
+    afterEach(() => sandbox.restore());
+
+    callback(mocks);
+  };
+}
+
 /** Error class for testing catchMissingFile */
 class TestError extends Error implements NodeJS.ErrnoException {
   public code: string;
@@ -29,7 +107,7 @@ class TestError extends Error implements NodeJS.ErrnoException {
   }
 }
 
-describe('scripts/copyrightChecker', () => {
+describe('scripts/copyrightChecker', sinonTestSuite(dependencies, (mocks) => {
   describe('hasCopyrightNotice', () => {
     const year = 2010;
     it('Returns true if content has a valid copyright notice', () => {
@@ -111,20 +189,22 @@ describe('scripts/copyrightChecker', () => {
     });
   });
 
-  describe('getCommittedFiles', () => {
+  describe.only('getCommittedFiles', () => {
     it('Gets the committed files from git', sinonTest(async (sinon) => {
       const files = [
         'file.txt',
         'folder/file.md',
         'folder/submodule/file.log',
       ];
-      const exec = sinon.stub(dependencies, 'exec');
-      exec.resolves({ stdout: files.join('\n'), stderr: '' });
+      mocks.exec.reset();
+      mocks.exec.resolves({ stdout: files.join('\n'), stderr: '' });
+      // const exec = sinon.stub(dependencies, 'exec');
+      // exec.resolves({ stdout: files.join('\n'), stderr: '' });
 
       const result = await getCommittedFiles();
 
       assert.deepStrictEqual(result, new Set(files));
-      assert.calledOnceWith(exec, ['git ls-files']);
+      assert.calledOnceWith(mocks.exec, ['git ls-files']);
     }));
   });
 
