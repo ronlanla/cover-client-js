@@ -1,11 +1,12 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
+/* istanbul ignore file */
 
 import * as Bluebird from 'bluebird';
 import { ChildProcess, spawn } from 'child_process';
 import { uniq } from 'lodash';
 import { parseGit } from 'parse-git';
-import argvParser, { Options } from '../utils/argvParser';
-import logger from '../utils/log';
+import { Options } from '../utils/argvParser';
+import commandLineRunner from '../utils/commandLineRunner';
 
 
 export const dependencies = {
@@ -27,6 +28,11 @@ type LogVersion = {
   version: string;
   entries: string[];
 };
+
+const description = [
+  'Prints out the changelog, grouped by whether they have been included in a release or not.',
+  'Use --unreleased argument to show only unreleased changes.',
+].join('\n');
 
 /** Consume the output for a process and convert to a promise */
 async function consumeProcess(process: ChildProcess): Promise<string> {
@@ -189,34 +195,32 @@ export function renderChangelogVersion(changelog: LogVersion) {
   return changelog.entries.map((entry) => `* ${entry}\n`).join('');
 }
 
+ /**
+  * Returns an array of only the unreleased changes
+  */
+export async function getListOfUnreleasedChanges() {
+  const changelog = await createChangelog();
+  const changes = (changelog
+    .filter((version) => version.version === 'Unreleased')
+    .map((version) => renderChangelogVersion(version).trim()));
+  return changes;
+}
+
 /**
  * Prints out the git log, grouped in to 'Released' and 'Unreleased' changes.
  */
-export default async function changelog(args: string[], options: Options) {
-  if (options.help) {
-    logger.log(helpMessage());
-    return;
-  }
-
-  const log = await createChangelog();
-  logger.info(renderChangelog(log));
-}
-
-/** Returns the help message for the command */
-export function helpMessage() {
-  return [
-    'Description:',
-    '  Prints out the changelog, grouped by whether they have been included in a release or not.',
-    '  Use --unreleased argument to show only unreleased changes.\n',
-    'Usage:',
-    '  ts-node changelog.ts [--unreleased]',
-  ].join('\n');
+export default function changelog() {
+  return async (args: string[], options: Options) => {
+    if (options.unreleased) {
+      const changes = await getListOfUnreleasedChanges();
+      return changes.join('\n');
+    } else {
+      const log = await createChangelog();
+      return renderChangelog(log);
+    }
+  };
 }
 
 if (require.main === module) {
-  const { args, options } = argvParser(process.argv);
-  changelog(args, options).catch((error) => {
-    logger.error(`${helpMessage()}\n${error.toString()}`);
-    process.exit(1);
-  });
+  commandLineRunner(description, '', changelog());
 }
