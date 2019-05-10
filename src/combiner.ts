@@ -1,6 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { genTestClass, ITestData, mergeTests } from '@diffblue/java-combiner';
+import { groupBy } from 'lodash';
 
 import { CombinerError, CombinerErrorCodes } from './errors';
 
@@ -60,18 +61,30 @@ function checkResults(results: any[]): void { // tslint:disable-line:no-any // T
       CombinerErrorCodes.RESULTS_EMPTY,
     );
   }
-  const sourceFilePaths = new Set(results.map((result) => result.sourceFilePath));
+  const sourceFilePaths = new Set();
+  const classNames = new Set();
+  const packageNames = new Set();
+  results.forEach(({ testedFunction, sourceFilePath }) => {
+    sourceFilePaths.add(sourceFilePath);
+    classNames.add(parseClassNameFromFunctionName(testedFunction));
+    packageNames.add(parsePackageNameFromFunctionName(testedFunction));
+  });
   if (sourceFilePaths.size !== 1) {
     throw new CombinerError(
       'All "results" must have the same "sourceFilePath"',
-      CombinerErrorCodes.SOURCE_FILE_DIFFERS,
+      CombinerErrorCodes.SOURCE_FILE_PATH_DIFFERS,
     );
   }
-  const testedFunctions = new Set(results.map((result) => result.testedFunction));
-  if (testedFunctions.size !== 1) {
+  if (classNames.size !== 1) {
     throw new CombinerError(
-      'All "results" must have the same "testedFunction"',
-      CombinerErrorCodes.TESTED_FUNCTION_DIFFERS,
+      'All "results" must have a "testedFunction" that produces the same "className" when parsed',
+      CombinerErrorCodes.CLASS_NAME_DIFFERS,
+    );
+  }
+  if (packageNames.size !== 1) {
+    throw new CombinerError(
+      'All "results" must have a "testedFunction" that produces the same "packageName" when parsed',
+      CombinerErrorCodes.PACKAGE_NAME_DIFFERS,
     );
   }
 }
@@ -108,11 +121,10 @@ export function prepareTestData(results: any[]): ITestData[] { // tslint:disable
 /** Create a test class from an array of analysis results */
 export function generateTestClass(results: any[]): string { // tslint:disable-line:no-any // TYPE AnalysisResult[]
   checkResults(results);
-  const testedFunction = results[0].testedFunction;
+  const { testedFunction } = results[0];
   const className = parseClassNameFromFunctionName(testedFunction);
   const packageName = parsePackageNameFromFunctionName(testedFunction);
-  const testSuffix = 'Test';
-  const testName = `${className}${testSuffix}`;
+  const testName = `${className}Test`;
   const testData = prepareTestData(results);
   try {
     return dependencies.genTestClass(testData, className, testName, packageName);
@@ -131,4 +143,19 @@ export async function mergeIntoTestClass(existingClass: string, results: any[]):
   } catch (error) {
     throw new CombinerError(`Unexpected error merging tests:\n${error}`, CombinerErrorCodes.MERGE_ERROR);
   }
+}
+
+/** AnalysisResults grouped by sourceFilePath */
+export interface GroupedResults {
+  [testedFunction: string]: any[];  // tslint:disable-line:no-any // TYPE AnalysisResult[]
+}
+
+/** Group AnalysisResults by sourceFilePath */
+export function groupResults(results: any[]): GroupedResults { // tslint:disable-line:no-any // TYPE AnalysisResult[]
+  return groupBy(results, 'sourceFilePath');
+}
+
+/** Produce a file name from a class name */
+export function getFileNameForClassName(className: string): string {
+  return `${className}Test.java`;
 }

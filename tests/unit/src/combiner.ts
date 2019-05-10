@@ -2,7 +2,10 @@
 
 import { clone } from 'lodash';
 
-import { dependencies, generateTestClass, mergeIntoTestClass } from '../../../src/combiner';
+import {
+  dependencies, generateTestClass, getFileNameForClassName,
+  GroupedResults, groupResults, mergeIntoTestClass,
+} from '../../../src/combiner';
 import { CombinerError, CombinerErrorCodes } from '../../../src/errors';
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
@@ -52,23 +55,33 @@ describe('src/combiner', () => {
       );
       assert.strictEqual(testClass, expectedTestClass);
     }));
-    it('Fails if passed results with differing tested functions', () => {
+    it('Fails if passed results with differing source file paths', () => {
       const otherResult = clone(sampleResult);
-      otherResult.testedFunction = 'com.diffblue.javademo.TicTacToe.differentFunctionNAme';
+      otherResult.sourceFilePath = '/other/path';
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.TESTED_FUNCTION_DIFFERS;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.SOURCE_FILE_PATH_DIFFERS;
         },
       );
     });
-    it('Fails if passed results with differing source file paths', () => {
+    it('Fails if passed results with tested functions that produce different class names', () => {
       const otherResult = clone(sampleResult);
-      otherResult.sourceFilePath = './other/path';
+      otherResult.testedFunction = 'com.diffblue.javademo.SomeOtherClass.checkTicTacToePosition';
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.SOURCE_FILE_DIFFERS;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.CLASS_NAME_DIFFERS;
+        },
+      );
+    });
+    it('Fails if passed results with tested functions that produce different package names', () => {
+      const otherResult = clone(sampleResult);
+      otherResult.testedFunction = 'com.diffblue.someotherpackage.TicTacToe.checkTicTacToePosition';
+      assert.throws(
+        () => generateTestClass([sampleResult, otherResult]),
+        (err: Error) => {
+          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.PACKAGE_NAME_DIFFERS;
         },
       );
     });
@@ -122,7 +135,7 @@ describe('src/combiner', () => {
       const existingTestClass = 'test-class';
       const expectedTestClass = 'merged-test-class';
       const mergeTests = sinon.stub(dependencies, 'mergeTests');
-      mergeTests.resolves(expectedTestClass)
+      mergeTests.resolves(expectedTestClass);
       const testClass = await mergeIntoTestClass(existingTestClass, [sampleResult]);
       assert.strictEqual(testClass, expectedTestClass);
       assert.calledOnceWith(mergeTests, [existingTestClass, [sampleTestData]]);
@@ -183,6 +196,25 @@ describe('src/combiner', () => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_EMPTY;
         },
       );
+    });
+  });
+  describe('generateTestClass', () => {
+    it('Groups results by testedFunction', () => {
+      const otherResult = clone(sampleResult);
+      otherResult.sourceFilePath = 'other/path';
+      const groupedResults = groupResults([sampleResult, otherResult]);
+      const expected: GroupedResults = {
+        [sampleResult.sourceFilePath]: [sampleResult],
+        [otherResult.sourceFilePath]: [otherResult],
+      };
+      assert.deepStrictEqual(groupedResults, expected);
+    });
+  });
+  describe('getFileNameForClassName', () => {
+    it('Returns a file name for a provided class name', () => {
+      const className = 'TicTacToe';
+      const fileName = getFileNameForClassName(className);
+      assert.deepStrictEqual(fileName, 'TicTacToeTest.java');
     });
   });
 });
