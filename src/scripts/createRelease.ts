@@ -6,7 +6,8 @@ import * as inquirer from 'inquirer';
 import * as semver from 'semver';
 import * as simpleGit from 'simple-git/promise';
 import { promisify } from 'util';
-import { createChangelog, renderChangelogVersion } from '../utils/changelog';
+import { Options } from '../utils/argvParser';
+import { getListOfUnreleasedChanges } from '../utils/changelog';
 import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 import logger from '../utils/log';
 
@@ -17,13 +18,32 @@ export const dependencies = {
   simpleGit: simpleGit(),
   exec: promisify(exec),
   inquirer: inquirer,
+  logger: logger,
+};
+
+export const components = {
+  repoIsClean: repoIsClean,
+  updateAndCheckBranch: updateAndCheckBranch,
+  getListOfUnreleasedChanges: getListOfUnreleasedChanges,
+  loadPackageJson: loadPackageJson,
+  createNewReleaseBranch: createNewReleaseBranch,
+  writeChangesToPackageJson: writeChangesToPackageJson,
+  commitPackageJsonChange: commitPackageJsonChange,
+  createReleasePR: createReleasePR,
+  askUserForPatchType: askUserForPatchType,
 };
 
 const packageJsonFilename = 'package.json';
+export const gitFetchOptions = ['--tags'];
 
 /** Assurance that 'releaseType' will be a member of what inquirer.js will return */
 type PatchTypeAnswer = {
   releaseType: semver.ReleaseType;
+};
+
+/** Assurance that there is a version field */
+type PartialPackageJson = {
+  version: string;
 };
 
 const description = [
@@ -36,72 +56,92 @@ const description = [
  *
  * Ensures the Git repo is up to date, bumps the version and creates a PR.
  */
-export default function createRelease(
-    forceRelease: boolean,
-  ) {
-  return async () => {
+export default function createRelease() {
+  return async (args: string[], options: Options) => {
     // Make sure develop and master are up to date & get all tags
-    logger.info('Pulling branches and tags...');
-    await pullBranchesAndTags();
+    dependencies.logger.info('Pulling branches and tags...');
+    await components.updateAndCheckBranch('master');
+    await components.updateAndCheckBranch('develop');
+
+    await dependencies.simpleGit.checkout('develop');
 
     // Generate changelog of develop:latest vs master:latest
-    const changes = await getListOfUnreleasedChanges();
+    const changes = await components.getListOfUnreleasedChanges();
 
-    if (changes.length === 0 && !forceRelease) {
+    if (changes.length === 0 && !options.force) {
       throw new ExpectedError('No changes detected in changelog. Is there anything to release?');
     }
 
     // Get version from package.json
-    const packageJson = await loadPackageJson();
+    const packageJson = await components.loadPackageJson();
     const originalVersion = packageJson.version;
-    logger.info(`Current ${packageJsonFilename} version is ${originalVersion}`);
+    dependencies.logger.info(`Current ${packageJsonFilename} version is ${originalVersion}`);
 
     // Ask user if this is major/minor/patch
-    const answer: PatchTypeAnswer = await dependencies.inquirer.prompt({
-      type: 'list',
-      name: 'releaseType',
-      message: 'What type of release is this?',
-      choices: ['Major', 'Minor', 'Patch'],
-      default: 'Patch',
-      filter: (val) => val.toLowerCase(),
-    });
+    const answer: PatchTypeAnswer = await components.askUserForPatchType();
 
     // Bump version according to what user said earlier
-    const newVersion = semver.inc(originalVersion, answer.releaseType) || '-1';
-    if (newVersion === '-1') {
-      throw new ExpectedError(`Unable to parse and increment version from ${packageJsonFilename}`);
-    }
+    const newVersion = incrementVersionNumber(originalVersion, answer);
 
     // Update the version in the package.json representation
     packageJson.version = newVersion;
-    logger.info(`New ${packageJsonFilename} version is ${newVersion}`);
+    dependencies.logger.info(`New ${packageJsonFilename} version is ${newVersion}`);
 
     // Make a branch off develop called release/x.y.z
-    const newBranchName: string = await createNewReleaseBranch(newVersion);
+    const newBranchName: string = await components.createNewReleaseBranch(newVersion);
 
     // Commit new version to package.json
-    await writeChangesToPackageJson(packageJsonFilename, packageJson);
+    await components.writeChangesToPackageJson(packageJsonFilename, packageJson);
 
-    await commitPackageJsonChange(newVersion);
+    await components.commitPackageJsonChange(newVersion);
 
     // Push to origin and create PR using new branch
-    await createReleasePR(newBranchName, newVersion, changes);
+    await components.createReleasePR(newBranchName, newVersion, changes);
 
     return 'Release process began successfully';
   };
 }
 
 /**
+ * Uses inquirer.js what level of release this is
+ */
+export async function askUserForPatchType(): Promise<PatchTypeAnswer> {
+  // ignoring these lines because testing would involve mocking almost the entire function
+  /* istanbul ignore next */
+  return dependencies.inquirer.prompt({
+    type: 'list',
+    name: 'releaseType',
+    message: 'What type of release is this?',
+    choices: ['Major', 'Minor', 'Patch'],
+    default: 'Patch',
+    /* istanbul ignore next */
+    filter: (val) => val.toLowerCase(),
+  });
+}
+
+/**
+ * Takes a version number and patch type and increments the version number accordingly.
+ */
+export function incrementVersionNumber(originalVersion: string, patchLevel: PatchTypeAnswer) {
+  const newVersion = semver.inc(originalVersion, patchLevel.releaseType);
+  if (newVersion === null) {
+    throw new ExpectedError(`Unable to parse and increment version from ${packageJsonFilename}`);
+  }
+  return newVersion;
+}
+
+/**
  * Pushes the new branch up to GitHub and creates a new PR using the GitHub CLI tool.
  */
-async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]) {
+export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]) {
   await dependencies.simpleGit.push('origin', newBranchName);
-  // Generate PR using github API and put in changelog (optional)
+  // Generate PR using github API and put in changelog
+  // Could replace this with an HTTP API request and get rid of the unlabelled dependency on Hub
   await dependencies.exec(
     [
       `hub pull-request -b master -m "Release ${newVersion}`,
       '',
-      `${changes}"`,
+      `${changes.join('\n')}"`,
     ].join('\n'),
   );
 }
@@ -109,7 +149,7 @@ async function createReleasePR(newBranchName: string, newVersion: string, change
 /**
  * Commits the changes to the package.json file to the new branch
  */
-async function commitPackageJsonChange(newVersion: string) {
+export async function commitPackageJsonChange(newVersion: string) {
   await dependencies.simpleGit.add(packageJsonFilename);
   await dependencies.simpleGit.commit(`Bump version to ${newVersion}`);
 }
@@ -117,64 +157,56 @@ async function commitPackageJsonChange(newVersion: string) {
 /**
  * Writes the contents of packageJson to filename.
  */
-async function writeChangesToPackageJson(filename: string, packageJson: JSON) {
+export async function writeChangesToPackageJson(filename: string, packageJson: PartialPackageJson) {
   const indentSpacing = 2;
-  await dependencies.writeFile(filename, JSON.stringify(packageJson, null, indentSpacing))
-  .catch((err) => {
-    throw new ExpectedError(`Unable to write ${filename}`);
-  });
+  await dependencies.writeFile(filename, JSON.stringify(packageJson, null, indentSpacing));
 }
 
 /**
  * Creates a new branch in the repo for the release.
  */
-async function createNewReleaseBranch(newVersion: string) {
+export async function createNewReleaseBranch(newVersion: string) {
   const newBranchName = `release/${newVersion}`;
-  await dependencies.simpleGit.checkoutBranch(newBranchName, 'develop');
+  await dependencies.simpleGit.checkoutLocalBranch(newBranchName);
   return newBranchName;
 }
 
 /**
  * Reads the contents of package.json and returns it as an object.
  */
-async function loadPackageJson() {
-  const packageFile = await dependencies.readFile(packageJsonFilename)
-    .catch((err) => {
-      throw new ExpectedError(`Unable to read ${packageJsonFilename}`);
-    });
-  const packageJson = JSON.parse(packageFile.toString());
+export async function loadPackageJson() {
+  const packageFile = await dependencies.readFile(packageJsonFilename);
+  const packageJson: PartialPackageJson = JSON.parse(packageFile.toString());
   return packageJson;
 }
 
 /**
- * Uses changelog.ts to generate a string representation of the unreleased changes since the last release.
+ * Returns true if the repo is 'clean'
  */
-async function getListOfUnreleasedChanges() {
-  const changelog = await createChangelog();
-  const changes = (changelog
-    .filter((version) => version.version === 'Unreleased')
-    .map((version) => renderChangelogVersion(version).trim()));
-  return changes;
+export async function repoIsClean() {
+  const status = await dependencies.simpleGit.status();
+  return status.isClean();
 }
 
 /**
- * Fetches a clean version of the relevant branches and tags with which to perform the release.
+ * Get the latest version of specified branch from origin, check it out and check if it's dirty.
  */
-async function pullBranchesAndTags() {
-  await dependencies.simpleGit.fetch(['--tags']);
-  await dependencies.simpleGit.pull('origin', 'master');
-  await dependencies.simpleGit.pull('origin', 'develop');
-  logger.info('Checking out \'develop\` and making sure branch is clean...');
-  await dependencies.simpleGit.checkoutLocalBranch('develop');
-  const developStatus = await dependencies.simpleGit.status();
-  if (!developStatus.isClean()) {
+export async function updateAndCheckBranch(branchName: string) {
+  const currentBranchStatus = await dependencies.simpleGit.status();
+  await dependencies.simpleGit.fetch('origin', branchName, gitFetchOptions);
+  dependencies.logger.info(`Checking out \'${branchName}\` and making sure branch is clean...`);
+  await dependencies.simpleGit.checkout(branchName);
+  await dependencies.simpleGit.pull();
+  if (!await components.repoIsClean()) {
     throw new ExpectedError([
-      'Branch \'develop\' is not clean.',
+      `Branch \'${branchName}\' is not clean.`,
       'Please stash or commit your changes before attempting release.',
     ].join(' '));
   }
+  await dependencies.simpleGit.checkout(currentBranchStatus.current);
 }
 
 if (require.main === module) {
-  commandLineRunner(description, '', createRelease(forceRelease));
+  /* istanbul ignore next */
+  commandLineRunner(description, '', createRelease());
 }
