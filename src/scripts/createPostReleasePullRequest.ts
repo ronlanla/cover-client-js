@@ -35,5 +35,7 @@ export async function createPostReleasePullRequest(args: string[]) {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  commandLineRunner('Creates and pushes a tag for the current version', '<token>', createPostReleasePullRequest);
+  commandLineRunner(
+    'Creates and pushes a tag for the current version', '<token>', process, createPostReleasePullRequest,
+  );
 }

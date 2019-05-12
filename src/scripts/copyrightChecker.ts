@@ -122,5 +122,5 @@ export default function copyrightChecker(
 
 /* istanbul ignore next */
 if (require.main === module) {
-  commandLineRunner(description, '', copyrightChecker(currentYear, hasCopyrightNotice, baseIgnoreFiles));
+  commandLineRunner(description, '', process, copyrightChecker(currentYear, hasCopyrightNotice, baseIgnoreFiles));
 }

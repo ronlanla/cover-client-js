@@ -223,5 +223,5 @@ export default function changelog() {
 }
 
 if (require.main === module) {
-  commandLineRunner(description, '', changelog());
+  commandLineRunner(description, '', process, changelog());
 }

@@ -20,5 +20,5 @@ export default async function createReleaseTag() {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  commandLineRunner('Creates and pushes a tag for the current version', '', createReleaseTag);
+  commandLineRunner('Creates and pushes a tag for the current version', '', process, createReleaseTag);
 }
