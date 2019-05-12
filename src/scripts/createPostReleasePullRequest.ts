@@ -9,21 +9,29 @@ export const dependencies = {
   getPackageJson: getPackageJson,
 };
 
+export const components = {
+  createPullRequest: createPullRequest,
+};
+
 /** Creates a pull request on Github from master back to develop */
-export async function createPostReleasePullRequest(args: string[]) {
+export default async function createPostReleasePullRequest(args: string[]) {
   const token = args[0];
   if (!token) {
     throw new ExpectedError('Please provide a token to authenticate with Github');
   }
 
   const packageJson = await dependencies.getPackageJson();
-  const repositoryMatch = packageJson.repository.url.match(/^git@github\.com:(.+)\.git$/);
+  const repositoryMatch: RegExpMatchArray | undefined = (
+    packageJson.repository &&
+    packageJson.repository.url &&
+    packageJson.repository.url.match(/^git@github\.com:(.+)\.git$/)
+  );
 
   if (!repositoryMatch) {
     throw new ExpectedError('Could not extract repository name from package.json repository.url');
   }
 
-  await createPullRequest(
+  await components.createPullRequest(
     repositoryMatch[1],
     token,
     `Test: Merge ${packageJson.version} back into develop`,
