@@ -3,10 +3,9 @@
 import axios from 'axios';
 
 import { ExpectedError } from './commandLineRunner';
-import spawn from './spawnProcess';
 
 export const dependencies = {
-  spawn: spawn,
+  axios: axios,
 };
 
 /** Creates a pull request on Github */
@@ -17,7 +16,7 @@ export default async function createPullRequest(
     'Content-Type': 'application/json',
     Authorization: `token ${token}`,
   };
-  await axios.post(`https://api.github.com/repos/${repo}/pulls`, {
+  await dependencies.axios.post(`https://api.github.com/repos/${repo}/pulls`, {
     title: title,
     head: head,
     base: base,
