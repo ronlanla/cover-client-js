@@ -3,25 +3,7 @@
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 
-import assertExtra from '../../../src/utils/assertExtra';
-
-/** Returns the error thrown by a callback */
-function getError(callback: () => void) {
-  try {
-    callback();
-  } catch (error) {
-    return error;
-  }
-  throw new Error('Expected callback to throw an error');
-}
-
-/** Higher order function which checks errors match in `assert.throws` */
-function errorEquals(expectedError: Error) {
-  return (error: Error | string) => {
-    assert.deepStrictEqual(error, expectedError);
-    return true;
-  };
-}
+import assertExtra, { errorEquals, getError } from '../../../src/utils/assertExtra';
 
 // "Quis custodiet ipsos custodes"
 describe('assertExtra', () => {

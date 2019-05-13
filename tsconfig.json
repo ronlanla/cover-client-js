@@ -5,6 +5,7 @@
     "declaration": true,
     "sourceMap": true,
     "module": "commonjs",
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "noImplicitAny": true,

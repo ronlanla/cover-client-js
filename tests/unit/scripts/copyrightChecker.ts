@@ -24,7 +24,7 @@ class TestError extends Error implements NodeJS.ErrnoException {
   public constructor(message: string, code: string) {
     super(message);
     this.code = code;
-    // Work around TypeScript bug because we are transpiling to ES5
+    // Work around TypeScript bug
     Object.setPrototypeOf(this, TestError.prototype);
   }
 }

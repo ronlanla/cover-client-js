@@ -1,7 +1,25 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
-import * as assert from 'assert';
-import * as sinon from 'sinon';
+import assert from 'assert';
+import sinon from 'sinon';
+
+/** Returns the error thrown by a callback */
+export function getError(callback: () => void) {
+  try {
+    callback();
+  } catch (error) {
+    return error;
+  }
+  throw new Error('Expected callback to throw an error');
+}
+
+/** Higher order function which checks errors match in `assert.throws` */
+export function errorEquals(expectedError: Error) {
+  return (error: Error | string) => {
+    assert.deepStrictEqual(error, expectedError);
+    return true;
+  };
+}
 
 const assertExtra = {
   /** Asserts that a spy was not called */
