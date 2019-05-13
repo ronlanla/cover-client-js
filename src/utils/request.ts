@@ -9,6 +9,8 @@ export class ApiError extends Error {
     super(message);
     this.code = code;
     this.status = status;
+    // Work around TypeScript bug because we are transpiling to ES5
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
   public code: string;
   public status?: number;
