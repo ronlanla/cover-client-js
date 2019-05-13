@@ -9,7 +9,7 @@ You can submit requests using the low level bindings to a Platform Lite API by f
 In Node.js (using promises):
 
 ```js
-const CoverClient = require('diffblue-cover-client');
+const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 return CoverClient.getApiVersion(api).then(({ version }) => {
@@ -20,7 +20,7 @@ return CoverClient.getApiVersion(api).then(({ version }) => {
 In Typescript (using async/await):
 
 ```ts
-import CoverClient from 'diffblue-cover-client';
+import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const { version } = await CoverClient.getApiVersion(api);
@@ -32,7 +32,7 @@ console.log(`Current API version: ${version}`);
 In Node.js (using promises) with streams and the minimum required for an analysis:
 
 ```js
-const CoverClient = require('diffblue-cover-client');
+const CoverClient = require('@diffblue/cover-client');
 const fs = require('fs');
 
 const api = 'https://0.0.0.0/api';
@@ -46,7 +46,7 @@ return CoverClient.startAnalysis(api, { build: build, settings: settings }).then
 In Typescript (using async/await) with buffers and the minimum required for an analysis:
 
 ```ts
-import CoverClient from 'diffblue-cover-client';
+import CoverClient from '@diffblue/cover-client';
 import { readFile } from 'fs';
 import { promisify } from 'utils';
 
@@ -64,7 +64,7 @@ console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
 In Node.js (using promises) without an optional cursor:
 
 ```js
-const CoverClient = require('diffblue-cover-client');
+const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
@@ -76,7 +76,7 @@ return CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }
 In Typescript (using async/await) with an optional cursor:
 
 ```ts
-import CoverClient from 'diffblue-cover-client';
+import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
@@ -90,7 +90,7 @@ console.log(`Analysis status: ${status}\nAnalysis results: ${results}\nNext curs
 In Node.js (using promises):
 
 ```js
-const CoverClient = require('diffblue-cover-client');
+const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
@@ -102,7 +102,7 @@ return CoverClient.cancelAnalysis(api, id).then(({ message, status }) => {
 In Typescript (using async/await):
 
 ```ts
-import CoverClient from 'diffblue-cover-client';
+import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
@@ -115,7 +115,7 @@ console.log(`Message: ${message}\nStatus: ${status}`);
 In Node.js (using promises):
 
 ```js
-const CoverClient = require('diffblue-cover-client');
+const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
@@ -127,7 +127,7 @@ return CoverClient.getAnalysisStatus(api, id).then(({ message, status }) => {
 In Typescript (using async/await):
 
 ```ts
-import CoverClient from 'diffblue-cover-client';
+import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
