@@ -26,10 +26,10 @@ export const convertError = ({ response }: AxiosError) => {
       throw new ApiError(message, code, status);
     }
 
-    throw new ApiError(statusText, 'axios-error', status);
+    throw new ApiError(statusText, 'axiosError', status);
   }
 
-  throw new ApiError('An unknown error occurred', 'axios-error');
+  throw new ApiError('An unknown error occurred', 'axiosError');
 };
 
 const request = {

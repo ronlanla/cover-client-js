@@ -21,25 +21,25 @@ describe('src/utils/request', () => {
           ...templateResponse,
           data: {
             message: 'Error',
-            code: 'api-error',
+            code: 'apiError',
           },
           status: status,
         },
       };
 
-      const expectedError = new ApiError('Error', 'api-error', status);
+      const expectedError = new ApiError('Error', 'apiError', status);
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
 
     it('Throws with statusText in the Cover ApiError format', () => {
       const error: AxiosError = { ...templateError, response: { ...templateResponse, statusText: 'Foo bar' }};
-      const expectedError = new ApiError('Foo bar', 'axios-error', 0);
+      const expectedError = new ApiError('Foo bar', 'axiosError', 0);
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
 
     it('Throws an unknown error in the Cover ApiError format', () => {
       const error: AxiosError = { ...templateError, response: undefined };
-      const expectedError = new ApiError('An unknown error occurred', 'axios-error');
+      const expectedError = new ApiError('An unknown error occurred', 'axiosError');
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
   });
