@@ -28,9 +28,7 @@ describe('scripts/createRelease', () => {
   describe('commitPackageJsonChange', () => {
     it('package.json filename is correct', sinonTest(async (sinon) => {
       const add = sinon.stub(dependencies.simpleGit, 'add');
-      const commit = sinon.stub(dependencies.simpleGit, 'commit');
-
-      commit.resolves();
+      sinon.stub(dependencies.simpleGit, 'commit').resolves();
 
       const newVersion = "1.0.0";
 
@@ -39,10 +37,8 @@ describe('scripts/createRelease', () => {
       assert.calledOnceWith(add, ['package.json']);
     }));
     it('Commit message is correct format', sinonTest(async (sinon) => {
-      const add = sinon.stub(dependencies.simpleGit, 'add');
+      sinon.stub(dependencies.simpleGit, 'add').resolves();
       const commit = sinon.stub(dependencies.simpleGit, 'commit');
-
-      add.resolves();
 
       const newVersion = "1.0.0";
       const commitMessage = `Bump version to ${newVersion}`;
@@ -92,9 +88,7 @@ describe('scripts/createRelease', () => {
     }));
 
     it('Returns an object containing a "version" property', sinonTest(async (sinon) => {
-      const readFile = sinon.stub(dependencies, 'readFile');
-
-      readFile.resolves(['{', '  "version": "1.0.0"', '}'].join('\n'));
+      sinon.stub(dependencies, 'readFile').resolves(['{', '  "version": "1.0.0"', '}'].join('\n'));
 
       const packageJson = await loadPackageJson();
 
@@ -108,7 +102,7 @@ describe('scripts/createRelease', () => {
       // fake StatusResult
       status.resolves(
         {
-          isClean: () => Boolean(true)
+          isClean: () => true
         } as StatusResult
       );
 
@@ -118,12 +112,11 @@ describe('scripts/createRelease', () => {
     }));
 
     it('False if repo is dirty', sinonTest(async (sinon) => {
-
       const status = sinon.stub(dependencies.simpleGit, 'status');
       // fake StatusResult
       status.resolves(
         {
-          isClean: () => Boolean(false)
+          isClean: () => false
         } as StatusResult
       );
 
@@ -164,12 +157,11 @@ describe('scripts/createRelease', () => {
 
   describe('updateAndCheckBranch', () => {
     it('Attempts to fetch changes because requested branch not checked out', sinonTest(async (sinon) => {
-      const status = sinon.stub(dependencies.simpleGit, 'status');
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
 
       const currentBranchName = 'release/1.0.0';
       const requestBranchName = 'develop'
-      status.resolves(
+      sinon.stub(dependencies.simpleGit, 'status').resolves(
         {
           current: currentBranchName,
         } as StatusResult
@@ -181,16 +173,14 @@ describe('scripts/createRelease', () => {
     it('Attempts to pull changes but fails because branch dirty', sinonTest(async (sinon) => {
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
-      const status = sinon.stub(dependencies.simpleGit, 'status');
-      const repoIsClean = sinon.stub(components, 'repoIsClean');
 
       const currentBranchName = 'develop';
-      status.resolves(
+      sinon.stub(dependencies.simpleGit, 'status').resolves(
         {
           current: currentBranchName,
         } as StatusResult
       );
-      repoIsClean.resolves(false);
+      sinon.stub(components, 'repoIsClean').resolves(false);
 
       const branchName = 'develop';
       const gitFetchOptions = ['--tags'];
@@ -209,16 +199,14 @@ describe('scripts/createRelease', () => {
     it('Attempts to pull changes and succeeds', sinonTest(async (sinon) => {
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
-      const status = sinon.stub(dependencies.simpleGit, 'status');
-      const repoIsClean = sinon.stub(components, 'repoIsClean');
 
       const fakeBranchName = 'develop';
-      status.resolves(
+      sinon.stub(dependencies.simpleGit, 'status').resolves(
         {
           current: fakeBranchName,
         } as StatusResult
       );
-      repoIsClean.resolves(true);
+      sinon.stub(components, 'repoIsClean').resolves(true);
 
       const branchName = 'develop';
       const gitFetchOptions = ['--tags'];
@@ -231,9 +219,6 @@ describe('scripts/createRelease', () => {
 
   describe('createRelease', () => {
     it('Throws expected error due to no changes', sinonTest(async (sinon) => {
-      const checkout = sinon.stub(dependencies.simpleGit, 'checkout');
-      const updateAndCheckBranch = sinon.stub(components, 'updateAndCheckBranch');
-      const getListOfUnreleasedChanges = sinon.stub(components, 'getListOfUnreleasedChanges');
       const loadPackageJson = sinon.stub(components, 'loadPackageJson');
       const createNewReleaseBranch = sinon.stub(components, 'createNewReleaseBranch');
       const writeChangesToPackageJson = sinon.stub(components, 'writeChangesToPackageJson');
@@ -241,9 +226,9 @@ describe('scripts/createRelease', () => {
       const createReleasePR = sinon.stub(components, 'createReleasePR');
       const askUserForPatchType = sinon.stub(components, 'askUserForPatchType');
 
-      checkout.resolves();
-      updateAndCheckBranch.resolves();
-      getListOfUnreleasedChanges.resolves([]);
+      sinon.stub(dependencies.simpleGit, 'checkout').resolves();
+      sinon.stub(components, 'updateAndCheckBranch').resolves();
+      sinon.stub(components, 'getListOfUnreleasedChanges').resolves([]);
 
       const expectedError = new Error('No changes detected in changelog. Is there anything to release?');
 
@@ -257,50 +242,30 @@ describe('scripts/createRelease', () => {
     }));
 
     it('Posts a PR on GitHub despite no changes because flag is set', sinonTest(async (sinon) => {
-      const checkout = sinon.stub(dependencies.simpleGit, 'checkout');
-      const updateAndCheckBranch = sinon.stub(components, 'updateAndCheckBranch');
-      const getListOfUnreleasedChanges = sinon.stub(components, 'getListOfUnreleasedChanges');
-      const loadPackageJson = sinon.stub(components, 'loadPackageJson');
-      const createNewReleaseBranch = sinon.stub(components, 'createNewReleaseBranch');
-      const writeChangesToPackageJson = sinon.stub(components, 'writeChangesToPackageJson');
-      const commitPackageJsonChange = sinon.stub(components, 'commitPackageJsonChange');
-      const createReleasePR = sinon.stub(components, 'createReleasePR');
-      const askUserForPatchType = sinon.stub(components, 'askUserForPatchType');
-
-      checkout.resolves();
-      updateAndCheckBranch.resolves();
-      getListOfUnreleasedChanges.resolves([]);
-      loadPackageJson.resolves({ version: '1.0.0' });
-      createNewReleaseBranch.resolves('release/1');
-      writeChangesToPackageJson.resolves();
-      commitPackageJsonChange.resolves();
-      createReleasePR.resolves();
-      askUserForPatchType.resolves({releaseType: 'minor'});
+      sinon.stub(dependencies.simpleGit, 'checkout').resolves();
+      sinon.stub(components, 'updateAndCheckBranch').resolves();
+      sinon.stub(components, 'getListOfUnreleasedChanges').resolves([]);
+      sinon.stub(components, 'loadPackageJson').resolves({ version: '1.0.0' });
+      sinon.stub(components, 'createNewReleaseBranch').resolves('release/1');
+      sinon.stub(components, 'writeChangesToPackageJson').resolves();
+      sinon.stub(components, 'commitPackageJsonChange').resolves();
+      sinon.stub(components, 'createReleasePR').resolves();
+      sinon.stub(components, 'askUserForPatchType').resolves({releaseType: 'minor'});
 
       const result = await createRelease()([], {force: true});
       assert.deepEqual(result, 'Release process began successfully');
     }));
 
     it('Resolves successfully!', sinonTest(async (sinon) => {
-      const checkout = sinon.stub(dependencies.simpleGit, 'checkout');
-      const updateAndCheckBranch = sinon.stub(components, 'updateAndCheckBranch');
-      const getListOfUnreleasedChanges = sinon.stub(components, 'getListOfUnreleasedChanges');
-      const loadPackageJson = sinon.stub(components, 'loadPackageJson');
-      const createNewReleaseBranch = sinon.stub(components, 'createNewReleaseBranch');
-      const writeChangesToPackageJson = sinon.stub(components, 'writeChangesToPackageJson');
-      const commitPackageJsonChange = sinon.stub(components, 'commitPackageJsonChange');
-      const createReleasePR = sinon.stub(components, 'createReleasePR');
-      const askUserForPatchType = sinon.stub(components, 'askUserForPatchType');
-
-      checkout.resolves();
-      updateAndCheckBranch.resolves();
-      getListOfUnreleasedChanges.resolves(['Change 1', 'Change 2']);
-      loadPackageJson.resolves({ version: '1.0.0' });
-      createNewReleaseBranch.resolves('release/1');
-      writeChangesToPackageJson.resolves();
-      commitPackageJsonChange.resolves();
-      createReleasePR.resolves();
-      askUserForPatchType.resolves({releaseType: 'minor'});
+      sinon.stub(dependencies.simpleGit, 'checkout').resolves();
+      sinon.stub(components, 'updateAndCheckBranch').resolves();
+      sinon.stub(components, 'getListOfUnreleasedChanges').resolves(['Change 1', 'Change 2']);
+      sinon.stub(components, 'loadPackageJson').resolves({ version: '1.0.0' });
+      sinon.stub(components, 'createNewReleaseBranch').resolves('release/1');
+      sinon.stub(components, 'writeChangesToPackageJson').resolves();
+      sinon.stub(components, 'commitPackageJsonChange').resolves();
+      sinon.stub(components, 'createReleasePR').resolves();
+      sinon.stub(components, 'askUserForPatchType').resolves({releaseType: 'minor'});
 
       const result = await createRelease()([], {});
       assert.deepEqual(result, 'Release process began successfully');

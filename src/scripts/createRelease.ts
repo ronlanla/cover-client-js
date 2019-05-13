@@ -8,9 +8,8 @@ import * as simpleGit from 'simple-git/promise';
 import { promisify } from 'util';
 import { Options } from '../utils/argvParser';
 import { getListOfUnreleasedChanges } from '../utils/changelog';
-import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
+import commandLineRunner, { Command, ExpectedError } from '../utils/commandLineRunner';
 import logger from '../utils/log';
-
 
 export const dependencies = {
   writeFile: promisify(writeFile),
@@ -56,7 +55,7 @@ const description = [
  *
  * Ensures the Git repo is up to date, bumps the version and creates a PR.
  */
-export default function createRelease() {
+export default function createRelease(): Command {
   return async (args: string[], options: Options) => {
     // Make sure develop and master are up to date & get all tags
     dependencies.logger.info('Pulling branches and tags...');
@@ -90,9 +89,8 @@ export default function createRelease() {
     // Make a branch off develop called release/x.y.z
     const newBranchName: string = await components.createNewReleaseBranch(newVersion);
 
-    // Commit new version to package.json
+    // Update package.json with the new version and commit so it's included in release
     await components.writeChangesToPackageJson(packageJsonFilename, packageJson);
-
     await components.commitPackageJsonChange(newVersion);
 
     // Push to origin and create PR using new branch
@@ -103,7 +101,7 @@ export default function createRelease() {
 }
 
 /**
- * Uses inquirer.js what level of release this is
+ * Uses inquirer.js to ask the user what level of release this is
  */
 export async function askUserForPatchType(): Promise<PatchTypeAnswer> {
   // ignoring these lines because testing would involve mocking almost the entire function
@@ -120,9 +118,9 @@ export async function askUserForPatchType(): Promise<PatchTypeAnswer> {
 }
 
 /**
- * Takes a version number and patch type and increments the version number accordingly.
+ * Takes a version number and patch type then returns new version number incremented accordingly.
  */
-export function incrementVersionNumber(originalVersion: string, patchLevel: PatchTypeAnswer) {
+export function incrementVersionNumber(originalVersion: string, patchLevel: PatchTypeAnswer): string {
   const newVersion = semver.inc(originalVersion, patchLevel.releaseType);
   if (newVersion === null) {
     throw new ExpectedError(`Unable to parse and increment version from ${packageJsonFilename}`);
@@ -133,7 +131,7 @@ export function incrementVersionNumber(originalVersion: string, patchLevel: Patc
 /**
  * Pushes the new branch up to GitHub and creates a new PR using the GitHub CLI tool.
  */
-export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]) {
+export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]): Promise<void> {
   await dependencies.simpleGit.push('origin', newBranchName);
   // Generate PR using github API and put in changelog
   // Could replace this with an HTTP API request and get rid of the unlabelled dependency on Hub
@@ -149,7 +147,7 @@ export async function createReleasePR(newBranchName: string, newVersion: string,
 /**
  * Commits the changes to the package.json file to the new branch
  */
-export async function commitPackageJsonChange(newVersion: string) {
+export async function commitPackageJsonChange(newVersion: string): Promise<void> {
   await dependencies.simpleGit.add(packageJsonFilename);
   await dependencies.simpleGit.commit(`Bump version to ${newVersion}`);
 }
@@ -157,15 +155,14 @@ export async function commitPackageJsonChange(newVersion: string) {
 /**
  * Writes the contents of packageJson to filename.
  */
-export async function writeChangesToPackageJson(filename: string, packageJson: PartialPackageJson) {
-  const indentSpacing = 2;
-  await dependencies.writeFile(filename, JSON.stringify(packageJson, null, indentSpacing));
+export async function writeChangesToPackageJson(filename: string, packageJson: PartialPackageJson): Promise<void> {
+  await dependencies.writeFile(filename, JSON.stringify(packageJson, null, 2));
 }
 
 /**
  * Creates a new branch in the repo for the release.
  */
-export async function createNewReleaseBranch(newVersion: string) {
+export async function createNewReleaseBranch(newVersion: string): Promise<string> {
   const newBranchName = `release/${newVersion}`;
   await dependencies.simpleGit.checkoutLocalBranch(newBranchName);
   return newBranchName;
@@ -174,7 +171,7 @@ export async function createNewReleaseBranch(newVersion: string) {
 /**
  * Reads the contents of package.json and returns it as an object.
  */
-export async function loadPackageJson() {
+export async function loadPackageJson(): Promise<PartialPackageJson> {
   const packageFile = await dependencies.readFile(packageJsonFilename);
   const packageJson: PartialPackageJson = JSON.parse(packageFile.toString());
   return packageJson;
@@ -183,7 +180,7 @@ export async function loadPackageJson() {
 /**
  * Returns true if the repo is 'clean'
  */
-export async function repoIsClean() {
+export async function repoIsClean(): Promise<boolean> {
   const status = await dependencies.simpleGit.status();
   return status.isClean();
 }
@@ -191,7 +188,7 @@ export async function repoIsClean() {
 /**
  * Get the latest version of specified branch from origin, check it out and check if it's dirty.
  */
-export async function updateAndCheckBranch(branchName: string) {
+export async function updateAndCheckBranch(branchName: string): Promise<void> {
   const currentBranchStatus = await dependencies.simpleGit.status();
   if (currentBranchStatus.current === branchName) {
     await dependencies.simpleGit.fetch('origin', branchName, gitFetchOptions);
@@ -202,7 +199,7 @@ export async function updateAndCheckBranch(branchName: string) {
     await dependencies.simpleGit.pull();
     if (!await components.repoIsClean()) {
       throw new ExpectedError([
-        `Branch \'${branchName}\' is not clean.`,
+        `Branch '${branchName}' is not clean.`,
         'Please stash or commit your changes before attempting release.',
       ].join(' '));
     }
@@ -210,10 +207,9 @@ export async function updateAndCheckBranch(branchName: string) {
     dependencies.logger.info(`Fetching '${branchName}'...`);
     await dependencies.simpleGit.fetch('origin', `${branchName}:${branchName}`, gitFetchOptions);
   }
-
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
-  /* istanbul ignore next */
   commandLineRunner(description, '', createRelease());
 }
