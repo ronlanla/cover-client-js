@@ -193,17 +193,24 @@ export async function repoIsClean() {
  */
 export async function updateAndCheckBranch(branchName: string) {
   const currentBranchStatus = await dependencies.simpleGit.status();
-  await dependencies.simpleGit.fetch('origin', branchName, gitFetchOptions);
-  dependencies.logger.info(`Checking out \'${branchName}\` and making sure branch is clean...`);
-  await dependencies.simpleGit.checkout(branchName);
-  await dependencies.simpleGit.pull();
-  if (!await components.repoIsClean()) {
-    throw new ExpectedError([
-      `Branch \'${branchName}\' is not clean.`,
-      'Please stash or commit your changes before attempting release.',
+  if (currentBranchStatus.current === branchName) {
+    await dependencies.simpleGit.fetch('origin', branchName, gitFetchOptions);
+    dependencies.logger.info([
+      `Already checked out '${branchName}'.`,
+      'Pulling from origin and checking if dirty.',
     ].join(' '));
+    await dependencies.simpleGit.pull();
+    if (!await components.repoIsClean()) {
+      throw new ExpectedError([
+        `Branch \'${branchName}\' is not clean.`,
+        'Please stash or commit your changes before attempting release.',
+      ].join(' '));
+    }
+  } else {
+    dependencies.logger.info(`Fetching '${branchName}'...`);
+    await dependencies.simpleGit.fetch('origin', `${branchName}:${branchName}`, gitFetchOptions);
   }
-  await dependencies.simpleGit.checkout(currentBranchStatus.current);
+
 }
 
 if (require.main === module) {

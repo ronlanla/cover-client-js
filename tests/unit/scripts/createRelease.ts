@@ -1,7 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { StatusResult } from 'simple-git/promise';
-import createRelease, { commitPackageJsonChange, components, createNewReleaseBranch, createReleasePR, dependencies, incrementVersionNumber, loadPackageJson, repoIsClean, updateAndCheckBranch, writeChangesToPackageJson } from '../../../src/scripts/createRelease';
+import createRelease, { commitPackageJsonChange, components, createNewReleaseBranch, createReleasePR, dependencies, incrementVersionNumber, loadPackageJson, repoIsClean, updateAndCheckBranch, writeChangesToPackageJson, gitFetchOptions } from '../../../src/scripts/createRelease';
 import assert from '../../../src/utils/assertExtra';
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
 import sinonTestFactory from '../../../src/utils/sinonTest';
@@ -163,18 +163,31 @@ describe('scripts/createRelease', () => {
   });
 
   describe('updateAndCheckBranch', () => {
-    it('Throws expected error because branch is not clean', sinonTest(async (sinon) => {
+    it('Attempts to fetch changes because requested branch not checked out', sinonTest(async (sinon) => {
+      const status = sinon.stub(dependencies.simpleGit, 'status');
+      const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
+
+      const currentBranchName = 'release/1.0.0';
+      const requestBranchName = 'develop'
+      status.resolves(
+        {
+          current: currentBranchName,
+        } as StatusResult
+      );
+
+      await updateAndCheckBranch(requestBranchName);
+      assert.calledOnceWith(fetch, ['origin', `${requestBranchName}:${requestBranchName}`, gitFetchOptions]);
+    }));
+    it('Attempts to pull changes but fails because branch dirty', sinonTest(async (sinon) => {
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
-      const checkout = sinon.stub(dependencies.simpleGit, 'checkout');
       const status = sinon.stub(dependencies.simpleGit, 'status');
       const repoIsClean = sinon.stub(components, 'repoIsClean');
 
-      const fakeBranchName = 'feature/fake-branch';
+      const currentBranchName = 'develop';
       status.resolves(
         {
-          isClean: () => Boolean(true),
-          current: fakeBranchName,
+          current: currentBranchName,
         } as StatusResult
       );
       repoIsClean.resolves(false);
@@ -189,22 +202,19 @@ describe('scripts/createRelease', () => {
       );
       await assert.rejectsWith(updateAndCheckBranch(branchName), expectedError);
       // ensure that 'checkoutLocalBranch' is only called once because code fails early due to error
-      assert.calledWith(checkout, [['develop']]);
       assert.calledOnce(pull);
       assert.calledOnceWith(fetch, ['origin', branchName, gitFetchOptions]);
     }));
 
-    it('Resolves when git status confirmed clean', sinonTest(async (sinon) => {
+    it('Attempts to pull changes and succeeds', sinonTest(async (sinon) => {
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
-      const checkout = sinon.stub(dependencies.simpleGit, 'checkout');
       const status = sinon.stub(dependencies.simpleGit, 'status');
       const repoIsClean = sinon.stub(components, 'repoIsClean');
 
-      const fakeBranchName = 'feature/fake-branch';
+      const fakeBranchName = 'develop';
       status.resolves(
         {
-          isClean: () => Boolean(true),
           current: fakeBranchName,
         } as StatusResult
       );
@@ -215,7 +225,6 @@ describe('scripts/createRelease', () => {
 
       await updateAndCheckBranch(branchName);
       assert.calledOnceWith(fetch, ['origin', branchName, gitFetchOptions]);
-      assert.calledWith(checkout, [['develop'], [fakeBranchName]]);
       assert.calledOnce(pull);
     }));
   });
