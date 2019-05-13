@@ -107,14 +107,16 @@ describe('src/api/low-level', () => {
 
     it('Throws an error when no build is supplied', sinonTest(async () => {
       await assert.rejectsWith(
-        startAnalysis(api, { build: undefined, settings: settings }),
+        // tslint:disable-next-line:no-any
+        startAnalysis(api, { build: undefined, settings: settings } as any),
         new ApiError('The required `build` JAR file was not supplied', 'buildMissing'),
       );
     }));
 
     it('Throws an error when no settings are supplied', sinonTest(async () => {
       await assert.rejectsWith(
-        startAnalysis(api, { build: build, settings: undefined }),
+        // tslint:disable-next-line:no-any
+        startAnalysis(api, { build: build, settings: undefined } as any),
         new ApiError('The required `settings` JSON file was not supplied', 'settingsMissing'),
       );
     }));
