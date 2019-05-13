@@ -24,7 +24,7 @@
     "create-release": "ts-node src/scripts/createRelease.ts",
     "changelog": "ts-node src/utils/changelog.ts",
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
-    "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 80 mocha --require ts-node/register --require tsconfig-paths/register 'tests/unit/**/*.ts'",
+    "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 80 mocha --require ts-node/register 'tests/unit/**/*.ts'",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
@@ -57,7 +57,6 @@
     "simple-git": "^1.110.0",
     "sinon": "7.3.1",
     "ts-node": "8.0.3",
-    "tsconfig-paths": "3.8.0",
     "tslint": "5.15.0",
     "tslint-eslint-rules": "5.4.0",
     "typescript": "3.4.3"
