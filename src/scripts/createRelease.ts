@@ -6,6 +6,7 @@ import * as inquirer from 'inquirer';
 import * as semver from 'semver';
 import * as simpleGit from 'simple-git/promise';
 import { promisify } from 'util';
+
 import { Options } from '../utils/argvParser';
 import { getListOfUnreleasedChanges } from '../utils/changelog';
 import commandLineRunner, { Command, ExpectedError } from '../utils/commandLineRunner';
@@ -30,6 +31,7 @@ export const components = {
   commitPackageJsonChange: commitPackageJsonChange,
   createReleasePR: createReleasePR,
   askUserForPatchType: askUserForPatchType,
+  checkPrerequisites: checkPrerequisites,
 };
 
 const packageJsonFilename = 'package.json';
@@ -58,7 +60,7 @@ const description = [
 export default function createRelease(): Command {
   return async (args: string[], options: Options) => {
     // check that hub is installed and configured correctly
-    await checkPrerequisites();
+    await components.checkPrerequisites();
 
     // Make sure develop and master are up to date & get all tags
     dependencies.logger.info('Pulling branches and tags...');
@@ -156,10 +158,10 @@ export async function commitPackageJsonChange(newVersion: string): Promise<void>
 }
 
 /**
- * Writes the contents of packageJson to filename.
+ * Writes the contents of packageJson
  */
-export async function writeChangesToPackageJson(filename: string, packageJson: PartialPackageJson): Promise<void> {
-  await dependencies.writeFile(filename, JSON.stringify(packageJson, null, 2));
+export async function writeChangesToPackageJson(filepath: string, packageJson: PartialPackageJson): Promise<void> {
+  await dependencies.writeFile(filepath, JSON.stringify(packageJson, null, 2));
 }
 
 /**

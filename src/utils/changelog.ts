@@ -5,6 +5,7 @@ import * as Bluebird from 'bluebird';
 import { ChildProcess, spawn } from 'child_process';
 import { uniq } from 'lodash';
 import { parseGit } from 'parse-git';
+
 import { Options } from '../utils/argvParser';
 import commandLineRunner from '../utils/commandLineRunner';
 

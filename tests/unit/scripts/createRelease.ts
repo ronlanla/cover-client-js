@@ -2,6 +2,7 @@
 
 import { StatusResult } from 'simple-git/promise';
 import createRelease, {
+  checkPrerequisites,
   commitPackageJsonChange,
   components,
   createNewReleaseBranch,
@@ -12,8 +13,7 @@ import createRelease, {
   loadPackageJson,
   repoIsClean,
   updateAndCheckBranch,
-  writeChangesToPackageJson,
-  checkPrerequisites} from '../../../src/scripts/createRelease';
+  writeChangesToPackageJson } from '../../../src/scripts/createRelease';
 import assert from '../../../src/utils/assertExtra';
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
 import sinonTestFactory from '../../../src/utils/sinonTest';
@@ -23,7 +23,7 @@ const sinonTest = sinonTestFactory();
 describe('scripts/createRelease', () => {
   describe('checkPrerequisites', () => {
     it('Resolves because prereqs are installed', sinonTest(async (sinon) => {
-      // stubbing to avoid having to install hub on circle
+      // TODO: unstub this when hub is installed on circle
       sinon.stub(dependencies, 'exec').resolves();
 
       await checkPrerequisites();
@@ -37,7 +37,7 @@ describe('scripts/createRelease', () => {
 
           'Command failed: hub status',
           '/bin/sh: hub: command not found',
-        ].join('\n'))
+        ].join('\n'));
       exec.rejects(error);
 
       await assert.rejectsWith(checkPrerequisites(),
@@ -212,7 +212,7 @@ describe('scripts/createRelease', () => {
       const expectedError = new Error([
           `Branch \'${branchName}\' is not clean.`,
           'Please stash or commit your changes before attempting release.',
-        ].join(' ')
+        ].join(' '),
       );
       await assert.rejectsWith(updateAndCheckBranch(branchName), expectedError);
       // ensure that 'checkoutLocalBranch' is only called once because code fails early due to error
@@ -250,6 +250,8 @@ describe('scripts/createRelease', () => {
       sinon.stub(dependencies.simpleGit, 'checkout').resolves();
       sinon.stub(components, 'updateAndCheckBranch').resolves();
       sinon.stub(components, 'getListOfUnreleasedChanges').resolves([]);
+      // TODO: unstub this when hub is installed on circle
+      sinon.stub(components, 'checkPrerequisites').resolves();
 
       const expectedError = new Error('No changes detected in changelog. Is there anything to release?');
 
@@ -271,9 +273,11 @@ describe('scripts/createRelease', () => {
       sinon.stub(components, 'writeChangesToPackageJson').resolves();
       sinon.stub(components, 'commitPackageJsonChange').resolves();
       sinon.stub(components, 'createReleasePR').resolves();
-      sinon.stub(components, 'askUserForPatchType').resolves({releaseType: 'minor'});
+      sinon.stub(components, 'askUserForPatchType').resolves({ releaseType: 'minor' });
+      // TODO: unstub this when hub is installed on circle
+      sinon.stub(components, 'checkPrerequisites').resolves();
 
-      const result = await createRelease()([], {force: true});
+      const result = await createRelease()([], { force: true });
       assert.deepStrictEqual(result, 'Release process began successfully');
     }));
 
@@ -286,7 +290,9 @@ describe('scripts/createRelease', () => {
       sinon.stub(components, 'writeChangesToPackageJson').resolves();
       sinon.stub(components, 'commitPackageJsonChange').resolves();
       sinon.stub(components, 'createReleasePR').resolves();
-      sinon.stub(components, 'askUserForPatchType').resolves({releaseType: 'minor'});
+      sinon.stub(components, 'askUserForPatchType').resolves({ releaseType: 'minor' });
+      // TODO: unstub this when hub is installed on circle
+      sinon.stub(components, 'checkPrerequisites').resolves();
 
       const result = await createRelease()([], {});
       assert.deepStrictEqual(result, 'Release process began successfully');
