@@ -205,11 +205,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/url-join@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@types/url-join/-/url-join-4.0.0.tgz#72eff71648a429c7d4acf94e03780e06671369bd"
-  integrity sha512-awrJu8yML4E/xTwr2EMatC+HBnHGoDxc2+ImA9QyeUELI1S7dOCIZcyjki1rkwoA8P2D2NVgLAJLjnclkdLtAw==
-
 ansi-colors@3.2.3:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-3.2.3.tgz#57d35b8686e851e2cc04c403f1c00203976a1813"
@@ -1996,11 +1991,6 @@ underscore.string@latest:
   dependencies:
     sprintf-js "^1.0.3"
     util-deprecate "^1.0.2"
-
-url-join@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/url-join/-/url-join-4.0.0.tgz#4d3340e807d3773bda9991f8305acdcc2a665d2a"
-  integrity sha1-TTNA6AfTdzvamZH4MFrNzCpmXSo=
 
 util-deprecate@^1.0.2:
   version "1.0.2"
