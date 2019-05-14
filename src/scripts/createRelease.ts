@@ -57,6 +57,9 @@ const description = [
  */
 export default function createRelease(): Command {
   return async (args: string[], options: Options) => {
+    // check that hub is installed and configured correctly
+    await checkPrerequisites();
+
     // Make sure develop and master are up to date & get all tags
     dependencies.logger.info('Pulling branches and tags...');
     await components.updateAndCheckBranch('master');
@@ -206,6 +209,17 @@ export async function updateAndCheckBranch(branchName: string): Promise<void> {
   } else {
     dependencies.logger.info(`Fetching '${branchName}'...`);
     await dependencies.simpleGit.fetch('origin', `${branchName}:${branchName}`, gitFetchOptions);
+  }
+}
+
+/**
+ * Checks that the script has the necessary prerequsities installed
+ */
+export async function checkPrerequisites(): Promise<void> {
+  try {
+    await dependencies.exec('hub status');
+  } catch (err) {
+    throw new ExpectedError(`Hub prerequisite not installed or not configured correctly: ${err}`);
   }
 }
 

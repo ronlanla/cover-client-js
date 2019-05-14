@@ -12,7 +12,8 @@ import createRelease, {
   loadPackageJson,
   repoIsClean,
   updateAndCheckBranch,
-  writeChangesToPackageJson } from '../../../src/scripts/createRelease';
+  writeChangesToPackageJson,
+  checkPrerequisites} from '../../../src/scripts/createRelease';
 import assert from '../../../src/utils/assertExtra';
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
 import sinonTestFactory from '../../../src/utils/sinonTest';
@@ -20,6 +21,30 @@ import sinonTestFactory from '../../../src/utils/sinonTest';
 const sinonTest = sinonTestFactory();
 
 describe('scripts/createRelease', () => {
+  describe('checkPrerequisites', () => {
+    it('Resolves because prereqs are installed', sinonTest(async (sinon) => {
+      // stubbing to avoid having to install hub on circle
+      sinon.stub(dependencies, 'exec').resolves();
+
+      await checkPrerequisites();
+    }));
+
+    it('Throws an error because hub is not installed', sinonTest(async (sinon) => {
+      const exec = sinon.stub(dependencies, 'exec');
+
+      const error = new Error(
+        [
+
+          'Command failed: hub status',
+          '/bin/sh: hub: command not found',
+        ].join('\n'))
+      exec.rejects(error);
+
+      await assert.rejectsWith(checkPrerequisites(),
+        new ExpectedError(`Hub prerequisite not installed or not configured correctly: Error: ${error.message}`));
+    }));
+  });
+
   describe('createReleasePR', () => {
     it('Pushes a branch and execs hub', sinonTest(async (sinon) => {
       const push = sinon.stub(dependencies.simpleGit, 'push');
