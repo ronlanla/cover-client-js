@@ -28,7 +28,7 @@ export class ExpectedError extends Error {
 
 /** Indents text by an amount */
 export function indent(text: string, indent = '  ') {
-  return text.split('\n').map((line) => indent + line).join('\n');
+  return text.replace(/(\n|^)(.)/g, `$1${indent}$2`);
 }
 
 /** Returns how to run this command, following the convention of the user */
