@@ -9,6 +9,12 @@ references:
     v1-dependency-yarn-{{ .Branch }}-
   yarn_backup_cache_key_no_branch: &yarn_backup_cache_key_no_branch
     v1-dependency-yarn-
+  node-8: &node-8
+    circleci/node:8.16.0
+  node-10: &node-10
+    circleci/node:10.15.3
+  node-11: &node-11
+    circleci/node:11.14.0
 
 commands:
   install-dependencies:
@@ -69,34 +75,34 @@ commands:
 jobs:
   checks:
     docker:
-      - image: circleci/node:10.15.3
+      - image: *node-10
     steps:
       - checkout
       - install-dependencies
       - checks
       - cache-dependencies
 
-  test-node-v8:
+  test-node-8:
     docker:
-      - image: circleci/node:8.16.0
+      - image: *node-8
     steps:
       - checkout
       - install-dependencies
       - tests
       - cache-dependencies
 
-  test-node-v10:
+  test-node-10:
     docker:
-      - image: circleci/node:10.15.3
+      - image: *node-10
     steps:
       - checkout
       - install-dependencies
       - tests
       - cache-dependencies
 
-  test-node-v11:
+  test-node-11:
     docker:
-      - image: circleci/node:11.14.0
+      - image: *node-11
     steps:
       - checkout
       - install-dependencies
@@ -105,7 +111,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/node:10.15.3
+      - image: *node-10
     steps:
       - checkout
       - install-dependencies
@@ -116,11 +122,11 @@ workflows:
   test:
     jobs:
       - checks
-      - test-node-v8
-      - test-node-v10
-      - test-node-v11
+      - test-node-8
+      - test-node-10
+      - test-node-11
       - deploy:
-          requires: [checks, test-node-v8, test-node-v10, test-node-v11]
+          requires: [checks, test-node-8, test-node-10, test-node-11]
           filters:
             branches:
               only: master
