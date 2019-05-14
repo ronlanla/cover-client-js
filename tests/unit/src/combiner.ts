@@ -3,8 +3,12 @@
 import { clone } from 'lodash';
 
 import {
-  dependencies, generateTestClass, getFileNameForClassName,
-  GroupedResults, groupResults, mergeIntoTestClass,
+  dependencies,
+  generateTestClass,
+  getFileNameForClassName,
+  GroupedResults,
+  groupResults,
+  mergeIntoTestClass,
 } from '../../../src/combiner';
 import { CombinerError, CombinerErrorCodes } from '../../../src/errors';
 import assert from '../../../src/utils/assertExtra';
@@ -35,9 +39,7 @@ const sampleTestData = {
 };
 
 describe('src/combiner', () => {
-
   describe('generateTestClass', () => {
-
     it('Can generate a test class for a single result', sinonTest(async (sinon) => {
       const expectedTestClass = 'test-class';
       const genTestClass = sinon.stub(dependencies, 'genTestClass');
@@ -143,7 +145,6 @@ describe('src/combiner', () => {
   });
 
   describe('mergeIntoTestClass', () => {
-
     it('Can merge results into an existing test class', sinonTest(async (sinon) => {
       const existingTestClass = 'test-class';
       const expectedTestClass = 'merged-test-class';

@@ -1,7 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { genTestClass, ITestData, mergeTests } from '@diffblue/java-combiner';
-import { groupBy } from 'lodash';
+import { groupBy, isString } from 'lodash';
 
 import { CombinerError, CombinerErrorCodes } from './errors';
 
@@ -97,7 +97,7 @@ function checkExistingClass(existingClass: string): void {
       CombinerErrorCodes.EXISTING_CLASS_MISSING,
     );
   }
-  if (typeof existingClass !== 'string') {  // tslint:disable-line:strict-type-predicates
+  if (!isString(existingClass)) {
     throw new CombinerError(
       '"existingClass" must be a string',
       CombinerErrorCodes.EXISTING_CLASS_TYPE,
@@ -133,7 +133,7 @@ export function generateTestClass(results: any[]): string { // tslint:disable-li
   }
 }
 
-/** Merge analysis results into a an existing test class */
+/** Merge analysis results into an existing test class */
 export async function mergeIntoTestClass(existingClass: string, results: any[]): Promise<string> { // tslint:disable-line:no-any max-line-length // TYPE AnalysisResult[]
   checkExistingClass(existingClass);
   checkResults(results);
