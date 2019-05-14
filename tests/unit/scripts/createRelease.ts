@@ -1,7 +1,18 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { StatusResult } from 'simple-git/promise';
-import createRelease, { commitPackageJsonChange, components, createNewReleaseBranch, createReleasePR, dependencies, incrementVersionNumber, loadPackageJson, repoIsClean, updateAndCheckBranch, writeChangesToPackageJson, gitFetchOptions } from '../../../src/scripts/createRelease';
+import createRelease, {
+  commitPackageJsonChange,
+  components,
+  createNewReleaseBranch,
+  createReleasePR,
+  dependencies,
+  gitFetchOptions,
+  incrementVersionNumber,
+  loadPackageJson,
+  repoIsClean,
+  updateAndCheckBranch,
+  writeChangesToPackageJson } from '../../../src/scripts/createRelease';
 import assert from '../../../src/utils/assertExtra';
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
 import sinonTestFactory from '../../../src/utils/sinonTest';
@@ -30,7 +41,7 @@ describe('scripts/createRelease', () => {
       const add = sinon.stub(dependencies.simpleGit, 'add');
       sinon.stub(dependencies.simpleGit, 'commit').resolves();
 
-      const newVersion = "1.0.0";
+      const newVersion = '1.0.0';
 
       await commitPackageJsonChange(newVersion);
 
@@ -40,7 +51,7 @@ describe('scripts/createRelease', () => {
       sinon.stub(dependencies.simpleGit, 'add').resolves();
       const commit = sinon.stub(dependencies.simpleGit, 'commit');
 
-      const newVersion = "1.0.0";
+      const newVersion = '1.0.0';
       const commitMessage = `Bump version to ${newVersion}`;
 
       await commitPackageJsonChange(newVersion);
@@ -69,7 +80,7 @@ describe('scripts/createRelease', () => {
       const newBranchName = await createNewReleaseBranch(newVersion);
 
       assert.calledOnceWith(checkoutLocalBranch, [expectedNewBranchName]);
-      assert.deepEqual(newBranchName, expectedNewBranchName);
+      assert.deepStrictEqual(newBranchName, expectedNewBranchName);
     }));
   });
 
@@ -92,36 +103,30 @@ describe('scripts/createRelease', () => {
 
       const packageJson = await loadPackageJson();
 
-      assert.deepEqual(packageJson, { version: "1.0.0" });
+      assert.deepStrictEqual(packageJson, { version: '1.0.0' });
     }));
   });
 
   describe('repoIsClean', () => {
     it('True if repo is clean', sinonTest(async (sinon) => {
       const status = sinon.stub(dependencies.simpleGit, 'status');
-      // fake StatusResult
-      status.resolves(
-        {
-          isClean: () => true
-        } as StatusResult
-      );
+
+      const repoStatus = { isClean: () => true };
+      status.resolves(repoStatus as StatusResult);
 
       const cleanRepo = await repoIsClean();
-      assert.deepEqual(cleanRepo, true);
+      assert.deepStrictEqual(cleanRepo, true);
       assert.calledOnce(status);
     }));
 
     it('False if repo is dirty', sinonTest(async (sinon) => {
       const status = sinon.stub(dependencies.simpleGit, 'status');
-      // fake StatusResult
-      status.resolves(
-        {
-          isClean: () => false
-        } as StatusResult
-      );
+
+      const repoStatus = { isClean: () => false };
+      status.resolves(repoStatus as StatusResult);
 
       const cleanRepo = await repoIsClean();
-      assert.deepEqual(cleanRepo, false);
+      assert.deepStrictEqual(cleanRepo, false);
       assert.calledOnce(status);
     }));
   });
@@ -130,22 +135,22 @@ describe('scripts/createRelease', () => {
     it('Updates 1.0.0 to 1.0.1 for patch', sinonTest(async (sinon) => {
       const version = '1.0.0';
 
-      const newVersion = incrementVersionNumber(version, { releaseType: "patch" });
-      assert.deepEqual(newVersion, '1.0.1');
+      const newVersion = incrementVersionNumber(version, { releaseType: 'patch' });
+      assert.deepStrictEqual(newVersion, '1.0.1');
     }));
 
     it('Updates 1.0.0 to 1.1.0 for minor', sinonTest(async (sinon) => {
       const version = '1.0.0';
 
-      const newVersion = incrementVersionNumber(version, { releaseType: "minor" });
-      assert.deepEqual(newVersion, '1.1.0');
+      const newVersion = incrementVersionNumber(version, { releaseType: 'minor' });
+      assert.deepStrictEqual(newVersion, '1.1.0');
     }));
 
     it('Updates 1.0.0 to 2.0.0 for major', sinonTest(async (sinon) => {
       const version = '1.0.0';
 
-      const newVersion = incrementVersionNumber(version, { releaseType: "major" });
-      assert.deepEqual(newVersion, '2.0.0');
+      const newVersion = incrementVersionNumber(version, { releaseType: 'major' });
+      assert.deepStrictEqual(newVersion, '2.0.0');
     }));
 
     it('Throws an expected error for invalid version number', sinonTest(async (sinon) => {
@@ -160,12 +165,9 @@ describe('scripts/createRelease', () => {
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
 
       const currentBranchName = 'release/1.0.0';
-      const requestBranchName = 'develop'
-      sinon.stub(dependencies.simpleGit, 'status').resolves(
-        {
-          current: currentBranchName,
-        } as StatusResult
-      );
+      const requestBranchName = 'develop';
+      const repoStatus = { current: currentBranchName };
+      sinon.stub(dependencies.simpleGit, 'status').resolves(repoStatus as StatusResult);
 
       await updateAndCheckBranch(requestBranchName);
       assert.calledOnceWith(fetch, ['origin', `${requestBranchName}:${requestBranchName}`, gitFetchOptions]);
@@ -175,11 +177,8 @@ describe('scripts/createRelease', () => {
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
 
       const currentBranchName = 'develop';
-      sinon.stub(dependencies.simpleGit, 'status').resolves(
-        {
-          current: currentBranchName,
-        } as StatusResult
-      );
+      const repoStatus = { current: currentBranchName };
+      sinon.stub(dependencies.simpleGit, 'status').resolves(repoStatus as StatusResult);
       sinon.stub(components, 'repoIsClean').resolves(false);
 
       const branchName = 'develop';
@@ -201,11 +200,8 @@ describe('scripts/createRelease', () => {
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
 
       const fakeBranchName = 'develop';
-      sinon.stub(dependencies.simpleGit, 'status').resolves(
-        {
-          current: fakeBranchName,
-        } as StatusResult
-      );
+      const repoStatus = { current: fakeBranchName };
+      sinon.stub(dependencies.simpleGit, 'status').resolves(repoStatus as StatusResult);
       sinon.stub(components, 'repoIsClean').resolves(true);
 
       const branchName = 'develop';
@@ -253,7 +249,7 @@ describe('scripts/createRelease', () => {
       sinon.stub(components, 'askUserForPatchType').resolves({releaseType: 'minor'});
 
       const result = await createRelease()([], {force: true});
-      assert.deepEqual(result, 'Release process began successfully');
+      assert.deepStrictEqual(result, 'Release process began successfully');
     }));
 
     it('Resolves successfully!', sinonTest(async (sinon) => {
@@ -268,7 +264,7 @@ describe('scripts/createRelease', () => {
       sinon.stub(components, 'askUserForPatchType').resolves({releaseType: 'minor'});
 
       const result = await createRelease()([], {});
-      assert.deepEqual(result, 'Release process began successfully');
+      assert.deepStrictEqual(result, 'Release process began successfully');
     }));
   });
 });
