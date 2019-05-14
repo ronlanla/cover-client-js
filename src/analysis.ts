@@ -1,8 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { writable as isWritableStream } from 'is-stream';
-import { Writable } from 'readable-stream';
-
 import {
   cancelAnalysis,
   getAnalysisResults,
@@ -45,30 +42,12 @@ export default class Analysis {
   public progress?: AnalysisProgress;
   public error?: ApiErrorResponse;
   public phases?: AnalysisPhases;
-  public results: AnalysisResult[] | Writable;
+  public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
-  public isStreaming = false;
 
-  public constructor(apiUrl: string, resultsStream?: Writable) {
+  public constructor(apiUrl: string) {
     this.apiUrl = apiUrl;
-    this.results = [];
-    if (resultsStream) {
-      if (!isWritableStream(resultsStream)) {
-        throw new AnalysisError(
-          'Results stream is not writeable stream.',
-          AnalysisErrorCodes.STREAM_NOT_WRITABLE,
-        );
-      }
-      if (resultsStream._writableState && !resultsStream._writableState.objectMode) {
-        throw new AnalysisError(
-          'Results stream is not in object mode.',
-          AnalysisErrorCodes.STREAM_NOT_OBJECT_MODE,
-        );
-      }
-      this.results = resultsStream;
-      this.isStreaming = true;
-    }
   }
 
   /** Check if analysis is running */
@@ -96,9 +75,6 @@ export default class Analysis {
     this.status = AnalysisObjectStatuses[status.status];
     this.progress = status.progress;
     this.error = status.message;
-    if (this.isStreaming && this.isEnded()) {
-      (this.results as Writable).end();
-    }
   }
 
   /** Start analysis */
@@ -133,12 +109,6 @@ export default class Analysis {
 
   /** Get analysis results */
   public async getResults(paginate: boolean = true): Promise<AnalysisResultsApiResponse> {
-    if (this.isStreaming && !paginate) {
-      throw new AnalysisError(
-        'Cannot disable pagination when writing to a results stream.',
-        AnalysisErrorCodes.STREAM_MUST_PAGINATE,
-      );
-    }
     this.checkRunning();
     const response = await components.getAnalysisResults(
       this.apiUrl,
@@ -146,12 +116,7 @@ export default class Analysis {
       paginate ? this.cursor : undefined,
     );
     this.cursor = response.cursor;
-    // istanbul ignore else - the array check is for typescript's benefit
-    if (this.isStreaming) {
-      response.results.forEach((result) => (this.results as Writable).write(result));
-    } else if (Array.isArray(this.results)) {
-      this.results = paginate ? [...this.results, ...response.results] : response.results;
-    }
+    this.results = paginate ? [...this.results, ...response.results] : response.results;
     this.updateStatus(response.status);
     return response;
   }

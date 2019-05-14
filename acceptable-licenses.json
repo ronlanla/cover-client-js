@@ -29,9 +29,6 @@
   "is-buffer": [
     "mit"
   ],
-  "is-stream": [
-    "mit"
-  ],
   "lodash": [
     "mit"
   ],
@@ -44,22 +41,7 @@
   "ms": [
     "mit"
   ],
-  "readable-stream": [
-    "mit"
-  ],
-  "safe-buffer": [
-    "mit"
-  ],
-  "string_decoder": [
-    "mit"
-  ],
   "url-join": [
     "mit"
-  ],
-  "util-deprecate": [
-    "mit"
-  ],
-  "inherits": [
-    "isc"
   ]
 }
