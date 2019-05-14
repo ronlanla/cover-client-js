@@ -1,10 +1,30 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import assert, { errorEquals } from '../../../src/utils/assertExtra';
-import routes, { generateApiUrl } from '../../../src/utils/routes';
+import routes, { generateApiUrl, urlJoin } from '../../../src/utils/routes';
 
 describe('src/utils/routing', () => {
   const defaultApiUrl = 'http://localhost/api';
+
+  describe('urlJoin', () => {
+    it('Returns a string correctly joining URL parameters', () => {
+      const actualString = urlJoin([defaultApiUrl, 'analysis', '1', 'cancel']);
+      const expectedString = 'http://localhost/api/analysis/1/cancel';
+      assert.deepStrictEqual(actualString, expectedString);
+    });
+
+    it('Returns a string correctly joining URL parameters with trailing slashes', () => {
+      const actualString = urlJoin(['http://localhost/api/', 'analysis/', '1', 'cancel']);
+      const expectedString = 'http://localhost/api/analysis/1/cancel';
+      assert.deepStrictEqual(actualString, expectedString);
+    });
+
+    it('Returns a string correctly joining URL parameters with a trailing slash on the end', () => {
+      const actualString = urlJoin([defaultApiUrl, 'analysis/']);
+      const expectedString = 'http://localhost/api/analysis/';
+      assert.deepStrictEqual(actualString, expectedString);
+    });
+  });
 
   describe('generateApiUrl', () => {
     it('Returns a string when provided with parameters', () => {
