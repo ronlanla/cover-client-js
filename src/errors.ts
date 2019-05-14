@@ -1,7 +1,18 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+/**
+ * Common parent class for all Client Library errors.
+ * Not intended to be thrown directly.
+ */
+export class CoverClientError extends Error {
+  public constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
 /** Error returned by an API request */
-export class ApiError extends Error {
+export class ApiError extends CoverClientError {
 
   public message: string; // The message provided in the API error response body, if present
   public code: string;  // The code provided in the API error response body, if present
@@ -23,7 +34,7 @@ export enum BindingsErrorCodes {
 }
 
 /** Error thrown by bindings functions, with additional error code */
-export class BindingsError extends Error {
+export class BindingsError extends CoverClientError {
 
   public message: string;
   public code: BindingsErrorCodes;
@@ -51,7 +62,7 @@ export enum CombinerErrorCodes {
 }
 
 /** Error thrown when combining results, with additional error code */
-export class CombinerError extends Error {
+export class CombinerError extends CoverClientError {
 
   public message: string;
   public code: CombinerErrorCodes;
@@ -74,7 +85,7 @@ export enum AnalysisErrorCodes {
 }
 
 /** Error thrown by Analysis object, with additional error code */
-export class AnalysisError extends Error {
+export class AnalysisError extends CoverClientError {
 
   public message: string;
   public code: AnalysisErrorCodes;
