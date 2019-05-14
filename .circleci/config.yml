@@ -3,11 +3,11 @@
 version: 2.1
 
 references:
-  yarn_cache_key: &yarn_cache_key
+  yarn-cache-key: &yarn-cache-key
     v1-dependency-yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
-  yarn_backup_cache_key: &yarn_backup_cache_key
+  yarn-backup-cache-key: &yarn-backup-cache-key
     v1-dependency-yarn-{{ .Branch }}-
-  yarn_backup_cache_key_no_branch: &yarn_backup_cache_key_no_branch
+  yarn-backup-cache-key-no-branch: &yarn-backup-cache-key-no-branch
     v1-dependency-yarn-
   node-8: &node-8
     circleci/node:8.16.0
@@ -24,9 +24,9 @@ commands:
           command: yarn --version
       - restore_cache:
           keys:
-            - *yarn_cache_key
-            - *yarn_backup_cache_key
-            - *yarn_backup_cache_key_no_branch
+            - *yarn-cache-key
+            - *yarn-backup-cache-key
+            - *yarn-backup-cache-key-no-branch
       - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
@@ -35,7 +35,7 @@ commands:
     steps:
       - save_cache:
           name: Save yarn package cache
-          key: *yarn_cache_key
+          key: *yarn-cache-key
           paths:
             - ~/.cache/yarn
 
