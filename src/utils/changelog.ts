@@ -124,7 +124,7 @@ export async function createChangelog(): Promise<LogVersion[]> {
     // tslint:disable-next-line:no-unnecessary-callback-wrapper
     .filter<string>((version): version is string => Boolean(version)));
 
-    return Bluebird.mapSeries(releaseVersions, async (version, i) => {
+    return Bluebird.mapSeries(releaseVersions, async (version, i: number) => {
       // Log all commits between this version and the previous version
 
       // '^2' suffix gets the parent of the release merge commit
