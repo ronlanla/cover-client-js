@@ -1,7 +1,7 @@
 // Copyright 2018-2019 Diffblue Limited. All Rights Reserved.
 
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import FormData from 'form-data';
+import * as FormData from 'form-data';
 
 /** Platform Lite API error class */
 export class ApiError extends Error {

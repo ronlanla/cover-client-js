@@ -1,7 +1,7 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
-import assert from 'assert';
-import sinon from 'sinon';
+import * as assert from 'assert';
+import * as sinon from 'sinon';
 
 /** Returns the error thrown by a callback */
 export function getError(callback: () => void) {
