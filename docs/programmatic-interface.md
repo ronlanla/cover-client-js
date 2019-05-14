@@ -13,9 +13,8 @@ All off these results should relate to the same class under test and so must all
 In Node.js:
 
  ```js
-const combiner = require('@diffblue/cover-client').combiner;
-const results = ['<api result objects>'];
-const testClass = combiner.generateTestClass(results);
+const CoverClient = require('@diffblue/cover-client');
+const testClass = CoverClient.generateTestClass(results);
 ```
 
 ### Merge results into an existing test class
@@ -30,10 +29,9 @@ In Node.js:
 
  ```js
 const fs = require(fs);
-const combiner = require('@diffblue/cover-client').combiner;
-const results = ['<api result objects>'];
-const existingTestClass = fs.readFileSync('./FooBarTest');
-combiner.generateTestClass(existingTestClass, results).then((testClass) => {
+const CoverClient = require('@diffblue/cover-client');
+const existingTestClass = fs.readFileSync('./FooBarTest.java');
+CoverClient.generateTestClass(existingTestClass, results).then((testClass) => {
   console.log(`Merged test class:\n${testClass}`);
 });
 ```
@@ -51,9 +49,8 @@ It is assumed that all `testedFunctions` for a given `sourceFilePath` will produ
 In Node.js:
 
  ```js
-const combiner = require('@diffblue/cover-client').combiner;
-const results = ['<api result objects>'];
-const groupedResults = combiner.groupResults(results);
+const CoverClient = require('@diffblue/cover-client');
+const groupedResults = CoverClient.groupResults(results);
 ```
 
 Copyright 2019 Diffblue Limited. All Rights Reserved.

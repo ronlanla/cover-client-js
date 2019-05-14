@@ -35,7 +35,9 @@ const sampleTestData = {
 };
 
 describe('src/combiner', () => {
+
   describe('generateTestClass', () => {
+
     it('Can generate a test class for a single result', sinonTest(async (sinon) => {
       const expectedTestClass = 'test-class';
       const genTestClass = sinon.stub(dependencies, 'genTestClass');
@@ -44,6 +46,7 @@ describe('src/combiner', () => {
       assert.calledOnceWith(genTestClass, [[sampleTestData], 'TicTacToe', 'TicTacToeTest', 'com.diffblue.javademo']);
       assert.strictEqual(testClass, expectedTestClass);
     }));
+
     it('Can generate a test class for multiple results', sinonTest(async (sinon) => {
       const expectedTestClass = 'test-class';
       const genTestClass = sinon.stub(dependencies, 'genTestClass');
@@ -55,6 +58,7 @@ describe('src/combiner', () => {
       );
       assert.strictEqual(testClass, expectedTestClass);
     }));
+
     it('Fails if passed results with differing source file paths', () => {
       const otherResult = clone(sampleResult);
       otherResult.sourceFilePath = '/other/path';
@@ -65,6 +69,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if passed results with tested functions that produce different class names', () => {
       const otherResult = clone(sampleResult);
       otherResult.testedFunction = 'com.diffblue.javademo.SomeOtherClass.checkTicTacToePosition';
@@ -75,6 +80,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if passed results with tested functions that produce different package names', () => {
       const otherResult = clone(sampleResult);
       otherResult.testedFunction = 'com.diffblue.someotherpackage.TicTacToe.checkTicTacToePosition';
@@ -85,6 +91,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if passed a tested function with no extractable classname', () => {
       const badResult = clone(sampleResult);
       badResult.testedFunction = 'not-a-valid-function-name';
@@ -95,6 +102,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if no results passed', () => {
       assert.throws(
         () => generateTestClass(undefined as any),  // tslint:disable-line:no-any
@@ -103,6 +111,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if non array results passed', () => {
       assert.throws(
         () => generateTestClass(new Set([sampleResult]) as any),  // tslint:disable-line:no-any
@@ -111,6 +120,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if empty results passed', () => {
       assert.throws(
         () => generateTestClass([] as any),  // tslint:disable-line:no-any
@@ -119,6 +129,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if java-combiner genTestClass fails', sinonTest(async (sinon) => {
       const genTestClass = sinon.stub(dependencies, 'genTestClass');
       genTestClass.throws(new Error('genTestClass failed'));
@@ -130,7 +141,9 @@ describe('src/combiner', () => {
       );
     }));
   });
+
   describe('mergeIntoTestClass', () => {
+
     it('Can merge results into an existing test class', sinonTest(async (sinon) => {
       const existingTestClass = 'test-class';
       const expectedTestClass = 'merged-test-class';
@@ -140,6 +153,7 @@ describe('src/combiner', () => {
       assert.strictEqual(testClass, expectedTestClass);
       assert.calledOnceWith(mergeTests, [existingTestClass, [sampleTestData]]);
     }));
+
     it('Fails for an empty existing test class', async () => {
       await assert.rejects(
         async () => mergeIntoTestClass('', [sampleResult]),
@@ -148,6 +162,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails for an existing test class of the wrong type', async () => {
       await assert.rejects(
         async () => mergeIntoTestClass(Buffer.alloc(0) as any, [sampleResult]), // tslint:disable-line:no-any
@@ -156,6 +171,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if java-combiner mergeTests fails', sinonTest(async (sinon) => {
       const existingTestClass = 'test-class';
       const mergeTests = sinon.stub(dependencies, 'genTestClass');
@@ -167,6 +183,7 @@ describe('src/combiner', () => {
         },
       );
     }));
+
     it('Fails if no results passed', async () => {
       const existingTestClass = 'test-class';
       await assert.rejects(
@@ -176,6 +193,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if non array results passed', async () => {
       const existingTestClass = 'test-class';
       await assert.rejects(
@@ -188,6 +206,7 @@ describe('src/combiner', () => {
         },
       );
     });
+
     it('Fails if empty results passed', async () => {
       const existingTestClass = 'test-class';
       await assert.rejects(
@@ -198,6 +217,7 @@ describe('src/combiner', () => {
       );
     });
   });
+
   describe('generateTestClass', () => {
     it('Groups results by testedFunction', () => {
       const otherResult = clone(sampleResult);
@@ -210,6 +230,7 @@ describe('src/combiner', () => {
       assert.deepStrictEqual(groupedResults, expected);
     });
   });
+
   describe('getFileNameForClassName', () => {
     it('Returns a file name for a provided class name', () => {
       const className = 'TicTacToe';

@@ -1,7 +1,9 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import * as combiner from './src/combiner';
+import { generateTestClass, groupResults, mergeIntoTestClass } from './src/combiner';
 
 exports = {
-  combiner: combiner,
+  generateTestClass: generateTestClass,
+  groupResults: groupResults,
+  mergeIntoTestClass: mergeIntoTestClass,
 }
