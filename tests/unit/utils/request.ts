@@ -2,8 +2,9 @@
 
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
+import { ApiError } from '../../../src/errors';
 import assert, { errorEquals } from '../../../src/utils/assertExtra';
-import request, { ApiError, convertError } from '../../../src/utils/request';
+import request, { convertError } from '../../../src/utils/request';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
@@ -33,13 +34,13 @@ describe('utils/request', () => {
 
     it('Throws with statusText in the Cover ApiError format', () => {
       const error: AxiosError = { ...templateError, response: { ...templateResponse, statusText: 'Foo bar' }};
-      const expectedError = new ApiError('Foo bar', 'axiosError', 0);
+      const expectedError = new ApiError('Foo bar', 'requestError', 0);
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
 
     it('Throws an unknown error in the Cover ApiError format', () => {
       const error: AxiosError = { ...templateError, response: undefined };
-      const expectedError = new ApiError('An unknown error occurred', 'axiosError');
+      const expectedError = new ApiError('An unknown error occurred', 'requestError');
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
   });

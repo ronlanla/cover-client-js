@@ -36,7 +36,7 @@ export interface AnalysisProgress {
 }
 
 /** Error object returned by the API */
-export interface ApiError {
+export interface ApiErrorResponse {
   code: string;
   message: string;
 }
@@ -104,7 +104,7 @@ export interface AnalysisSettings {
 export interface AnalysisStatusApiResponse {
   status: AnalysisStatuses;
   progress: AnalysisProgress;
-  message?: ApiError;
+  message?: ApiErrorResponse;
 }
 
 /** Object returned by the API on analysis start */
@@ -114,7 +114,7 @@ export interface AnalysisStartApiResponse {
 }
 
 /** Object returned by the API on analysis cancellation */
-export interface AnalysisCancel {
+export interface AnalysisCancelApiResponse {
   message: string;
   status: AnalysisStatusApiResponse;
 }

@@ -2,21 +2,37 @@
 
 import { writable as isWritableStream } from 'is-stream';
 import { Writable } from 'readable-stream';
-import { cancel, getStatus, results, start, version } from './dummy-api';
+
+import {
+  cancelAnalysis,
+  getAnalysisResults,
+  getAnalysisStatus,
+  getApiVersion,
+  startAnalysis,
+} from './bindings';
 import { AnalysisError, AnalysisErrorCodes } from './errors';
 import {
-  AnalysisCancel, AnalysisFiles, AnalysisObjectStatuses, AnalysisPhases, AnalysisProgress,
-  AnalysisResult, AnalysisResultsApiResponse, AnalysisSettings,
-  AnalysisStartApiResponse, AnalysisStatusApiResponse, ApiError, ApiVersionApiResponse,
+  AnalysisCancelApiResponse,
+  AnalysisFiles,
+  AnalysisObjectStatuses,
+  AnalysisPhases,
+  AnalysisProgress,
+  AnalysisResult,
+  AnalysisResultsApiResponse,
+  AnalysisSettings,
+  AnalysisStartApiResponse,
+  AnalysisStatusApiResponse,
+  ApiErrorResponse,
+  ApiVersionApiResponse,
 } from './types/types';
 
 
 export const components = {
-  cancel: cancel,
-  getStatus: getStatus,
-  results: results,
-  start: start,
-  version: version,
+  cancelAnalysis: cancelAnalysis,
+  getAnalysisResults: getAnalysisResults,
+  getAnalysisStatus: getAnalysisStatus,
+  getApiVersion: getApiVersion,
+  startAnalysis: startAnalysis,
 };
 
 /** Class to run an analysis and keep track of its state */
@@ -27,7 +43,7 @@ export default class Analysis {
   public settings?: AnalysisSettings;
   public status: AnalysisObjectStatuses = AnalysisObjectStatuses.NOT_STARTED;
   public progress?: AnalysisProgress;
-  public error?: ApiError;
+  public error?: ApiErrorResponse;
   public phases?: AnalysisPhases;
   public results: AnalysisResult[] | Writable;
   public cursor?: number;
@@ -91,7 +107,7 @@ export default class Analysis {
     files: AnalysisFiles,
   ): Promise<AnalysisStartApiResponse> {
     this.checkNotStarted();
-    const response = await components.start(this.apiUrl, settings, files);
+    const response = await components.startAnalysis(this.apiUrl, settings, files);
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
@@ -100,9 +116,9 @@ export default class Analysis {
   }
 
   /** Cancel analysis */
-  public async cancel(): Promise<AnalysisCancel> {
+  public async cancel(): Promise<AnalysisCancelApiResponse> {
     this.checkRunning();
-    const response = await components.cancel(this.apiUrl, this.analysisId);
+    const response = await components.cancelAnalysis(this.apiUrl, this.analysisId);
     this.updateStatus(response.status);
     return response;
   }
@@ -110,7 +126,7 @@ export default class Analysis {
   /** Get analysis status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
     this.checkRunning();
-    const response = await components.getStatus(this.apiUrl, this.analysisId);
+    const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId);
     this.updateStatus(response);
     return response;
   }
@@ -124,8 +140,13 @@ export default class Analysis {
       );
     }
     this.checkRunning();
-    const response = await components.results(this.apiUrl, this.analysisId, paginate ? this.cursor : undefined);
+    const response = await components.getAnalysisResults(
+      this.apiUrl,
+      this.analysisId,
+      paginate ? this.cursor : undefined,
+    );
     this.cursor = response.cursor;
+    // istanbul ignore else - the array check is for typescript's benefit
     if (this.isStreaming) {
       response.results.forEach((result) => (this.results as Writable).write(result));
     } else if (Array.isArray(this.results)) {
@@ -137,7 +158,7 @@ export default class Analysis {
 
   /** Get api version */
   public async getApiVersion(): Promise<ApiVersionApiResponse> {
-    const response = await components.version(this.apiUrl);
+    const response = await components.getApiVersion(this.apiUrl);
     this.apiVersion = response.version;
     return response;
   }

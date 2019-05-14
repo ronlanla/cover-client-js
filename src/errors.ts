@@ -1,6 +1,41 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-/** Error codes usable by CombinerError */
+/** Error returned by an API request */
+export class ApiError extends Error {
+
+  public message: string; // The message provided in the API error response body, if present
+  public code: string;  // The code provided in the API error response body, if present
+  public status?: number;  // the http status code of the response, if available
+
+  public constructor(message: string, code: string, status?: number) {
+    super(message);
+    this.code = code;
+    this.status = status;
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
+/** Error codes used by BindingsError */
+export enum BindingsErrorCodes {
+  BUILD_MISSING = 'BUILD_MISSING',
+  SETTINGS_MISSING = 'SETTINGS_MISSING',
+  SETTINGS_INVALID = 'SETTINGS_INVALID',
+}
+
+/** Error thrown by bindings functions, with additional error code */
+export class BindingsError extends Error {
+
+  public message: string;
+  public code: BindingsErrorCodes;
+
+  public constructor(message: string, code: BindingsErrorCodes) {
+    super(message);
+    this.code = code;
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
+/** Error codes used by CombinerError */
 export enum CombinerErrorCodes {
   RESULTS_MISSING = 'RESULTS_MISSING',
   RESULTS_EMPTY = 'RESULTS_EMPTY',
@@ -28,7 +63,7 @@ export class CombinerError extends Error {
   }
 }
 
-/** Error codes usable by AnalysisError */
+/** Error codes used by AnalysisError */
 export enum AnalysisErrorCodes {
   NOT_RUNNING = 'NOT_STARTED',
   ALREADY_STARTED = 'ALREADY_STARTED',
@@ -38,7 +73,7 @@ export enum AnalysisErrorCodes {
   STREAM_NOT_OBJECT_MODE = 'STREAM_NOT_OBJECT_MODE',
 }
 
-/** Error thrown by Analysis object with additional error code */
+/** Error thrown by Analysis object, with additional error code */
 export class AnalysisError extends Error {
 
   public message: string;

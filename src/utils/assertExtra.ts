@@ -100,7 +100,7 @@ const assertExtra = {
   },
 
   /** Assert that the expected changes and only the expected changes have occurred on an object */
-  // tslint:disable-next-line: no-any
+  // tslint:disable-next-line:no-any
   changedProperties: (originalObject: {[index: string]: any}, changedObject: object, expectedChanges: object) => {
     for (const [key, value] of Object.entries(expectedChanges)) {
       originalObject[key] = value;
