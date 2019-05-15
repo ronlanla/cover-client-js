@@ -8,38 +8,37 @@ import createPullRequest, { dependencies } from '../../../src/utils/createPullRe
 
 const sinonTest = sinonTestFactory();
 
-describe('scripts/createReleaseTag', () => {
+describe('utils/createPullRequest', () => {
   it('Resolves when the Github request resolves', sinonTest(async (sinon) => {
-    const post = sinon.stub(dependencies.axios, 'post').resolves();
-    await createPullRequest('user/repo', 'abc123', 'Title', 'master', 'develop');
-    assert.calledOnceWith(post, [
-      'https://api.github.com/repos/user/repo/pulls',
-      {
-        base: 'develop',
-        head: 'master',
-        title: 'Title',
-      },
-      {
-        headers: {
-          Authorization: 'token abc123',
-          'Content-Type': 'application/json',
-        },
-      },
+    const spawnProcess = sinon.stub(dependencies, 'spawnProcess').resolves();
+    await createPullRequest('abc123', 'Title', 'master', 'develop', { foo: 'bar' });
+    assert.calledOnceWith(spawnProcess, [
+      'hub',
+      [
+        'pull-request',
+        '--message', 'Title',
+        '--head', 'master',
+        '--base', 'develop',
+      ],
+      { env: {
+        GITHUB_TOKEN: 'abc123',
+        foo: 'bar',
+      }},
     ]);
   }));
 
   it('Rejects when the Github request rejects', sinonTest(async (sinon) => {
-    sinon.stub(dependencies.axios, 'post').rejects({ response: { data: [1, 2, 3] }});
+    sinon.stub(dependencies, 'spawnProcess').rejects(new Error('Unprocessable Entity (HTTP 422)'));
     await assert.rejectsWith(
-      createPullRequest('user/repo', 'abc123', 'Title', 'master', 'develop'),
-      new Error('Github API error: [\n  1,\n  2,\n  3\n]'),
+      createPullRequest('abc123', 'Title', 'master', 'develop', { foo: 'bar' }),
+      new Error('Github API error: Unprocessable Entity (HTTP 422)'),
     );
   }));
 
   it('Rejects when the Github request authentication fails', sinonTest(async (sinon) => {
-    sinon.stub(dependencies.axios, 'post').rejects({ response: { statusText: 'Unauthorized' }});
+    sinon.stub(dependencies, 'spawnProcess').rejects(new Error('Error getting current user: Unauthorized (HTTP 401)'));
     await assert.rejectsWith(
-      createPullRequest('user/repo', 'abc123', 'Title', 'master', 'develop'),
+      createPullRequest('abc123', 'Title', 'master', 'develop', { foo: 'bar' }),
       new ExpectedError('Invalid authorization token'),
     );
   }));

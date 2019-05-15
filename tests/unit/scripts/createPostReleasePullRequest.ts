@@ -18,15 +18,15 @@ describe('scripts/createPostReleasePullRequest', () => {
     });
     const createPullRequest = sinon.stub(components, 'createPullRequest');
     assert.strictEqual(
-      await createPostReleasePullRequest(['abc123']),
+      await createPostReleasePullRequest({ foo: 'bar' })(['abc123']),
       'Created pull request to merge version 1.2.3 back into develop',
     );
     assert.calledOnceWith(createPullRequest, [
-      'company/project',
       'abc123',
-      'Test: Merge 1.2.3 back into develop',
+      'Merge 1.2.3 back into develop',
       '1.2.3',
       'develop',
+      { foo: 'bar' },
     ]);
   }));
 
@@ -37,7 +37,7 @@ describe('scripts/createPostReleasePullRequest', () => {
     });
     const createPullRequest = sinon.stub(components, 'createPullRequest');
     await assert.rejectsWith(
-      createPostReleasePullRequest([]),
+      createPostReleasePullRequest({ foo: 'bar' })([]),
       new Error('Please provide a token to authenticate with Github'),
     );
     assert.notCalled(createPullRequest);
@@ -49,7 +49,7 @@ describe('scripts/createPostReleasePullRequest', () => {
     });
     const createPullRequest = sinon.stub(components, 'createPullRequest');
     await assert.rejectsWith(
-      createPostReleasePullRequest(['abc123']),
+      createPostReleasePullRequest({ foo: 'bar' })(['abc123']),
       new Error('Could not extract repository name from package.json repository.url'),
     );
     assert.notCalled(createPullRequest);
