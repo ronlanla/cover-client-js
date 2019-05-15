@@ -2,7 +2,7 @@
 
 ## Low level bindings
 
-You can submit requests using the low level bindings to a Platform Lite API by following the below examples.
+You can use the low level bindings to submit requests to a Diffblue Cover API by following the below examples.
 
 ### How to get the current API version
 
@@ -12,6 +12,7 @@ In Node.js (using promises):
 const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
+
 return CoverClient.getApiVersion(api).then(({ version }) => {
   console.log(`Current API version: ${version}`);
 });
@@ -22,9 +23,13 @@ In Typescript (using async/await):
 ```ts
 import CoverClient from '@diffblue/cover-client';
 
-const api = 'https://0.0.0.0/api';
-const { version } = await CoverClient.getApiVersion(api);
-console.log(`Current API version: ${version}`);
+(async () => {
+  const api = 'https://0.0.0.0/api';
+
+  const { version } = await CoverClient.getApiVersion(api);
+
+  console.log(`Current API version: ${version}`);
+})();
 ```
 
 ### How to start a new analysis
@@ -37,25 +42,38 @@ const fs = require('fs');
 
 const api = 'https://0.0.0.0/api';
 const build = fs.createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}, webhooks: {} };
-return CoverClient.startAnalysis(api, { build: build, settings: settings }).then(({ id, phases }) => {
+
+return CoverClient.startAnalysis(api, { build: build }).then(({ id, phases }) => {
   console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
 });
 ```
 
-In Typescript (using async/await) with buffers and the minimum required for an analysis:
+In Typescript (using async/await) with buffers and the maximum required for an analysis:
 
 ```ts
 import CoverClient from '@diffblue/cover-client';
-import { readFile } from 'fs';
+import { readFileSync } from 'fs';
 import { promisify } from 'utils';
 
-const asyncReadFile = promisify(readFile);
-
 const api = 'https://0.0.0.0/api';
-const build = await asyncReadFile('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}, webhooks: {} };
-const { id, phases } = await CoverClient.startAnalysis(api, { build: build, settings: settings });
+
+(async () => {
+  const build = await readFileSync('./build.jar');
+  const baseBuild = await readFileSync('./baseBuild.jar');
+  const dependenciesBuild = await readFileSync('./dependenciesBuild.jar');
+  const settings = { ignoreDefaults: true, phases: {}, webhooks: {} };
+
+  const { id, phases } = await CoverClient.startAnalysis(api, {
+    baseBuild: baseBuild,
+    build: build,
+    dependenciesBuild: dependenciesBuild,
+    settings: settings,
+  });
+
+  console.log(id, phases);
+})();
+
+
 console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
 ```
 
@@ -68,9 +86,20 @@ const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
-return CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
-  console.log(`Analysis status: ${status}\nAnalysis results: ${results}\nNext cursor: ${phases}`);
-});
+
+const timeout = 1000 * 5; // milliseconds * seconds
+
+(function getResults(cursor?: number) { // TODO: Add type/enum to status
+  CoverClient.getAnalysisResults(api, id).then(({ cursor, results, analysis }) => {
+    console.log(`Analysis status: ${analysis.status}\nAnalysis results: ${results}\nNext cursor: ${nextCursor}\n`);
+    
+    if (analysis.status === 'RUNNING') { // TODO: Replace status with type/enum
+      new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
+        getResults(nextCursor);
+      });
+    }
+  });
+})();
 ```
 
 In Typescript (using async/await) with an optional cursor:
@@ -80,9 +109,18 @@ import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
-const cursor = 000000000000000;
-const { cursor, results, status } = await CoverClient.getAnalysisResults(api, id, cursor);
-console.log(`Analysis status: ${status}\nAnalysis results: ${results}\nNext cursor: ${phases}`);
+
+(async function getResults(prevCursor?: number) { // TODO: Add type/enum to status
+  const timeout = 1000 * 5; // milliseconds * seconds
+
+  const { cursor, results, analysis } = await CoverClient.getAnalysisResults(api, id, prevCursor);
+  console.log(`Analysis status: ${analysis.status}\nAnalysis results: ${results}\nNext cursor: ${cursor}\n`);
+  
+  if (analysis.status === 'RUNNING') { // TODO: Replace status with type/enum
+    await new Promise((resolve) => setTimeout(resolve, timeout));
+    await getResults(cursor);
+  }
+})();
 ```
 
 ### How to cancel a running analysis
@@ -94,6 +132,7 @@ const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
 return CoverClient.cancelAnalysis(api, id).then(({ message, status }) => {
   console.log(`Message: ${message}\nStatus: ${status}`);
 });
@@ -106,8 +145,12 @@ import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
-const { message, status } = await CoverClient.cancelAnalysis(api, id);
-console.log(`Message: ${message}\nStatus: ${status}`);
+
+(async () => {
+  const { message, status } = await CoverClient.cancelAnalysis(api, id);
+  console.log(`Message: ${message}\nStatus: ${status}`);
+})();
+
 ```
 
 ### How to get the status of an analysis
@@ -131,8 +174,11 @@ import CoverClient from '@diffblue/cover-client';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
-const { message, status } = await CoverClient.getAnalysisStatus(api, id);
-console.log(`Message: ${message}\nStatus: ${status}`);
+
+(async () => {
+  const { message, status } = await CoverClient.getAnalysisStatus(api, id);
+  console.log(`Message: ${message}\nStatus: ${status}`);
+})();
 ```
 
 ## Object orientated interface
