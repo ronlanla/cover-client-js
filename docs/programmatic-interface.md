@@ -44,7 +44,10 @@ const api = 'https://0.0.0.0/api';
 const build = fs.createReadStream('./build.jar');
 
 return CoverClient.startAnalysis(api, { build: build }).then(({ id, phases }) => {
-  console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
+  console.log([
+    `Analysis identifier: ${id}`,
+    `Phases: ${phases}\n`
+  ].join('\n'));
 });
 ```
 
@@ -70,11 +73,11 @@ const api = 'https://0.0.0.0/api';
     settings: settings,
   });
 
-  console.log(id, phases);
+  console.log([
+    `Analysis identifier: ${id}`,
+    `Phases: ${phases}\n`
+  ].join('\n'));
 })();
-
-
-console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
 ```
 
 ### How to get results from an analysis
@@ -90,10 +93,16 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 const timeout = 1000 * 5; // milliseconds * seconds
 
 (function getResults(cursor?: number) { // TODO: Add type/enum to status
-  CoverClient.getAnalysisResults(api, id).then(({ cursor, results, analysis }) => {
-    console.log(`Analysis status: ${analysis.status}\nAnalysis results: ${results}\nNext cursor: ${nextCursor}\n`);
+  CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
+    console.log([
+      `Status: ${status.status}`,
+      `Total functions: ${status.progress.total}`,
+      `Total completed functions: ${status.progress.completed}`,
+      `Analysis results: ${results}`,
+      `Next cursor: ${nextCursor}\n`
+    ].join('\n'));
     
-    if (analysis.status === 'RUNNING') { // TODO: Replace status with type/enum
+    if (status.status === 'RUNNING') { // TODO: Replace status with type/enum
       new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
         getResults(nextCursor);
       });
@@ -113,10 +122,16 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 (async function getResults(prevCursor?: number) { // TODO: Add type/enum to status
   const timeout = 1000 * 5; // milliseconds * seconds
 
-  const { cursor, results, analysis } = await CoverClient.getAnalysisResults(api, id, prevCursor);
-  console.log(`Analysis status: ${analysis.status}\nAnalysis results: ${results}\nNext cursor: ${cursor}\n`);
+  const { cursor, results, status } = await CoverClient.getAnalysisResults(api, id, prevCursor);
+  console.log([
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}`,
+    `Analysis results: ${results}`,
+    `Next cursor: ${nextCursor}\n`
+  ].join('\n'));
   
-  if (analysis.status === 'RUNNING') { // TODO: Replace status with type/enum
+  if (status.status === 'RUNNING') { // TODO: Replace status with type/enum
     await new Promise((resolve) => setTimeout(resolve, timeout));
     await getResults(cursor);
   }
@@ -134,7 +149,12 @@ const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
 return CoverClient.cancelAnalysis(api, id).then(({ message, status }) => {
-  console.log(`Message: ${message}\nStatus: ${status}`);
+  console.log([
+    `Message: ${message}`,
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}\n`
+  ].join('\n'));
 });
 ```
 
@@ -148,7 +168,12 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
 (async () => {
   const { message, status } = await CoverClient.cancelAnalysis(api, id);
-  console.log(`Message: ${message}\nStatus: ${status}`);
+  console.log([
+    `Message: ${message}`,
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}\n`
+  ].join('\n'));
 })();
 
 ```
@@ -163,7 +188,11 @@ const CoverClient = require('@diffblue/cover-client');
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 return CoverClient.getAnalysisStatus(api, id).then(({ message, status }) => {
-  console.log(`Message: ${message}\nStatus: ${status}`);
+  console.log([
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}\n`,
+  ].join('\n'));
 });
 ```
 
@@ -176,8 +205,12 @@ const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
 (async () => {
-  const { message, status } = await CoverClient.getAnalysisStatus(api, id);
-  console.log(`Message: ${message}\nStatus: ${status}`);
+  const { status } = await CoverClient.getAnalysisStatus(api, id);
+  console.log([
+    `Status: ${status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}\n`
+  ].join('\n'));
 })();
 ```
 
