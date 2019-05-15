@@ -38,6 +38,9 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
 ## Full documentation
 
 - [Programmatic interface](docs/programmatic-interface.md)
+  - [Combining results into test classes](docs/programmatic-interface.md#combining-results-into-test-classes)
+    - [Generate a new test class](docs/programmatic-interface.md#generate-a-new-test-class)
+    - [Merge results into an existing test class](docs/programmatic-interface.md#merge-results-into-an-existing-test-class)
 - [Command line interface](docs/command-line-interface.md)
 - [Tests and checks](docs/tests-and-checks.md)
   - [Linting](docs/tests-and-checks.md#linting)

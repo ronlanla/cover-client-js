@@ -27,9 +27,11 @@
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
     "publish-package": "ts-node src/scripts/publishPackage.ts",
-    "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
+    "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'",
+    "integration-test": "mocha --require ts-node/register 'tests/integration/**/*.ts'"
   },
   "dependencies": {
+    "@diffblue/java-combiner": "0.0.11",
     "axios": "0.18.0",
     "form-data": "2.3.3",
     "lodash": "4.17.11",

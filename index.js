@@ -1,5 +1,9 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-exports.doNothing = function() {
-  return;
+import { generateTestClass, groupResults, mergeIntoTestClass } from './src/combiner';
+
+exports = {
+  generateTestClass: generateTestClass,
+  groupResults: groupResults,
+  mergeIntoTestClass: mergeIntoTestClass,
 }
