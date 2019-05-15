@@ -25,13 +25,11 @@ export async function getApiVersion(api: string): Promise<ApiVersionApiResponse>
 /** Starts an analysis and returns the analysis id */
 export async function startAnalysis(
   api: string,
-  settings: AnalysisSettings,
   { baseBuild, build, dependenciesBuild }: AnalysisFiles,
+  settings: AnalysisSettings = {},
 ): Promise<AnalysisStartApiResponse> {
   if (!build) {
     throw new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCodes.BUILD_MISSING);
-  } else if (!settings) {
-    throw new BindingsError('The required `settings` JSON file was not supplied', BindingsErrorCodes.SETTINGS_MISSING);
   }
 
   const options = (filename: string, type: 'java-archive' | 'json') => ({

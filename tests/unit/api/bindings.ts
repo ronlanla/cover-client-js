@@ -46,11 +46,11 @@ describe('api/bindings', () => {
     it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: {}});
       assert.notOtherwiseCalled(post, 'post');
 
-      const actualResponse = await startAnalysis(api, settings, { build: build });
-      const expectedResponse = { id: '1234-ABCD', phases: settings.phases };
+      const actualResponse = await startAnalysis(api, { build: build });
+      const expectedResponse = { id: '1234-ABCD', phases: {}};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));
@@ -62,7 +62,7 @@ describe('api/bindings', () => {
       post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
       assert.notOtherwiseCalled(post, 'post');
 
-      await startAnalysis(api, settings, { build: build, baseBuild: baseBuild });
+      await startAnalysis(api, { build: build, baseBuild: baseBuild }, settings);
 
       const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'baseBuild'];
@@ -77,7 +77,7 @@ describe('api/bindings', () => {
       post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
       assert.notOtherwiseCalled(post, 'post');
 
-      await startAnalysis(api, settings, { build: build, dependenciesBuild: dependenciesBuild });
+      await startAnalysis(api, { build: build, dependenciesBuild: dependenciesBuild }, settings);
 
       const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'dependenciesBuild'];
@@ -94,12 +94,12 @@ describe('api/bindings', () => {
 
       await startAnalysis(
         api,
-        settings,
         {
           build: build,
           baseBuild: baseBuild,
           dependenciesBuild: dependenciesBuild,
         },
+        settings,
       );
 
       const actualFiles = append.args.map((file: string[]) => file[0]);
@@ -111,16 +111,8 @@ describe('api/bindings', () => {
     it('Throws an error when no build is supplied', sinonTest(async () => {
       await assert.rejectsWith(
         // tslint:disable-next-line:no-any
-        startAnalysis(api, settings, { build: undefined } as any),
+        startAnalysis(api, { build: undefined } as any, settings),
         new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCodes.BUILD_MISSING),
-      );
-    }));
-
-    it('Throws an error when no settings are supplied', sinonTest(async () => {
-      await assert.rejectsWith(
-        // tslint:disable-next-line:no-any
-        startAnalysis(api, undefined as any, { build: build }),
-        new BindingsError('The required `settings` JSON file was not supplied', BindingsErrorCodes.SETTINGS_MISSING),
       );
     }));
 
@@ -130,7 +122,7 @@ describe('api/bindings', () => {
       obj.a = { b: obj };
 
       await assert.rejectsWith(
-        startAnalysis(api, obj as any, { build: build }), // tslint:disable-line:no-any
+        startAnalysis(api, { build: build }, obj as any), // tslint:disable-line:no-any
         new BindingsError(
           'The settings JSON was not valid:\nTypeError: Converting circular structure to JSON',
           BindingsErrorCodes.SETTINGS_INVALID,

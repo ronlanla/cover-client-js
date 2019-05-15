@@ -2,7 +2,7 @@
 
 import { ReadStream } from 'fs';
 
-/** Possible analysis statuses */
+/** Possible analysis statuses, as returned by the API */
 export enum AnalysisStatuses {
   RUNNING = 'RUNNING',
   CANCELED = 'CANCELED',
@@ -10,7 +10,7 @@ export enum AnalysisStatuses {
   COMPLETED = 'COMPLETED',
 }
 
-/** Possible Analysis object statuses, extends the api status enum */
+/** Possible Analysis object statuses, extends the API status enum */
 export enum AnalysisObjectStatuses {
   NOT_STARTED = 'NOT_STARTED',
   RUNNING = 'RUNNING',
@@ -129,4 +129,10 @@ export interface AnalysisResultsApiResponse {
 /** Version object returned by the API */
 export interface ApiVersionApiResponse {
   version: string;
+}
+
+/** Options accepted by `Analysis.run` */
+export interface RunAnalysisOptions {
+  outputTests?: string;
+  pollingInterval?: number; // polling interval in seconds
 }

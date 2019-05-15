@@ -1,5 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import { delay } from 'bluebird';
+
 import {
   cancelAnalysis,
   getAnalysisResults,
@@ -21,6 +23,7 @@ import {
   AnalysisStatusApiResponse,
   ApiErrorResponse,
   ApiVersionApiResponse,
+  RunAnalysisOptions,
 } from './types/types';
 
 
@@ -30,6 +33,7 @@ export const components = {
   getAnalysisStatus: getAnalysisStatus,
   getApiVersion: getApiVersion,
   startAnalysis: startAnalysis,
+  defaultPollingInterval: 60,  // seconds
 };
 
 /** Class to run an analysis and keep track of its state */
@@ -77,13 +81,43 @@ export default class Analysis {
     this.error = status.message;
   }
 
-  /** Start analysis */
-  public async start(
-    settings: AnalysisSettings,
+  /**
+   * Run the analysis.
+   *
+   * Starts the analysis and waits until it is complete before resolving.
+   *
+   * Will poll for latest results and analysis status every 60 seconds,
+   * configurable via the `pollingInterval` option.
+   *
+   * If a directory is specified in the `outputTests` option,
+   * tests will be written to that directory when the analysis completes.
+   */
+  public async run(
     files: AnalysisFiles,
+    settings: AnalysisSettings = {},
+    options: RunAnalysisOptions = {},
+  ): Promise<AnalysisResult[]> {
+    this.checkNotStarted();
+    const millisecondsPerSecond = 1000;
+    const pollingIntervalMilliseconds = (
+      (options.pollingInterval || components.defaultPollingInterval) * millisecondsPerSecond
+    );
+    await this.start(files, settings);
+    while (this.isRunning()) {
+      await delay(pollingIntervalMilliseconds);
+      await this.getResults();
+    }
+    // TODO@adamkowalczyk call test writing method if options.outputTests
+    return this.results;
+  }
+
+  /** Start the analysis */
+  public async start(
+    files: AnalysisFiles,
+    settings: AnalysisSettings = {},
   ): Promise<AnalysisStartApiResponse> {
     this.checkNotStarted();
-    const response = await components.startAnalysis(this.apiUrl, settings, files);
+    const response = await components.startAnalysis(this.apiUrl, files, settings);
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
@@ -91,7 +125,7 @@ export default class Analysis {
     return response;
   }
 
-  /** Cancel analysis */
+  /** Cancel the analysis */
   public async cancel(): Promise<AnalysisCancelApiResponse> {
     this.checkRunning();
     const response = await components.cancelAnalysis(this.apiUrl, this.analysisId);
@@ -99,7 +133,7 @@ export default class Analysis {
     return response;
   }
 
-  /** Get analysis status */
+  /** Get the analysis' status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
     this.checkRunning();
     const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId);
@@ -107,7 +141,7 @@ export default class Analysis {
     return response;
   }
 
-  /** Get analysis results */
+  /** Get the analysis' results */
   public async getResults(paginate: boolean = true): Promise<AnalysisResultsApiResponse> {
     this.checkRunning();
     const response = await components.getAnalysisResults(
@@ -153,12 +187,12 @@ export default class Analysis {
     return this.status === AnalysisObjectStatuses.CANCELED;
   }
 
-  /** Check if status indicates that analysis has started */
+  /** Check if status indicates that the analysis has started */
   public isStarted(): boolean {
     return this.status !== AnalysisObjectStatuses.NOT_STARTED;
   }
 
-  /** Check if status indicates that analysis has ended */
+  /** Check if status indicates that the analysis has ended */
   public isEnded(): boolean {
     const endedStatuses = new Set([
       AnalysisObjectStatuses.COMPLETED,

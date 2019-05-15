@@ -29,7 +29,6 @@ export class ApiError extends CoverClientError {
 /** Error codes used by BindingsError */
 export enum BindingsErrorCodes {
   BUILD_MISSING = 'BUILD_MISSING',
-  SETTINGS_MISSING = 'SETTINGS_MISSING',
   SETTINGS_INVALID = 'SETTINGS_INVALID',
 }
 

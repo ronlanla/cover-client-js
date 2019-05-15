@@ -28,18 +28,20 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 
 To start an analysis, call `Analysis.start`.
 
-This has two required parameters, a settings object and an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
+The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
 
-The first parameter must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
+This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
 
 Including `dependenciesBuild` will enable test verification.
 
 Including `baseBuild` will enable a differential analysis.
 
+The second parameter is an optional settings object.
+
 ```ts
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadSteam('./build.jar');
-await analysis.start(settings, { build: buildFile });
+await analysis.start({ build: buildFile }, settings);
 // => {id: 'unique-analysis-id', phases: {<computed phases>}}
 ```
 
@@ -49,12 +51,12 @@ const buildFile = fs.createReadSteam('./build.jar');
 const baseBuildFile = fs.createReadSteam('./baseBuild.jar');
 const dependenciesBuildFile = fs.createReadSteam('./dependenciesBuild.jar');
 await analysis.start(
-  settings,
   {
     build: buildFile,
     baseBuild: baseBuildFile,
     dependenciesBuild: dependenciesBuildFile,
   },
+  settings,
 );
 // => {id: 'unique-analysis-id', phases: {<computed phases>}}
 ```
