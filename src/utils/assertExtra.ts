@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 
 /** Returns the error thrown by a callback */
-export function getError(callback: () => void) {
+export function getError(callback: () => void): Error {
   try {
     callback();
   } catch (error) {

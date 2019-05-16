@@ -7,6 +7,16 @@ import assertExtra, { errorEquals, getError } from '../../../src/utils/assertExt
 
 // "Quis custodiet ipsos custodes"
 describe('assertExtra', () => {
+  describe('getError', () => {
+    it('Returns the error thrown by the callback', () => {
+      assert.deepStrictEqual(getError(() => { throw new Error('Some error'); }), new Error('Some error'));
+    });
+
+    it('Throws an error if the callback did not throw an error', () => {
+      assert.throws(() => getError(() => undefined), errorEquals(new Error('Expected callback to throw an error')));
+    });
+  });
+
   describe('notCalled', () => {
     it('Throws an exception when a spy has been called', () => {
       const spy = sinon.spy();
