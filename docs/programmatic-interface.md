@@ -102,7 +102,7 @@ const timeout = 1000 * 5; // milliseconds * seconds
       `Next cursor: ${cursor}\n`
     ].join('\n'));
     
-    if (status.status === 'RUNNING') { // TODO: Replace status with type/enum
+    if (status.status === 'RUNNING' || status.status === 'QUEUED') { // TODO: Replace status with type/enum
       new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
         getResults(cursor);
       });
@@ -131,7 +131,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
     `Next cursor: ${cursor}\n`
   ].join('\n'));
   
-  if (status.status === 'RUNNING') { // TODO: Replace status with type/enum
+  if (status.status === 'RUNNING' || status.status === 'QUEUED') { // TODO: Replace status with type/enum
     await new Promise((resolve) => setTimeout(resolve, timeout));
     await getResults(cursor);
   }
