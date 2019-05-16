@@ -4,6 +4,7 @@ import { genTestClass, ITestData, mergeTests } from '@diffblue/java-combiner';
 import { groupBy, isString } from 'lodash';
 
 import { CombinerError, CombinerErrorCodes } from './errors';
+import { AnalysisResult } from './types/types';
 
 export const dependencies = {
   genTestClass: genTestClass,
@@ -42,7 +43,7 @@ function parseClassNameFromFunctionName(functionName: string): string {
 }
 
 /** Validate the results parameter */
-function checkResults(results: any[]): void { // tslint:disable-line:no-any // TYPE AnalysisResult[]
+function checkResults(results: AnalysisResult[]): void {
   if (!results) {
     throw new CombinerError(
       'Missing required parameter "results"',
@@ -106,7 +107,7 @@ function checkExistingClass(existingClass: string): void {
 }
 
 /** Map AnalysisResults to ITestData */
-export function prepareTestData(results: any[]): ITestData[] { // tslint:disable-line:no-any  max-line-length // TYPE AnalysisResult[]
+export function prepareTestData(results: AnalysisResult[]): ITestData[] {
   return results.map(({ classAnnotations, imports, staticImports, testName, testBody }) => {
     return {
       name: testName,
@@ -119,7 +120,7 @@ export function prepareTestData(results: any[]): ITestData[] { // tslint:disable
 }
 
 /** Create a test class from an array of analysis results */
-export function generateTestClass(results: any[]): string { // tslint:disable-line:no-any // TYPE AnalysisResult[]
+export function generateTestClass(results: AnalysisResult[]): string {
   checkResults(results);
   const { testedFunction } = results[0];
   const className = parseClassNameFromFunctionName(testedFunction);
@@ -134,7 +135,7 @@ export function generateTestClass(results: any[]): string { // tslint:disable-li
 }
 
 /** Merge analysis results into an existing test class */
-export async function mergeIntoTestClass(existingClass: string, results: any[]): Promise<string> { // tslint:disable-line:no-any max-line-length // TYPE AnalysisResult[]
+export async function mergeIntoTestClass(existingClass: string, results: AnalysisResult[]): Promise<string> {
   checkExistingClass(existingClass);
   checkResults(results);
   const testData = prepareTestData(results);
@@ -147,15 +148,16 @@ export async function mergeIntoTestClass(existingClass: string, results: any[]):
 
 /** AnalysisResults grouped by sourceFilePath */
 export interface GroupedResults {
-  [testedFunction: string]: any[];  // tslint:disable-line:no-any // TYPE AnalysisResult[]
+  [testedFunction: string]: AnalysisResult[];
 }
 
 /** Group AnalysisResults by sourceFilePath */
-export function groupResults(results: any[]): GroupedResults { // tslint:disable-line:no-any // TYPE AnalysisResult[]
+export function groupResults(results: AnalysisResult[]): GroupedResults {
   return groupBy(results, 'sourceFilePath');
 }
 
 /** Produce a file name from a class name */
-export function getFileNameForClassName(className: string): string {
+export function getFileNameForResult(result: AnalysisResult): string {
+  const className = parseClassNameFromFunctionName(result.testedFunction);
   return `${className}Test.java`;
 }

@@ -73,14 +73,30 @@ export class CombinerError extends CoverClientError {
   }
 }
 
+/** Error codes used by WriterError */
+export enum WriterErrorCodes {
+  DIR_FAILED = 'DIR_FAILED',
+  WRITE_FAILED = 'WRITE_FAILED',
+}
+
+/** Error thrown by Analysis object, with additional error code */
+export class WriterError extends CoverClientError {
+
+  public message: string;
+  public code: WriterErrorCodes;
+
+  public constructor(message: string, code: WriterErrorCodes) {
+    super(message);
+    this.code = code;
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
 /** Error codes used by AnalysisError */
 export enum AnalysisErrorCodes {
   NOT_RUNNING = 'NOT_STARTED',
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
-  STREAM_MUST_PAGINATE = 'STREAM_MUST_PAGINATE',
-  STREAM_NOT_WRITABLE = 'STREAM_NOT_WRITABLE',
-  STREAM_NOT_OBJECT_MODE = 'STREAM_NOT_OBJECT_MODE',
 }
 
 /** Error thrown by Analysis object, with additional error code */

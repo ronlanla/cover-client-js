@@ -24,10 +24,12 @@ import {
   ApiErrorResponse,
   ApiVersionApiResponse,
   RunAnalysisOptions,
+  WriteTestsOptions,
 } from './types/types';
-
+import writeTests from './writeTests';
 
 export const components = {
+  writeTests: writeTests,
   cancelAnalysis: cancelAnalysis,
   getAnalysisResults: getAnalysisResults,
   getAnalysisStatus: getAnalysisStatus,
@@ -74,7 +76,7 @@ export default class Analysis {
     }
   }
 
-  /** Update status related properties and end the internal readable stream if required */
+  /** Update status related properties */
   private updateStatus(status: AnalysisStatusApiResponse): void {
     this.status = AnalysisObjectStatuses[status.status];
     this.progress = status.progress;
@@ -107,8 +109,16 @@ export default class Analysis {
       await delay(pollingIntervalMilliseconds);
       await this.getResults();
     }
-    // TODO@adamkowalczyk call test writing method if options.outputTests
+    if (options.outputTests) {
+      const writeOptions = options.writingConcurrency ? { concurrency: options.writingConcurrency } : undefined;
+      await this.writeTests(options.outputTests, writeOptions);
+    }
     return this.results;
+  }
+
+  /** Write test files to the specified directory using the current results */
+  public async writeTests(directoryPath: string, options?: WriteTestsOptions): Promise<string[]> {
+    return components.writeTests(directoryPath, this.results, options);
   }
 
   /** Start the analysis */

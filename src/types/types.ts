@@ -134,5 +134,11 @@ export interface ApiVersionApiResponse {
 /** Options accepted by `Analysis.run` */
 export interface RunAnalysisOptions {
   outputTests?: string;
+  writingConcurrency?: number;
   pollingInterval?: number; // polling interval in seconds
+}
+
+/** Options accepted by `writeTests` */
+export interface WriteTestsOptions {
+  concurrency?: number;
 }

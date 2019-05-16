@@ -5,7 +5,7 @@ import { clone } from 'lodash';
 import {
   dependencies,
   generateTestClass,
-  getFileNameForClassName,
+  getFileNameForResult,
   GroupedResults,
   groupResults,
   mergeIntoTestClass,
@@ -232,10 +232,9 @@ describe('combiner', () => {
     });
   });
 
-  describe('getFileNameForClassName', () => {
-    it('Returns a file name for a provided class name', () => {
-      const className = 'TicTacToe';
-      const fileName = getFileNameForClassName(className);
+  describe('getFileNameForResult', () => {
+    it('Returns a file name for a provided result object', () => {
+      const fileName = getFileNameForResult(sampleResult);
       assert.deepStrictEqual(fileName, 'TicTacToeTest.java');
     });
   });
