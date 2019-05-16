@@ -72,6 +72,9 @@ commands:
       - run:
           name: Check all third party licenses are approved
           command: yarn license-check check-file
+      - run:
+          name: Audit production dependencies
+          command: yarn audit-dependencies
 
   tests:
     steps:
