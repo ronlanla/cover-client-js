@@ -1,13 +1,17 @@
 // Copyright 2018-2019 Diffblue Limited. All Rights Reserved.
 
-import urlJoin from 'url-join';
+/** Joins parts of a URL separated by slashes */
+export function urlJoin(parts: string[]) {
+  return parts.map((part, i) => i === parts.length - 1 ? part : part.replace(/\/$/, '')).join('/');
+}
 
-export const generateApiUrl = (params: string[]) => {
+/** Generates an API URL */
+export function generateApiUrl(params: string[]) {
   if (params.some((param) => param === '')) {
     throw new Error('Route parameter cannot be an empty string');
   }
   return urlJoin(params);
-};
+}
 
 const routes = {
   version: (api: string) => generateApiUrl([api, 'version']),

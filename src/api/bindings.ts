@@ -1,6 +1,6 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import FormData from 'form-data';
+import * as FormData from 'form-data';
 
 import { AnalysisFiles } from '../types/api';
 import request, { ApiError } from '../utils/request';

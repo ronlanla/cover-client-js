@@ -52,6 +52,7 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
     - [Mock API](docs/tests-and-checks.md#mock-api)
 - [Release procedure](docs/release-procedure.md)
 - [Utilities](docs/utilities.md)
+  - [Create Release](docs/utilities.md#create-release)
   - [Changelog](docs/utilities.md#changelog)
 - [Code standards](docs/code-standards.md)
   - [File naming](docs/code-standards.md#file-naming)

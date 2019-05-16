@@ -2,9 +2,9 @@
 
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
-import assert, { errorEquals } from '../../../../src/utils/assertExtra';
-import request, { ApiError, convertError } from '../../../../src/utils/request';
-import sinonTestFactory from '../../../../src/utils/sinonTest';
+import assert, { errorEquals } from '../../../src/utils/assertExtra';
+import request, { ApiError, convertError } from '../../../src/utils/request';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 
