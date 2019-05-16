@@ -130,6 +130,14 @@ describe('scripts/createRelease', () => {
 
       assert.deepStrictEqual(packageJson, { version: '1.0.0' });
     }));
+
+    it('Throws exception due to invalid JSON in package.json', sinonTest(async (sinon) => {
+      sinon.stub(dependencies, 'readFile').resolves('invalid');
+
+      await assert.rejectsWith(loadPackageJson(), new ExpectedError(
+        'Unable to parse package.json: SyntaxError: Unexpected token i in JSON at position 0'
+        ));
+    }));
   });
 
   describe('repoIsClean', () => {

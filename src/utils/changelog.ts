@@ -49,6 +49,10 @@ async function consumeProcess(process: ChildProcess): Promise<string> {
 
     process.stderr.on('data', (data) => error += data);
 
+    process.on('error', (code) => {
+      return reject(`Process exited with code: ${code}\n${error}`);
+    });
+
     process.on('close', (code) => {
       if (code !== 0) {
         return reject(`Process exited with code: ${code}\n${error}`);
@@ -78,7 +82,7 @@ async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = 
 
 const releaseRegex = /from diffblue\/release\/(\d+\.\d+\.\d+)/;
 const featureRegex = /Merge pull request (#\d+) from [^\n]+\n(.*)/;
-const versionBumpRegex = /^(Bump version?( number| to \d+\.\d+\.\d+)?|Creating the release for \d+\.\d+\.\d+)$/;
+const versionBumpRegex = /^Bump version to \d+\.\d+\.\d+$/;
 
 /** Try to find the version of a release given a commit message */
 function getReleaseVersion(message: string): string | undefined {
@@ -101,14 +105,10 @@ function firstLine(message: string) {
 
 /** Get a list of features from a list of commits */
 function getFeatures(commits: GitLogEntry[]): string[] {
-  // regex group names to make ts-lint happy
-  const prNumber = 1;
-  const prTitle = 2;
-
   return commits.map((commit) => {
     const featureMatch = commit.comment.match(featureRegex);
     if (!getReleaseVersion(commit.comment) && featureMatch) {
-      return `${normaliseTicketSyntax(featureMatch[prNumber])} ${featureMatch[prTitle]}`;
+      return `${normaliseTicketSyntax(featureMatch[1])} ${featureMatch[2]}`;
     }
     return '';
   })
