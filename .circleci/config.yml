@@ -3,6 +3,8 @@
 version: 2.1
 
 references:
+  yarn-cache-key-latest: &yarn-cache-key-latest
+    v1-dependency-yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}-latest
   yarn-cache-key: &yarn-cache-key
     v1-dependency-yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
   yarn-backup-cache-key: &yarn-backup-cache-key
@@ -33,6 +35,29 @@ commands:
       - save_cache:
           name: Save yarn package cache
           key: *yarn-cache-key
+          paths:
+            - ~/.cache/yarn
+
+  install-dependencies-latest:
+    steps:
+      - run:
+          name: Yarn version
+          command: yarn --version
+      - restore_cache:
+          keys:
+            - *yarn-cache-key-latest
+            - *yarn-cache-key
+            - *yarn-backup-cache-key
+            - *yarn-backup-cache-key-no-branch
+      - run:
+          name: Upgrade dependencies lockfile and install
+          command: yarn upgrade
+      - run:
+          name: Output dependencies diff
+          command: git --no-pager diff
+      - save_cache:
+          name: Save yarn package cache
+          key: *yarn-cache-key-latest
           paths:
             - ~/.cache/yarn
 
@@ -110,6 +135,38 @@ jobs:
       - install-dependencies
       - deploy
 
+  checks-latest:
+    docker:
+      - image: *node-10
+    steps:
+      - checkout
+      - install-dependencies-latest
+      - checks
+
+  test-node-8-latest:
+    docker:
+      - image: *node-8
+    steps:
+      - checkout
+      - install-dependencies-latest
+      - tests
+
+  test-node-10-latest:
+    docker:
+      - image: *node-10
+    steps:
+      - checkout
+      - install-dependencies-latest
+      - tests
+
+  test-node-11-latest:
+    docker:
+      - image: *node-11
+    steps:
+      - checkout
+      - install-dependencies-latest
+      - tests
+
 workflows:
   test:
     jobs:
@@ -122,3 +179,19 @@ workflows:
           filters:
             branches:
               only: master
+
+  nightly:
+    jobs:
+      - checks-latest
+      - test-node-8-latest
+      - test-node-10-latest
+      - test-node-11-latest
+    triggers:
+      - schedule:
+          # Nightly at midnight
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+                - develop
