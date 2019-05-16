@@ -88,11 +88,7 @@ describe('scripts/copyrightChecker', () => {
       sinon.stub(components, 'authenticateNpm').callsFake(async (token, environment, callback) => {
         return callback(environment);
       });
-      const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('yarn install --frozen-lockfile').resolves();
-      exec.withArgs('npm shrinkwrap').resolves();
 
-      assert.notOtherwiseCalled(exec, 'exec');
       const expectedError = new ExpectedError('Invalid token to authenticate with NPM');
       await assert.rejectsWith(publishPackage(environment)(['abc123']), expectedError);
     }));
@@ -103,8 +99,6 @@ describe('scripts/copyrightChecker', () => {
         return callback(environment);
       });
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('yarn install --frozen-lockfile').resolves();
-      exec.withArgs('npm shrinkwrap').resolves();
       exec.withArgs('npm publish --access public', { env: environment }).rejects(new Error('Publish error'));
 
       assert.notOtherwiseCalled(exec, 'exec');
@@ -118,8 +112,6 @@ describe('scripts/copyrightChecker', () => {
         return callback(environment);
       });
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('yarn install --frozen-lockfile').resolves();
-      exec.withArgs('npm shrinkwrap').resolves();
       exec.withArgs('npm publish --access public', { env: environment }).resolves();
 
       assert.notOtherwiseCalled(exec, 'exec');

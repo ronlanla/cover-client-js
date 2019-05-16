@@ -57,9 +57,6 @@ export default function publishPackage(environment: NodeJS.ProcessEnv) {
       throw new ExpectedError('Please provide a token to authenticate with NPM');
     }
 
-    await dependencies.exec('yarn install --frozen-lockfile');
-    await dependencies.exec('npm shrinkwrap');
-
     return components.authenticateNpm(token, environment, async (environment) => {
       const username = await components.getAuthUser(environment);
       if (!username) {
