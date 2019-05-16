@@ -18,7 +18,7 @@ describe('scripts/createPostReleasePullRequest', () => {
     });
     const createPullRequest = sinon.stub(components, 'createPullRequest');
     assert.strictEqual(
-      await createPostReleasePullRequest({ foo: 'bar' })(['abc123']),
+      await createPostReleasePullRequest({ foo: 'bar', GITHUB_TOKEN: 'abc123' })([]),
       'Created pull request to merge version 1.2.3 back into develop',
     );
     assert.calledOnceWith(createPullRequest, [
@@ -27,7 +27,7 @@ describe('scripts/createPostReleasePullRequest', () => {
       '1.2.3',
       'develop',
       undefined,
-      { foo: 'bar' },
+      { foo: 'bar', GITHUB_TOKEN: 'abc123' },
     ]);
   }));
 
@@ -39,7 +39,7 @@ describe('scripts/createPostReleasePullRequest', () => {
     const createPullRequest = sinon.stub(components, 'createPullRequest');
     await assert.rejectsWith(
       createPostReleasePullRequest({ foo: 'bar' })([]),
-      new Error('Please provide a token to authenticate with Github'),
+      new Error('Missing GITHUB_TOKEN environment variable to authenticate with Github'),
     );
     assert.notCalled(createPullRequest);
   }));
@@ -50,7 +50,7 @@ describe('scripts/createPostReleasePullRequest', () => {
     });
     const createPullRequest = sinon.stub(components, 'createPullRequest');
     await assert.rejectsWith(
-      createPostReleasePullRequest({ foo: 'bar' })(['abc123']),
+      createPostReleasePullRequest({ foo: 'bar', GITHUB_TOKEN: 'abc123' })([]),
       new Error('Could not extract repository name from package.json repository.url'),
     );
     assert.notCalled(createPullRequest);

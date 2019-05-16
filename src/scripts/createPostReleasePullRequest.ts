@@ -16,12 +16,12 @@ export const components = {
 /** Creates a pull request on Github from master back to develop */
 export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
   return async (args: string[]) => {
-    const token = args[0];
+    const token = env.GITHUB_TOKEN;
     if (!token) {
-      throw new ExpectedError('Please provide a token to authenticate with Github');
+      throw new ExpectedError('Missing GITHUB_TOKEN environment variable to authenticate with Github');
     }
 
-    const reviewers = args[1];
+    const reviewers = args[0];
 
     const packageJson = await dependencies.getPackageJson();
     const repositoryMatch: RegExpMatchArray | undefined = (
@@ -44,7 +44,7 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
 if (require.main === module) {
   commandLineRunner(
     'Creates and pushes a tag for the current version',
-     '<token> [<reviewers>]',
+     '[<reviewers>]',
      process,
      createPostReleasePullRequest(process.env),
   );

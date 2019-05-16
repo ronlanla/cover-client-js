@@ -89,13 +89,13 @@ commands:
     steps:
       - run:
           name: Publish package
-          command: yarn publish-package $NPM_TOKEN
+          command: yarn publish-package
       - run:
           name: Create git tag
           command: yarn create-release-tag
       - run:
           name: Create a pull request from the release back to develop
-          command: create-post-release-pull-request $GITHUB_TOKEN '@peterjwest,@adamkowalczyk,@myron836,@JimmehAH'
+          command: create-post-release-pull-request '@peterjwest,@adamkowalczyk,@myron836,@JimmehAH'
 
 jobs:
   checks:

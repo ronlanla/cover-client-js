@@ -7,7 +7,7 @@ import { promisify } from 'util';
 import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 
 /** Callback to be called when NPM authentication setup */
-type AuthenticatedCallback = (environment: NodeJS.ProcessEnv) => Promise<string | undefined>;
+export type AuthenticatedCallback = (environment: NodeJS.ProcessEnv) => Promise<string | undefined>;
 
 export const dependencies = {
   writeFile: promisify(writeFile),
@@ -51,10 +51,10 @@ export function extractNpmError(output: string) {
 
 /** Publishes the package */
 export default function publishPackage(environment: NodeJS.ProcessEnv) {
-  return async (args: string[]) => {
-    const token = args[0];
+  return async () => {
+    const token = environment.NPM_TOKEN;
     if (!token) {
-      throw new ExpectedError('Please provide a token to authenticate with NPM');
+      throw new ExpectedError('Missing NPM_TOKEN environment variable to authenticate with NPM');
     }
 
     return components.authenticateNpm(token, environment, async (environment) => {
@@ -74,5 +74,5 @@ export default function publishPackage(environment: NodeJS.ProcessEnv) {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  commandLineRunner(description, '<token>', process, publishPackage(process.env));
+  commandLineRunner(description, '', process, publishPackage(process.env));
 }

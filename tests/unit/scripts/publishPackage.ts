@@ -4,6 +4,7 @@ import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 import publishPackage, {
+  AuthenticatedCallback,
   authenticateNpm,
   components,
   dependencies,
@@ -14,6 +15,11 @@ import publishPackage, {
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
 
 const sinonTest = sinonTestFactory();
+
+/** Pass-through mock function for authenticating with NPM  */
+async function mockAuthenticateNpm(token: string, environment: NodeJS.ProcessEnv, callback: AuthenticatedCallback) {
+  return callback(environment);
+}
 
 describe('scripts/copyrightChecker', () => {
   describe('getAuthUser', () => {
@@ -71,13 +77,15 @@ describe('scripts/copyrightChecker', () => {
 
   describe('publishPackage', () => {
     const environment = { foo: 'bar' };
+    const environmentAuthed = { foo: 'bar', NPM_TOKEN: 'abc123' };
+
     it('Rejects if no token is provided', sinonTest(async (sinon) => {
       const getAuthUser = sinon.stub(components, 'getAuthUser');
       const authenticateNpm = sinon.stub(components, 'authenticateNpm');
       const exec = sinon.stub(dependencies, 'exec');
 
-      const expectedError = new Error('Please provide a token to authenticate with NPM');
-      await assert.rejectsWith(publishPackage(environment)([]), expectedError);
+      const expectedError = new Error('Missing NPM_TOKEN environment variable to authenticate with NPM');
+      await assert.rejectsWith(publishPackage(environment)(), expectedError);
       assert.notCalled(exec);
       assert.notCalled(getAuthUser);
       assert.notCalled(authenticateNpm);
@@ -85,37 +93,32 @@ describe('scripts/copyrightChecker', () => {
 
     it('Rejects if the token does not authenticate with NPM', sinonTest(async (sinon) => {
       sinon.stub(components, 'getAuthUser').resolves(undefined);
-      sinon.stub(components, 'authenticateNpm').callsFake(async (token, environment, callback) => {
-        return callback(environment);
-      });
+      sinon.stub(components, 'authenticateNpm').callsFake(mockAuthenticateNpm);
 
       const expectedError = new ExpectedError('Invalid token to authenticate with NPM');
-      await assert.rejectsWith(publishPackage(environment)(['abc123']), expectedError);
+      await assert.rejectsWith(publishPackage(environmentAuthed)(), expectedError);
     }));
 
     it('Rejects when the package could not be otherwise published', sinonTest(async (sinon) => {
       sinon.stub(components, 'getAuthUser').resolves('username');
-      sinon.stub(components, 'authenticateNpm').callsFake(async (token, environment, callback) => {
-        return callback(environment);
-      });
+      sinon.stub(components, 'authenticateNpm').callsFake(mockAuthenticateNpm);
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('npm publish --access public', { env: environment }).rejects(new Error('Publish error'));
+      exec.withArgs('npm publish --access public', { env: environmentAuthed })
+      .rejects(new Error('Publish error'));
 
       assert.notOtherwiseCalled(exec, 'exec');
       const expectedError = new ExpectedError('Could not publish package\n');
-      await assert.rejectsWith(publishPackage(environment)(['abc123']), expectedError);
+      await assert.rejectsWith(publishPackage(environmentAuthed)(), expectedError);
     }));
 
     it('Resolves when the package is published correctly ', sinonTest(async (sinon) => {
       sinon.stub(components, 'getAuthUser').resolves('username');
-      sinon.stub(components, 'authenticateNpm').callsFake(async (token, environment, callback) => {
-        return callback(environment);
-      });
+      sinon.stub(components, 'authenticateNpm').callsFake(mockAuthenticateNpm);
       const exec = sinon.stub(dependencies, 'exec');
-      exec.withArgs('npm publish --access public', { env: environment }).resolves();
+      exec.withArgs('npm publish --access public', { env: environmentAuthed }).resolves();
 
       assert.notOtherwiseCalled(exec, 'exec');
-      const result = await publishPackage(environment)(['abc123']);
+      const result = await publishPackage(environmentAuthed)();
       assert.strictEqual(result, 'Successfully published');
     }));
   });
