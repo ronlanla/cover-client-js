@@ -92,19 +92,19 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
 const timeout = 1000 * 5; // milliseconds * seconds
 
-(function getResults(cursor?: number) { // TODO: Add type/enum to status
-  CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
+(function getResults(prevCursor?: number) { // TODO: Add type/enum to status
+  CoverClient.getAnalysisResults(api, id, prevCursor).then(({ cursor, results, status }) => {
     console.log([
       `Status: ${status.status}`,
       `Total functions: ${status.progress.total}`,
       `Total completed functions: ${status.progress.completed}`,
       `Analysis results: ${results}`,
-      `Next cursor: ${nextCursor}\n`
+      `Next cursor: ${cursor}\n`
     ].join('\n'));
     
     if (status.status === 'RUNNING') { // TODO: Replace status with type/enum
       new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
-        getResults(nextCursor);
+        getResults(cursor);
       });
     }
   });
@@ -128,7 +128,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
     `Total functions: ${status.progress.total}`,
     `Total completed functions: ${status.progress.completed}`,
     `Analysis results: ${results}`,
-    `Next cursor: ${nextCursor}\n`
+    `Next cursor: ${cursor}\n`
   ].join('\n'));
   
   if (status.status === 'RUNNING') { // TODO: Replace status with type/enum
@@ -207,7 +207,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 (async () => {
   const { status } = await CoverClient.getAnalysisStatus(api, id);
   console.log([
-    `Status: ${status}`,
+    `Status: ${status.status}`,
     `Total functions: ${status.progress.total}`,
     `Total completed functions: ${status.progress.completed}\n`
   ].join('\n'));
