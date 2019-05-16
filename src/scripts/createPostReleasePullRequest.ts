@@ -21,6 +21,8 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
       throw new ExpectedError('Please provide a token to authenticate with Github');
     }
 
+    const reviewers = args[1];
+
     const packageJson = await dependencies.getPackageJson();
     const repositoryMatch: RegExpMatchArray | undefined = (
       packageJson.repository &&
@@ -33,7 +35,7 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
     }
 
     const title = `Merge ${packageJson.version} back into develop`;
-    await components.createPullRequest(token, title, packageJson.version, 'develop', env);
+    await components.createPullRequest(token, title, packageJson.version, 'develop', reviewers, env);
     return `Created pull request to merge version ${packageJson.version} back into develop`;
   };
 }
@@ -41,6 +43,9 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
 /* istanbul ignore next */
 if (require.main === module) {
   commandLineRunner(
-    'Creates and pushes a tag for the current version', '<token>', process, createPostReleasePullRequest(process.env),
+    'Creates and pushes a tag for the current version',
+     '<token> [<reviewers>]',
+     process,
+     createPostReleasePullRequest(process.env),
   );
 }

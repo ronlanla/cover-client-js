@@ -10,13 +10,14 @@ export const dependencies = {
 
 /** Creates a pull request on Github */
 export default async function createPullRequest(
-  token: string, title: string, head: string, base: string, env: NodeJS.ProcessEnv,
+  token: string, title: string, head: string, base: string, reviewers: string | undefined, env: NodeJS.ProcessEnv,
 ) {
   await dependencies.spawnProcess('hub', [
     'pull-request',
     '--message', title,
     '--head', head,
     '--base', base,
+    '--reviewer', reviewers || '',
   ], { env: { ...env, GITHUB_TOKEN: token }})
   .catch((error) => {
     if (error.message.match(/Unauthorized \(HTTP 401\)/)) {

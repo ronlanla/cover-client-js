@@ -26,6 +26,7 @@ describe('scripts/createPostReleasePullRequest', () => {
       'Merge 1.2.3 back into develop',
       '1.2.3',
       'develop',
+      undefined,
       { foo: 'bar' },
     ]);
   }));
