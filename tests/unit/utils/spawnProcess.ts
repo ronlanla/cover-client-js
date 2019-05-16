@@ -7,7 +7,7 @@ import sinonTestFactory from '../../../src/utils/sinonTest';
 
 import spawnProcess, { dependencies } from '../../../src/utils/spawnProcess';
 
-const sinonTest = sinonTestFactory();
+const sinonTest = sinonTestFactory({ useFakeTimers: false });
 
 /** Creates a readable stream with specified data */
 function createReadable(data: string) {
@@ -25,29 +25,30 @@ function createReadable(data: string) {
 
 /** Mock ChildProcess object for testing */
 class MockChildProcess {
-  public events: { [name: string]: (error?: Error) => void } = {};
-  public stdout: Readable;
-  public stderr: Readable;
+  public events: { [name: string]: (value: number | Error) => void } = {};
+  public stdout?: Readable;
+  public stderr?: Readable;
 
-  public constructor(stdout: string, stderr: string, succeeds: boolean) {
-    this.stdout = createReadable(stdout);
-    this.stderr = createReadable(stderr);
-    if (succeeds) {
-      this.stdout.on('end', () => this.events.close());
-    } else {
-      this.stdout.on('end', () => this.events.error(new Error('Command failed')));
+  public constructor(succeeds: boolean, stdout?: string, stderr?: string) {
+    if (stdout) {
+      this.stdout = createReadable(stdout);
     }
+    if (stderr) {
+      this.stderr = createReadable(stderr);
+    }
+
+    setTimeout(() => this.events.close(succeeds ? 0 : 1), 10);
   }
 
   /** Mock event handler */
-  public on(event: string, callback: () => void) {
+  public on(event: string, callback: (value: number | Error) => void) {
     this.events[event] = callback;
   }
 }
 
 describe('spawnProcess', () => {
   it('Resolves with stdout if the command succeeds', sinonTest(async (sinon) => {
-    const childProcess = new MockChildProcess('stdout message', 'stderr message', true);
+    const childProcess = new MockChildProcess(true, 'stdout message', 'stderr message');
     // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
@@ -55,8 +56,17 @@ describe('spawnProcess', () => {
     assert.calledOnceWith(spawn, ['command', ['action'], { shell: true }]);
   }));
 
+  it('Resolves with stdout if the command succeeds without stdio', sinonTest(async (sinon) => {
+    const childProcess = new MockChildProcess(true);
+    // tslint:disable-next-line: no-any
+    const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
+
+    assert.strictEqual(await spawnProcess('command', ['action'], { shell: true }), '');
+    assert.calledOnceWith(spawn, ['command', ['action'], { shell: true }]);
+  }));
+
   it('Resolves with stdout if the command succeeds with default arguments and options', sinonTest(async (sinon) => {
-    const childProcess = new MockChildProcess('stdout message', 'stderr message', true);
+    const childProcess = new MockChildProcess(true, 'stdout message', 'stderr message');
     // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
@@ -64,12 +74,12 @@ describe('spawnProcess', () => {
     assert.calledOnceWith(spawn, ['command', [], {}]);
   }));
 
-  it('Rejects with if the command fails', sinonTest(async (sinon) => {
-    const childProcess = new MockChildProcess('stdout message', 'stderr message', false);
+  it('Rejects with stderr if the command fails', sinonTest(async (sinon) => {
+    const childProcess = new MockChildProcess(false, 'stdout message', 'stderr message');
     // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
-    await assert.rejectsWith(spawnProcess('command', ['action']), new Error('Command failed'));
+    await assert.rejectsWith(spawnProcess('command', ['action']), new Error('stderr message'));
     assert.calledOnceWith(spawn, ['command', ['action'], {}]);
   }));
 });

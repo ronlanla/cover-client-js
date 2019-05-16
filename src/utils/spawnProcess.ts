@@ -11,11 +11,21 @@ export default async function spawnProcess(command: string, args: string[] = [],
   return new Promise<string>((resolve, reject) => {
     const process = dependencies.spawn(command, args, options);
 
-    let output = '';
+    const stdout: Buffer[] = [];
     if (process.stdout) {
-      process.stdout.on('data', (chunk: Buffer) => output += chunk.toString());
+      process.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
     }
-    process.on('close', () => resolve(output));
+    const stderr: Buffer[] = [];
+    if (process.stderr) {
+      process.stderr.on('data', (chunk: Buffer) => stderr.push(chunk));
+    }
+
+    process.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(Buffer.concat(stderr).toString()));
+      }
+      resolve(Buffer.concat(stdout).toString());
+    });
     process.on('error', reject);
   });
 }
