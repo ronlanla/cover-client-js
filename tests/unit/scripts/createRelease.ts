@@ -195,6 +195,7 @@ describe('scripts/createRelease', () => {
 
   describe('updateAndCheckBranch', () => {
     it('Attempts to fetch changes because requested branch not checked out', sinonTest(async (sinon) => {
+      sinon.stub(dependencies.logger, 'info');
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
 
       const currentBranchName = 'release/1.0.0';
@@ -205,7 +206,9 @@ describe('scripts/createRelease', () => {
       await updateAndCheckBranch(requestBranchName);
       assert.calledOnceWith(fetch, ['origin', `${requestBranchName}:${requestBranchName}`, gitFetchOptions]);
     }));
+
     it('Attempts to pull changes but fails because branch dirty', sinonTest(async (sinon) => {
+      sinon.stub(dependencies.logger, 'info');
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
 
@@ -229,6 +232,7 @@ describe('scripts/createRelease', () => {
     }));
 
     it('Attempts to pull changes and succeeds', sinonTest(async (sinon) => {
+      sinon.stub(dependencies.logger, 'info');
       const fetch = sinon.stub(dependencies.simpleGit, 'fetch');
       const pull = sinon.stub(dependencies.simpleGit, 'pull');
 
@@ -255,6 +259,7 @@ describe('scripts/createRelease', () => {
       const createReleasePR = sinon.stub(components, 'createReleasePR');
       const askUserForPatchType = sinon.stub(components, 'askUserForPatchType');
 
+      sinon.stub(dependencies.logger, 'info');
       sinon.stub(dependencies.simpleGit, 'checkout').resolves();
       sinon.stub(components, 'updateAndCheckBranch').resolves();
       sinon.stub(components, 'getListOfUnreleasedChanges').resolves([]);
@@ -273,6 +278,7 @@ describe('scripts/createRelease', () => {
     }));
 
     it('Posts a PR on GitHub despite no changes because flag is set', sinonTest(async (sinon) => {
+      sinon.stub(dependencies.logger, 'info');
       sinon.stub(dependencies.simpleGit, 'checkout').resolves();
       sinon.stub(components, 'updateAndCheckBranch').resolves();
       sinon.stub(components, 'getListOfUnreleasedChanges').resolves([]);
@@ -290,6 +296,7 @@ describe('scripts/createRelease', () => {
     }));
 
     it('Resolves successfully!', sinonTest(async (sinon) => {
+      sinon.stub(dependencies.logger, 'info');
       sinon.stub(dependencies.simpleGit, 'checkout').resolves();
       sinon.stub(components, 'updateAndCheckBranch').resolves();
       sinon.stub(components, 'getListOfUnreleasedChanges').resolves(['Change 1', 'Change 2']);
