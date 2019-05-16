@@ -187,11 +187,11 @@ const CoverClient = require('@diffblue/cover-client');
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
-return CoverClient.getAnalysisStatus(api, id).then(({ message, status }) => {
+return CoverClient.getAnalysisStatus(api, id).then(({ message, status, progress }) => {
   console.log([
-    `Status: ${status.status}`,
-    `Total functions: ${status.progress.total}`,
-    `Total completed functions: ${status.progress.completed}\n`,
+    `Status: ${status}`,
+    `Total functions: ${progress.total}`,
+    `Total completed functions: ${progress.completed}\n`,
   ].join('\n'));
 });
 ```
@@ -205,11 +205,11 @@ const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
 (async () => {
-  const { status } = await CoverClient.getAnalysisStatus(api, id);
+  const { status, progress } = await CoverClient.getAnalysisStatus(api, id);
   console.log([
-    `Status: ${status.status}`,
-    `Total functions: ${status.progress.total}`,
-    `Total completed functions: ${status.progress.completed}\n`
+    `Status: ${status}`,
+    `Total functions: ${progress.total}`,
+    `Total completed functions: ${progress.completed}\n`
   ].join('\n'));
 })();
 ```
