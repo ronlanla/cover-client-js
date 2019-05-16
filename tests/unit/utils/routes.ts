@@ -3,7 +3,7 @@
 import assert, { errorEquals } from '../../../src/utils/assertExtra';
 import routes, { generateApiUrl, urlJoin } from '../../../src/utils/routes';
 
-describe('src/utils/routing', () => {
+describe('utils/routes', () => {
   const defaultApiUrl = 'http://localhost/api';
 
   describe('urlJoin', () => {

@@ -14,7 +14,7 @@ import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 
-describe('src/api/low-level', () => {
+describe('api/bindings', () => {
   const api = 'http://localhost/api';
 
   describe('getApiVersion', () => {

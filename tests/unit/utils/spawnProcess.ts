@@ -46,7 +46,7 @@ class MockChildProcess {
   }
 }
 
-describe('spawnProcess', () => {
+describe('utils/spawnProcess', () => {
   it('Resolves with stdout if the command succeeds', sinonTest(async (sinon) => {
     const childProcess = new MockChildProcess(true, 'stdout message', 'stderr message');
     // tslint:disable-next-line: no-any

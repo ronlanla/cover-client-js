@@ -7,7 +7,7 @@ import getPackageJson, { dependencies } from '../../../src/utils/getPackageJson'
 
 const sinonTest = sinonTestFactory();
 
-describe('getPackageJson', () => {
+describe('utils/getPackageJson', () => {
   it('Resolves with the package.json data', sinonTest(async (sinon) => {
     sinon.stub(dependencies, 'readFile').resolves('{"version":"123"}\n');
     assert.deepStrictEqual(await getPackageJson(), { version: '123' });

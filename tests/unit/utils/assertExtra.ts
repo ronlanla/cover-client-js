@@ -6,7 +6,7 @@ import * as sinon from 'sinon';
 import assertExtra, { errorEquals, getError } from '../../../src/utils/assertExtra';
 
 // "Quis custodiet ipsos custodes"
-describe('assertExtra', () => {
+describe('utils/assertExtra', () => {
   describe('getError', () => {
     it('Returns the error thrown by the callback', () => {
       assert.deepStrictEqual(getError(() => { throw new Error('Some error'); }), new Error('Some error'));
