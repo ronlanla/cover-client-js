@@ -27,3 +27,10 @@ export const uploadFiles = (filenames: string[]) => {
     });
   };
 };
+
+/** Gets a named file from a request */
+export const getRequestFile = (request: Request, name: string) => {
+  if (request.files && !Array.isArray(request.files) && request.files[name] && request.files[name].length) {
+    return request.files[name][0];
+  }
+};
