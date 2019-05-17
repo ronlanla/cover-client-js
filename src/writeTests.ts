@@ -14,7 +14,7 @@ import {
   mergeIntoTestClass,
 } from './combiner';
 import { WriterError, WriterErrorCodes } from './errors';
-import { AnalysisResult,WriteTestsOptions } from './types/types';
+import { AnalysisResult, WriteTestsOptions } from './types/types';
 
 export const dependencies = {
   map: map,

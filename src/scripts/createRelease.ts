@@ -108,16 +108,15 @@ export default function createRelease(): Command {
 /**
  * Uses inquirer.js to ask the user what level of release this is
  */
+/* istanbul ignore next */
 export async function askUserForPatchType(): Promise<PatchTypeAnswer> {
   // ignoring these lines because testing would involve mocking almost the entire function
-  /* istanbul ignore next */
   return dependencies.inquirer.prompt({
     type: 'list',
     name: 'releaseType',
     message: 'What type of release is this?',
     choices: ['Major', 'Minor', 'Patch'],
     default: 'Patch',
-    /* istanbul ignore next */
     filter: (val) => val.toLowerCase(),
   });
 }
