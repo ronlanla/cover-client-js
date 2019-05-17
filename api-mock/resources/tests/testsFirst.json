@@ -1,0 +1,49 @@
+{
+  "results": [
+    {
+      "classAnnotations": [],
+      "imports": [
+        "java.lang.reflect.InvocationTargetException",
+        "com.diffblue.deeptestutils.Reflector",
+        "com.diffblue.javademo.nestedobjects.subpackage.Order",
+        "org.junit.Assert",
+        "org.junit.Rule",
+        "org.junit.Test",
+        "org.junit.rules.ExpectedException"
+      ],
+      "staticImports": [],
+      "createdTime": 1557233719632,
+      "testId": "hasItemOutputFalse00090fc17342fb0091e",
+      "testName": "hasItemOutputFalse",
+      "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.hasItem:()Z",
+      "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+      "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 12 branch to line 13\n   */\n\n  @org.junit.Test\n  public void hasItemOutputFalse() throws java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = (com.diffblue.javademo.nestedobjects.subpackage.Order) Reflector.getInstance(\"com.diffblue.javademo.nestedobjects.subpackage.Order\");\n    objectUnderTest.item = null;\n\n    // Act\n    final boolean retval = objectUnderTest.hasItem();\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+      "tags": []
+    },
+    {
+      "classAnnotations": [],
+      "imports": [
+        "java.lang.reflect.InvocationTargetException",
+        "com.diffblue.deeptestutils.Reflector",
+        "com.diffblue.javademo.nestedobjects.subpackage.Item",
+        "com.diffblue.javademo.nestedobjects.subpackage.Order",
+        "org.junit.Assert",
+        "org.junit.Rule",
+        "org.junit.Test",
+        "org.junit.rules.ExpectedException"
+      ],
+      "staticImports": [],
+      "createdTime": 1557233719633,
+      "testId": "hasItemOutputTrue00159a8ec815f67bac7",
+      "testName": "hasItemOutputTrue",
+      "testedFunction": "java::com.diffblue.javademo.nestedobjects.subpackage.Order.hasItem:()Z",
+      "sourceFilePath": "/com/diffblue/javademo/nestedobjects/subpackage/Order.java",
+      "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 12 branch to line 15\n   */\n\n  @org.junit.Test\n  public void hasItemOutputTrue() throws java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.nestedobjects.subpackage.Order objectUnderTest = (com.diffblue.javademo.nestedobjects.subpackage.Order) Reflector.getInstance(\"com.diffblue.javademo.nestedobjects.subpackage.Order\");\n    final com.diffblue.javademo.nestedobjects.subpackage.Item item = (com.diffblue.javademo.nestedobjects.subpackage.Item) Reflector.getInstance(\"com.diffblue.javademo.nestedobjects.subpackage.Item\");\n    item.cost = 0;\n    objectUnderTest.item = item;\n\n    // Act\n    final boolean retval = objectUnderTest.hasItem();\n\n    // Assert result\n    Assert.assertEquals(true, retval);\n\n  }",
+      "tags": []
+    }
+  ],
+  "cursor": 1557233750475,
+  "status": {
+    "status": "RUNNING"
+  }
+}

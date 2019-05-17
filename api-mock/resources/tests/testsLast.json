@@ -1,0 +1,87 @@
+{
+  "results": [
+    {
+      "classAnnotations": [],
+      "imports": [
+        "java.lang.reflect.InvocationTargetException",
+        "com.diffblue.deeptestutils.Reflector",
+        "com.diffblue.javademo.Search",
+        "org.junit.Assert",
+        "org.junit.Rule",
+        "org.junit.Test",
+        "org.junit.rules.ExpectedException"
+      ],
+      "staticImports": [],
+      "createdTime": 1557233750475,
+      "testId": "containsInput0ZeroOutputFalse000461be074a316a8f9",
+      "testName": "containsInput0ZeroOutputFalse",
+      "testedFunction": "java::com.diffblue.javademo.Search.contains:([II)Z",
+      "sourceFilePath": "/com/diffblue/javademo/Search.java",
+      "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *\n   */\n\n  @org.junit.Test\n  public void containsInput0ZeroOutputFalse() throws java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = (com.diffblue.javademo.Search) Reflector.getInstance(\"com.diffblue.javademo.Search\");\n    final int[] array = { };\n    final int target = 0;\n\n    // Act\n    final boolean retval = objectUnderTest.contains(array, target);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+      "tags": []
+    },
+    {
+      "classAnnotations": [],
+      "imports": [
+        "java.lang.reflect.InvocationTargetException",
+        "com.diffblue.deeptestutils.Reflector",
+        "com.diffblue.javademo.Search",
+        "org.junit.Assert",
+        "org.junit.Rule",
+        "org.junit.Test",
+        "org.junit.rules.ExpectedException"
+      ],
+      "staticImports": [],
+      "createdTime": 1557233750853,
+      "testId": "containsInput1ZeroOutputFalse0015357abedaffe27f5",
+      "testName": "containsInput1ZeroOutputFalse",
+      "testedFunction": "java::com.diffblue.javademo.Search.contains:([II)Z",
+      "sourceFilePath": "/com/diffblue/javademo/Search.java",
+      "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - com/diffblue/javademo/Search.java:14: loop: 1 iterations\n   *  - iteration 1\n   *     - conditional line 15 branch to line 14\n   */\n\n  @org.junit.Test\n  public void containsInput1ZeroOutputFalse() throws java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.Search objectUnderTest = (com.diffblue.javademo.Search) Reflector.getInstance(\"com.diffblue.javademo.Search\");\n    final int[] array = { 1 };\n    final int target = 0;\n\n    // Act\n    final boolean retval = objectUnderTest.contains(array, target);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+      "tags": []
+    },
+    {
+      "classAnnotations": [
+        "@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)"
+      ],
+      "imports": [
+        "java.lang.reflect.InvocationTargetException",
+        "java.lang.reflect.Method",
+        "com.diffblue.deeptestutils.Reflector",
+        "com.diffblue.deeptestutils.mock.DTUMemberMatcher",
+        "com.diffblue.javademo.UserAccess",
+        "com.diffblue.javademo.serveraccess.DatabaseDao",
+        "com.mongodb.MongoClient",
+        "com.mongodb.client.MongoCollection",
+        "com.mongodb.client.MongoDatabase",
+        "org.bson.Document",
+        "org.bson.conversions.Bson",
+        "org.junit.Assert",
+        "org.junit.Rule",
+        "org.junit.Test",
+        "org.junit.rules.ExpectedException",
+        "org.junit.runner.RunWith",
+        "org.powermock.api.mockito.PowerMockito",
+        "org.powermock.core.classloader.annotations.PrepareForTest",
+        "org.powermock.modules.junit4.PowerMockRunner"
+      ],
+      "staticImports": [
+        "org.mockito.AdditionalMatchers.or",
+        "org.mockito.Matchers.anyInt",
+        "org.mockito.Matchers.isA",
+        "org.mockito.Matchers.isNull"
+      ],
+      "createdTime": 1557233805763,
+      "testId": "loginUserInputNotNullNotNullOutputFalse0033d905099207be011",
+      "testName": "loginUserInputNotNullNotNullOutputFalse2",
+      "testedFunction": "java::com.diffblue.javademo.UserAccess.loginUser:(Ljava/lang/String;Ljava/lang/String;)Z",
+      "sourceFilePath": "/com/diffblue/javademo/UserAccess.java",
+      "testBody": "  /*\n   * Test written by Diffblue Cover.\n   * This test case covers:\n   *  - conditional line 24 branch to line 24\n   *  - conditional line 24 branch to line 28\n   *  - conditional line 33 branch to line 38\n   */\n  @org.powermock.core.classloader.annotations.PrepareForTest({com.mongodb.client.MongoDatabase.class, com.diffblue.javademo.UserAccess.class, com.mongodb.client.MongoCollection.class, org.bson.Document.class, com.mongodb.MongoClient.class, com.diffblue.javademo.serveraccess.DatabaseDao.class})\n  @org.junit.Test\n  public void loginUserInputNotNullNotNullOutputFalse2() throws Exception, java.lang.reflect.InvocationTargetException {\n\n    // Arrange\n    final com.diffblue.javademo.UserAccess objectUnderTest = (com.diffblue.javademo.UserAccess) Reflector.getInstance(\"com.diffblue.javademo.UserAccess\");\n    Reflector.setField(objectUnderTest, \"currentUser\", null);\n    final String username = \"AAAAAAAA\";\n    final String password = \"        \";\n    final com.mongodb.MongoClient mongoClient = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.MongoClient.class);\n    final com.mongodb.client.MongoDatabase mongoDatabase = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoDatabase.class);\n    final com.mongodb.client.MongoCollection mongoCollection = org.powermock.api.mockito.PowerMockito.mock(com.mongodb.client.MongoCollection.class);\n    final java.lang.reflect.Method countMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoCollection.class, \"count\", org.bson.conversions.Bson.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(513L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(org.bson.conversions.Bson.class), org.mockito.Matchers.isNull(org.bson.conversions.Bson.class)));\n    final java.lang.reflect.Method getCollectionMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.client.MongoDatabase.class, \"getCollection\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    final java.lang.reflect.Method getDatabaseMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(com.mongodb.MongoClient.class, \"getDatabase\", String.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(com.mongodb.MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);\n    final org.bson.Document document = org.powermock.api.mockito.PowerMockito.mock(org.bson.Document.class);\n    final org.bson.Document document1 = (org.bson.Document) Reflector.getInstance(\"org.bson.Document\");\n    final java.lang.reflect.Method appendMethod = com.diffblue.deeptestutils.mock.DTUMemberMatcher.method(org.bson.Document.class, \"append\", String.class, Object.class);\n    org.powermock.api.mockito.PowerMockito.doReturn(document1).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));\n    org.powermock.api.mockito.PowerMockito.whenNew(org.bson.Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);\n\n    // Act\n    final boolean retval = objectUnderTest.loginUser(username, password);\n\n    // Assert result\n    Assert.assertEquals(false, retval);\n\n  }",
+      "tags": []
+    }
+  ],
+  "cursor": 1557233805763,
+  "status": {
+    "status": "COMPLETED"
+  }
+}
