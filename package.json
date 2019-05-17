@@ -40,7 +40,7 @@
     "axios": "0.18.0",
     "form-data": "2.3.3",
     "lodash": "4.17.11",
-    "mkdirp-promise": "5.0.1",
+    "mkdirp": "0.5.1",
     "url-join": "4.0.0"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "@types/form-data": "2.2.1",
     "@types/inquirer": "^6.0.1",
     "@types/lodash": "4.14.123",
-    "@types/mkdirp-promise": "5.0.0",
+    "@types/mkdirp": "0.5.2",
     "@types/mocha": "5.2.6",
     "@types/node": "11.13.4",
     "@types/semver": "6.0.0",

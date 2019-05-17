@@ -3,7 +3,7 @@
 import { map } from 'bluebird';
 import { readFile, writeFile } from 'fs';
 import { isEmpty } from 'lodash';
-import mkdirp from 'mkdirp-promise';
+import * as mkdirp from 'mkdirp';
 import { join } from 'path';
 import { promisify } from 'util';
 
@@ -18,7 +18,7 @@ import { AnalysisResult,WriteTestsOptions } from './types/types';
 
 export const dependencies = {
   map: map,
-  mkdirp: mkdirp,
+  mkdirp: promisify(mkdirp),
   readFile: promisify(readFile),
   writeFile: promisify(writeFile),
 };
