@@ -13,6 +13,8 @@ export default class MockApiServer {
   private app = express() as MockApiApplication;
   private apiPort = 3001;
 
+  private devMode = false;
+
   /**
    * Start the mock API server
    *
@@ -22,6 +24,17 @@ export default class MockApiServer {
     const api = `http://localhost:${this.apiPort}`;
     try {
       await parseConfigFile(this.app);
+
+      if (this.devMode) {
+        this.app.use(async (req, res, next) => {
+          try {
+            await parseConfigFile(this.app);
+            next();
+          } catch (error) {
+            next(error);
+          }
+        });
+      }
 
       // Set default scenario
       setScenario(this.app, 'default');
@@ -65,4 +78,14 @@ export default class MockApiServer {
   public setApiPort = (port: number) => {
     this.apiPort = port;
   }
+
+  /**
+   * Enable development mode
+   *
+   * If development mode is enabled then the config.json file will be
+   * reloaded with each request to allow live changes to the file
+   *
+   * NOTE: This must be set before creating the server
+   */
+  public enableDevelopmentMode = () => this.devMode = true;
 }
