@@ -4,11 +4,13 @@ import * as express from 'express';
 import { Server } from 'http';
 
 import logger from '../../src/utils/log';
+import { MockApiApplication, Scenario } from '../types';
 import { parseConfigFile } from './handlers/file';
+import { setScenario } from './handlers/scenario';
 
 /** Contains the mock API server for Platform Lite */
 export default class MockApiServer {
-  private app = express();
+  private app = express() as MockApiApplication;
   private apiPort = 3001;
 
   /**
@@ -20,6 +22,9 @@ export default class MockApiServer {
     const api = `http://localhost:${this.apiPort}`;
     try {
       await parseConfigFile(this.app);
+
+      // Set default scenario
+      setScenario(this.app, 'default');
 
       return new Promise((resolve) => this.app.listen(this.apiPort, () => {
         logger.info(`Running mock API on ${api}`);
@@ -40,6 +45,15 @@ export default class MockApiServer {
       resolve();
     }));
   }
+
+  /**
+   * Set the scenario that the server will use to return predefined sets of data
+   *
+   * Default: default
+   *
+   * NOTE: This must be set after creating the server
+   */
+  public setScenario = (scenario: Scenario) => setScenario(this.app, scenario);
 
   /**
    * Set the port that will be used to start the server
