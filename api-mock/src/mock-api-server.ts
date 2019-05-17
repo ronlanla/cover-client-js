@@ -4,6 +4,7 @@ import * as express from 'express';
 import { Server } from 'http';
 
 import logger from '../../src/utils/log';
+import { parseConfigFile } from './handlers/file';
 
 /** Contains the mock API server for Platform Lite */
 export default class MockApiServer {
@@ -18,6 +19,8 @@ export default class MockApiServer {
   public startServer = async () => {
     const api = `http://localhost:${this.apiPort}`;
     try {
+      await parseConfigFile(this.app);
+
       return new Promise((resolve) => this.app.listen(this.apiPort, () => {
         logger.info(`Running mock API on ${api}`);
         resolve();

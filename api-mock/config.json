@@ -1,0 +1,37 @@
+{
+  "presetScenarios": {
+    "default": {
+      "analysisId": "abcd1234-ab12-ab12-ab12-abcd1234",
+      "name": "Default scenario",
+      "templateTests": [
+        "testsAll",
+        "testsFirst",
+        "testsLast"
+      ],
+      "phases": {
+        "initial": {
+          "initial": true,
+          "depth": 1500,
+          "java-max-vla-length": 48,
+          "max-nondet-string-length": 10,
+          "string-printable": true,
+          "unwind": 2,
+          "throw-runtime-exceptions": false,
+          "timeout": 60,
+          "next-phase": {
+            "successful": "second-phase"
+          }
+        },
+        "second-phase": {
+          "depth": 3000,
+          "java-max-vla-length": 96,
+          "max-nondet-string-length": 50,
+          "string-printable": true,
+          "unwind": 4,
+          "throw-runtime-exceptions": false,
+          "timeout": 300
+        }
+      }
+    }
+  }
+}
