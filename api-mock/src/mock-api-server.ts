@@ -7,6 +7,8 @@ import logger from '../../src/utils/log';
 import { MockApiApplication, Scenario } from '../types';
 import { parseConfigFile } from './handlers/file';
 import { setScenario } from './handlers/scenario';
+import analysisRouter from './routers/analysis';
+import versionRouter from './routers/version';
 
 /** Contains the mock API server for Platform Lite */
 export default class MockApiServer {
@@ -38,6 +40,9 @@ export default class MockApiServer {
 
       // Set default scenario
       setScenario(this.app, 'default');
+
+      this.app.use('/version', versionRouter);
+      this.app.use('/analysis', analysisRouter);
 
       return new Promise((resolve) => this.app.listen(this.apiPort, () => {
         logger.info(`Running mock API on ${api}`);
