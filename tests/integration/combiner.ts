@@ -7,10 +7,12 @@ import { promisify } from 'util';
 import { generateTestClass, mergeIntoTestClass } from '../../src/combiner';
 import assert from '../../src/utils/assertExtra';
 
+import { AnalysisResult } from '../../src/types/types';
+
 const readFile = promisify(readFileCallback);
 
 describe('src/combiner', () => {
-  let resultsBySourceFileAndFunction: {[sourceFilePath: string]: {[testedFunction: string]: string[]}};
+  let resultsBySourceFileAndFunction: {[sourceFilePath: string]: {[testedFunction: string]: AnalysisResult[]}};
   let expectedSingleTestClass: string;
   let expectedMultiTestClass: string;
   let expectedFirstTestClass: string;
