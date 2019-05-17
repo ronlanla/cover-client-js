@@ -21,6 +21,7 @@
   "license": "MIT",
   "homepage": "https://github.com/diffblue/cover-client-js#readme",
   "scripts": {
+    "api-mock": "ts-node api-mock/server.ts",
     "audit-dependencies": "auditjs --prod --noNode",
     "build": "tsc --project tsconfig.json",
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
