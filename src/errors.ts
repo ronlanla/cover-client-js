@@ -5,8 +5,14 @@
  * Not intended to be thrown directly.
  */
 export class CoverClientError extends Error {
-  public constructor(message: string) {
+
+  public message: string;
+  public code?: string;
+
+  public constructor(message: string, code?: string) {
     super(message);
+    this.code = code;
+    this.name = `CoverClientError ${this.code || ''}`;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
@@ -22,6 +28,7 @@ export class ApiError extends CoverClientError {
     super(message);
     this.code = code;
     this.status = status;
+    this.name = `ApiError ${this.code}`;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
@@ -41,6 +48,7 @@ export class BindingsError extends CoverClientError {
   public constructor(message: string, code: BindingsErrorCodes) {
     super(message);
     this.code = code;
+    this.name = `BindingsError ${this.code}`;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
@@ -69,6 +77,7 @@ export class CombinerError extends CoverClientError {
   public constructor(message: string, code: CombinerErrorCodes) {
     super(message);
     this.code = code;
+    this.name = `CombinerError ${this.code}`;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
@@ -88,6 +97,7 @@ export class WriterError extends CoverClientError {
   public constructor(message: string, code: WriterErrorCodes) {
     super(message);
     this.code = code;
+    this.name = `WriterError ${this.code}`;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
@@ -108,6 +118,7 @@ export class AnalysisError extends CoverClientError {
   public constructor(message: string, code: AnalysisErrorCodes) {
     super(message);
     this.code = code;
+    this.name = `AnalysisError ${this.code}`;
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
