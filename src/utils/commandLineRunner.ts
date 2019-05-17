@@ -4,8 +4,18 @@ import { basename } from 'path';
 import argvParser, { Options } from './argvParser';
 import logger from './log';
 
+export const dependencies = {
+  processExit: process.exit,
+  logger: logger,
+};
+
+export const components = {
+  getCommandName: getCommandName,
+  getHelpMessage: getHelpMessage,
+};
+
 /** Command line command interface */
-export type Command = (args: string[], options: Options) => Promise<string | undefined>;
+export type Command = (args: string[], options: Options) => Promise<string | undefined | void>;
 
 /** An error which is expected, so that we don't bother showing a stack trace  */
 export class ExpectedError extends Error {
@@ -18,46 +28,51 @@ export class ExpectedError extends Error {
 
 /** Indents text by an amount */
 export function indent(text: string, indent = '  ') {
-  return text.split('\n').map((line) => indent + line).join('\n');
+  return text.replace(/(\n|^)(.)/g, `$1${indent}$2`);
 }
 
 /** Returns how to run this command, following the convention of the user */
-export function getCommand() {
+export function getCommandName(process: { argv: string[], env: NodeJS.ProcessEnv }) {
   const isYarn = Boolean(process.env.npm_config_user_agent && process.env.npm_config_user_agent.match(/^yarn/));
-  const command = process.env.npm_config_argv && JSON.parse(process.env.npm_config_argv).cooked.join(' ');
-  return command ? `${isYarn ? 'yarn' : 'npm'} ${command}` : `ts-node ${basename(process.argv[1])}`;
+  const command = process.env.npm_lifecycle_event;
+  return command ? `${isYarn ? 'yarn' : 'npm run'} ${command}` : `ts-node ${basename(process.argv[1])}`;
 }
 
 /** Returns the help message for the command */
-export function helpMessage(description: string, pattern: string) {
-  const usage = `${getCommand()} ${pattern} [--help]\n`.replace(/ +/g, ' ');
+export function getHelpMessage(description: string, pattern: string, command: string) {
+  const usage = `${command} ${pattern} [--help]`.replace(/ +/g, ' ');
   return [
     'Description:',
     `${indent(description)}\n`,
     'Usage:',
     `${indent(usage)}`,
+    '',
   ].join('\n');
 }
 
 /** Runs an asynchronous command */
-export default function commandLineRunner(description: string, pattern: string, command: Command) {
+export default function commandLineRunner(
+  description: string, pattern: string, process: { argv: string[], env: NodeJS.ProcessEnv }, command: Command,
+) {
   const { args, options } = argvParser(process.argv);
+  const commandName = components.getCommandName(process);
+  const helpMessage = components.getHelpMessage(description, pattern, commandName);
 
   if (options.help) {
-    logger.log(helpMessage(description, pattern));
+    logger.log(helpMessage);
     return;
   }
 
-  command(args, options).then((message) => {
+  return command(args, options).then((message) => {
     if (message) {
       logger.log(message);
     }
   }).catch((error) => {
-    logger.error(helpMessage(description, pattern));
+    logger.error(helpMessage);
     // Only show the stack trace for unexpected errors
     logger.error(error instanceof ExpectedError ? error.toString() : error);
     // Newline to separate from npm/yarn output
     logger.error('');
-    process.exit(1);
+    dependencies.processExit(1);
   });
 }

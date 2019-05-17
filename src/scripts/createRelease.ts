@@ -231,5 +231,5 @@ export async function checkPrerequisites(): Promise<void> {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  commandLineRunner(description, '', createRelease());
+  commandLineRunner(description, '', process, createRelease());
 }

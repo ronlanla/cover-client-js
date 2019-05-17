@@ -21,10 +21,13 @@
   "license": "MIT",
   "homepage": "https://github.com/diffblue/cover-client-js#readme",
   "scripts": {
-    "create-release": "ts-node src/scripts/createRelease.ts",
-    "changelog": "ts-node src/utils/changelog.ts",
+    "audit-dependencies": "auditjs --prod --noNode",
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 80 mocha --require ts-node/register 'tests/unit/**/*.ts'",
+    "create-release": "ts-node src/scripts/createRelease.ts",
+    "changelog": "ts-node src/utils/changelog.ts",
+    "create-post-release-pull-request": "ts-node src/scripts/createPostReleasePullRequest.ts",
+    "create-release-tag": "ts-node src/scripts/createReleaseTag.ts",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
@@ -39,6 +42,7 @@
     "lodash": "4.17.11"
   },
   "devDependencies": {
+    "@types/axios": "0.14.0",
     "@types/form-data": "2.2.1",
     "@types/inquirer": "^6.0.1",
     "@types/lodash": "4.14.123",
@@ -46,6 +50,7 @@
     "@types/node": "11.13.4",
     "@types/semver": "6.0.0",
     "@types/sinon": "7.0.11",
+    "auditjs": "3.1.1",
     "bluebird": "3.5.4",
     "glob-gitignore": "1.0.14",
     "inquirer": "6.3.1",

@@ -38,7 +38,7 @@ const sampleTestData = {
   test: sampleResult.testBody,
 };
 
-describe('src/combiner', () => {
+describe('combiner', () => {
   describe('generateTestClass', () => {
     it('Can generate a test class for a single result', sinonTest(async (sinon) => {
       const expectedTestClass = 'test-class';

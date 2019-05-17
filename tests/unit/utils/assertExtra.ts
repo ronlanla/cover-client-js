@@ -6,7 +6,17 @@ import * as sinon from 'sinon';
 import assertExtra, { errorEquals, getError } from '../../../src/utils/assertExtra';
 
 // "Quis custodiet ipsos custodes"
-describe('assertExtra', () => {
+describe('utils/assertExtra', () => {
+  describe('getError', () => {
+    it('Returns the error thrown by the callback', () => {
+      assert.deepStrictEqual(getError(() => { throw new Error('Some error'); }), new Error('Some error'));
+    });
+
+    it('Throws an error if the callback did not throw an error', () => {
+      assert.throws(() => getError(() => undefined), errorEquals(new Error('Expected callback to throw an error')));
+    });
+  });
+
   describe('notCalled', () => {
     it('Throws an exception when a spy has been called', () => {
       const spy = sinon.spy();
@@ -338,6 +348,30 @@ describe('assertExtra', () => {
 
     it('Does not throw an exception when a string matches a regex', () => {
       assertExtra.matches('Foo 12', /Foo \d\d/);
+    });
+  });
+
+  describe('startsWith', () => {
+    it('Throws an exception when a string does not start with a value', () => {
+      assert.throws(() => assertExtra.startsWith('abc123', 'abcd'), errorEquals(getError(() => {
+        assert.strictEqual(false, true, '"abc123" does not start with "abcd"');
+      })));
+    });
+
+    it('Does not throw an exception when a string starts with a value', () => {
+      assertExtra.startsWith('abc123', 'abc');
+    });
+  });
+
+  describe('endsWith', () => {
+    it('Throws an exception when a string does not end with a value', () => {
+      assert.throws(() => assertExtra.endsWith('abc123', '1234'), errorEquals(getError(() => {
+        assert.strictEqual(false, true, '"abc123" does not end with "1234"');
+      })));
+    });
+
+    it('Does not throw an exception when a string ends with a value', () => {
+      assertExtra.endsWith('abc123', '123');
     });
   });
 });
