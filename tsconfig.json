@@ -21,6 +21,8 @@
     "baseUrl": "."
   },
   "include": [
-    "index.ts"
+    "src/",
+    "tests/",
+    "api-mock/"
   ]
 }
