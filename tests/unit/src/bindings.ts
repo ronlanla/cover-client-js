@@ -40,7 +40,6 @@ describe('api/bindings', () => {
     const settings = {
       ignoreDefaults: true,
       phases: {},
-      webhooks: {},
     };
 
     it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
