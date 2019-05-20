@@ -116,7 +116,7 @@ describe('api/bindings', () => {
     }));
 
     it('Throws an error when the settings are invalid', sinonTest(async () => {
-      /** Infinite cycle object to throw an error for JSON.stringify */
+      // Infinite cycle object to throw an error for JSON.stringify
       const obj: { a?: Object } = {};
       obj.a = { b: obj };
 
