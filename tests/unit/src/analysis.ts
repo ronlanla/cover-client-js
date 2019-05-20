@@ -79,6 +79,7 @@ describe('analysis', () => {
           cursor: resultsResponse.cursor,
           progress: resultsResponse.status.progress,
           results: resultsResponse.results,
+          pollingStopped: false,
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
@@ -111,6 +112,7 @@ describe('analysis', () => {
           cursor: resultsResponse.cursor,
           progress: resultsResponse.status.progress,
           results: resultsResponse.results,
+          pollingStopped: false,
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
@@ -259,6 +261,51 @@ describe('analysis', () => {
         assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
         assert.notCalled(writeTests);
+      }));
+
+      it('Calling forceStop stops polling (after polling occurs)', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis');
+        const startResponse = { id: analysisId, phases: {}};
+        startAnalysis.resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
+        const resultsResponse = {
+          status: responseStatus,
+          cursor: 12345,
+          results: [sampleResult],
+        };
+        getAnalysisResults.resolves({ ...resultsResponse, results: [] });
+        getAnalysisResults.onFirstCall().resolves(resultsResponse);
+        const baseAnalysis = new Analysis(apiUrl);
+        const analysis = clone(baseAnalysis);
+        setTimeout(() => analysis.forceStop(), 10);  // tslint:disable-line:no-magic-numbers
+        const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
+        assert.deepStrictEqual(returnValue, resultsResponse.results);
+        assert.strictEqual(analysis.status, AnalysisObjectStatuses.RUNNING);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        sinon.assert.calledWith(getAnalysisResults, apiUrl, analysisId, undefined);
+      }));
+
+      it('Calling forceStop stops polling (before polling occurs)', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis');
+        const startResponse = { id: analysisId, phases: {}};
+        startAnalysis.resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
+        const resultsResponse = {
+          status: responseStatus,
+          cursor: 12345,
+          results: [sampleResult],
+        };
+        getAnalysisResults.resolves(resultsResponse);
+        const baseAnalysis = new Analysis(apiUrl);
+        const analysis = clone(baseAnalysis);
+        setImmediate(() => analysis.forceStop());
+        const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
+        assert.deepStrictEqual(returnValue, []);
+        assert.strictEqual(analysis.status, AnalysisObjectStatuses.RUNNING);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.notCalled(getAnalysisResults);
       }));
     });
 

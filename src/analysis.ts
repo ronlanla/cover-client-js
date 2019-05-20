@@ -1,7 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { delay } from 'bluebird';
-
 import {
   cancelAnalysis,
   getAnalysisResults,
@@ -9,7 +7,7 @@ import {
   getApiVersion,
   startAnalysis,
 } from './bindings';
-import {  getFileNameForResult, groupResults } from './combiner';
+import { getFileNameForResult, groupResults } from './combiner';
 import { AnalysisError, AnalysisErrorCodes } from './errors';
 import {
   AnalysisCancelApiResponse,
@@ -27,6 +25,7 @@ import {
   RunAnalysisOptions,
   WriteTestsOptions,
 } from './types/types';
+import CancellableDelay from './utils/CancellableDelay';
 import writeTests from './writeTests';
 
 export const components = {
@@ -52,6 +51,8 @@ export default class Analysis {
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
+  public pollDelay: CancellableDelay | null = null;
+  public pollingStopped?: boolean;
 
   public constructor(apiUrl: string) {
     this.apiUrl = apiUrl;
@@ -110,13 +111,20 @@ export default class Analysis {
   ): Promise<AnalysisResult[]> {
     try {
       this.checkNotStarted();
+      this.pollingStopped = false;
       const millisecondsPerSecond = 1000;
       const pollingIntervalMilliseconds = (
         (options.pollingInterval || components.defaultPollingInterval) * millisecondsPerSecond
       );
       await this.start(files, settings);
-      while (this.isRunning()) {
-        await delay(pollingIntervalMilliseconds);
+      while (this.isRunning() && !this.pollingStopped) {
+        this.pollDelay = new CancellableDelay(pollingIntervalMilliseconds);
+        await this.pollDelay.promise;
+        this.pollDelay = null;
+        if (this.pollingStopped) {
+          // May have been changed by force stop
+          continue;
+        }
         const { results } = await this.getResults();
         if (results.length && options.onResults) {
           const groups = groupResults(results);
@@ -137,6 +145,7 @@ export default class Analysis {
         await this.writeTests(options.outputTests, writeOptions);
       }
     } catch (error) {
+      this.forceStop();
       if (options.onError) {
         options.onError(error);
       } else {
@@ -144,6 +153,14 @@ export default class Analysis {
       }
     }
     return this.results;
+  }
+
+  /** If an analysis is being run, stop polling for results */
+  public forceStop(): void {
+    if (this.pollDelay) {
+      this.pollDelay.cancel();
+    }
+    this.pollingStopped = true;
   }
 
   /** Write test files to the specified directory using the current results */
