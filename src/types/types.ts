@@ -136,6 +136,10 @@ export interface RunAnalysisOptions {
   outputTests?: string;
   writingConcurrency?: number;
   pollingInterval?: number; // polling interval in seconds
+  /** Called once for each results group returned when polling */
+  onResults?(results: AnalysisResult[], filename: string): void;
+  /** Called With error instance if run throws any error */
+  onError?(error: Error): void;
 }
 
 /** Options accepted by `writeTests` */

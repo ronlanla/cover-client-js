@@ -160,6 +160,106 @@ describe('analysis', () => {
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
         assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1 }]);
       }));
+
+      it('Can pass new result groups to onResults callback when polling', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis');
+        const startResponse = { id: analysisId, phases: {}};
+        startAnalysis.resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+        const otherResult = clone(sampleResult);
+        otherResult.testedFunction = 'com.diffblue.javademo.OtherClass.otherFunction';
+        otherResult.sourceFilePath = '/other/path';
+        const resultsResponse = {
+          status: responseStatus,
+          cursor: 12345,
+          results: [sampleResult, otherResult],
+        };
+        getAnalysisResults.resolves(resultsResponse);
+        const onResults = sinon.spy();
+        const analysis = new Analysis(apiUrl);
+        await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledWith(
+          onResults,
+          [
+            [[sampleResult], 'TicTacToeTest.java'],
+            [[otherResult], 'OtherClassTest.java'],
+          ],
+        );
+      }));
+
+      it('Does not call the onResults callback when polling if no new results', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis');
+        const startResponse = { id: analysisId, phases: {}};
+        startAnalysis.resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+        const resultsResponse = {
+          status: responseStatus,
+          cursor: 12345,
+          results: [],
+        };
+        getAnalysisResults.resolves(resultsResponse);
+        const onResults = sinon.spy();
+        const analysis = new Analysis(apiUrl);
+        await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.notCalled(onResults);
+      }));
+
+      it('Calls the onError callback if provided, rather than rejecting', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis');
+        const startResponse = { id: analysisId, phases: {}};
+        startAnalysis.resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+        const resultsResponse = {
+          status: responseStatus,
+          cursor: 12345,
+          results: [sampleResult],
+        };
+        getAnalysisResults.resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl);
+        const writeTestsError = new Error('writeTests rejected');
+        const writeTests = sinon.stub(analysis, 'writeTests').rejects(writeTestsError);
+        const onError = sinon.spy();
+        const options = { pollingInterval: 0.0001, outputTests: '/test/path', onError: onError };
+        const returnValue = await analysis.run(files, settings, options);
+        assert.deepStrictEqual(returnValue, resultsResponse.results);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(writeTests, ['/test/path', undefined]);
+        assert.calledOnceWith(onError, [writeTestsError]);
+      }));
+
+      it('Rejects if analysis errors, and does not write test files', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis');
+        const startResponse = { id: analysisId, phases: {}};
+        startAnalysis.resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const responseStatus = { status: AnalysisStatuses.ERRORED, progress: { completed: 10, total: 20 }};
+        const resultsResponse = {
+          status: responseStatus,
+          cursor: 12345,
+          results: [sampleResult],
+        };
+        getAnalysisResults.resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl);
+        const writeTests = sinon.stub(analysis, 'writeTests');
+        const options = { pollingInterval: 0.0001, outputTests: '/test/path' };
+        await assert.rejects(
+          async () => analysis.run(files, settings, options),
+          (err: Error) => {
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.RUN_ERRORED;
+          },
+        );
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.notCalled(writeTests);
+      }));
     });
 
     describe('writeTests', () => {
@@ -167,8 +267,7 @@ describe('analysis', () => {
         const analysis = new Analysis(apiUrl);
         analysis.results = [sampleResult];
         const sampleResultFilePath = '/test/path/TicTacToeTest.java';
-        const otherResultFilePath = '/test/path/OtherClassTest.java';
-        const expectedReturn = [otherResultFilePath, sampleResultFilePath];
+        const expectedReturn = [sampleResultFilePath];
         const writeTests = sinon.stub(components, 'writeTests').resolves(expectedReturn);
         const returnValue = await analysis.writeTests('/test/path');
         assert.deepStrictEqual(returnValue, expectedReturn);
@@ -179,8 +278,7 @@ describe('analysis', () => {
         const analysis = new Analysis(apiUrl);
         analysis.results = [sampleResult];
         const sampleResultFilePath = '/test/path/TicTacToeTest.java';
-        const otherResultFilePath = '/test/path/OtherClassTest.java';
-        const expectedReturn = [otherResultFilePath, sampleResultFilePath];
+        const expectedReturn = [sampleResultFilePath];
         const writeTests = sinon.stub(components, 'writeTests').resolves(expectedReturn);
         const returnValue = await analysis.writeTests('/test/path', { concurrency: 1 });
         assert.deepStrictEqual(returnValue, expectedReturn);

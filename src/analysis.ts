@@ -9,6 +9,7 @@ import {
   getApiVersion,
   startAnalysis,
 } from './bindings';
+import {  getFileNameForResult, groupResults } from './combiner';
 import { AnalysisError, AnalysisErrorCodes } from './errors';
 import {
   AnalysisCancelApiResponse,
@@ -93,25 +94,54 @@ export default class Analysis {
    *
    * If a directory is specified in the `outputTests` option,
    * tests will be written to that directory when the analysis completes.
+   * The `writingConcurrency` option can be used in conjunction to specify
+   * the concurrency when writing tests.
+   *
+   * If an `onResults` callback option is provided, this will be called
+   * once for each group of results returned by each polling attempt.
+   *
+   * If an `onError` callback option is provided, this will be called
+   * with any error thrown, and this method will resolve rather than reject.
    */
   public async run(
     files: AnalysisFiles,
     settings: AnalysisSettings = {},
     options: RunAnalysisOptions = {},
   ): Promise<AnalysisResult[]> {
-    this.checkNotStarted();
-    const millisecondsPerSecond = 1000;
-    const pollingIntervalMilliseconds = (
-      (options.pollingInterval || components.defaultPollingInterval) * millisecondsPerSecond
-    );
-    await this.start(files, settings);
-    while (this.isRunning()) {
-      await delay(pollingIntervalMilliseconds);
-      await this.getResults();
-    }
-    if (options.outputTests) {
-      const writeOptions = options.writingConcurrency ? { concurrency: options.writingConcurrency } : undefined;
-      await this.writeTests(options.outputTests, writeOptions);
+    try {
+      this.checkNotStarted();
+      const millisecondsPerSecond = 1000;
+      const pollingIntervalMilliseconds = (
+        (options.pollingInterval || components.defaultPollingInterval) * millisecondsPerSecond
+      );
+      await this.start(files, settings);
+      while (this.isRunning()) {
+        await delay(pollingIntervalMilliseconds);
+        const { results } = await this.getResults();
+        if (results.length && options.onResults) {
+          const groups = groupResults(results);
+          for (const resultGroup of Object.values(groups)) {
+            const fileName = getFileNameForResult(resultGroup[0]);
+            options.onResults(resultGroup, fileName);
+          }
+        }
+        if (this.isErrored()) {
+          throw new AnalysisError(
+            'Analysis ended with ERRORED status.',
+            AnalysisErrorCodes.RUN_ERRORED,
+          );
+        }
+      }
+      if (options.outputTests) {
+        const writeOptions = options.writingConcurrency ? { concurrency: options.writingConcurrency } : undefined;
+        await this.writeTests(options.outputTests, writeOptions);
+      }
+    } catch (error) {
+      if (options.onError) {
+        options.onError(error);
+      } else {
+        throw error;
+      }
     }
     return this.results;
   }
