@@ -1,5 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+//  tslint:disable:no-non-null-assertion
+
 import {
   cancelAnalysis,
   getAnalysisResults,
@@ -12,7 +14,6 @@ import { AnalysisError, AnalysisErrorCodes } from './errors';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
-  AnalysisObjectStatuses,
   AnalysisPhases,
   AnalysisProgress,
   AnalysisResult,
@@ -20,6 +21,7 @@ import {
   AnalysisSettings,
   AnalysisStartApiResponse,
   AnalysisStatusApiResponse,
+  AnalysisStatuses,
   ApiErrorResponse,
   ApiVersionApiResponse,
   RunAnalysisOptions,
@@ -42,9 +44,9 @@ export const components = {
 export default class Analysis {
 
   public apiUrl: string;
-  public analysisId = '';
+  public analysisId?: string;
   public settings?: AnalysisSettings;
-  public status: AnalysisObjectStatuses = AnalysisObjectStatuses.NOT_STARTED;
+  public status?: AnalysisStatuses;
   public progress?: AnalysisProgress;
   public error?: ApiErrorResponse;
   public phases?: AnalysisPhases;
@@ -80,7 +82,7 @@ export default class Analysis {
 
   /** Update status related properties */
   private updateStatus(status: AnalysisStatusApiResponse): void {
-    this.status = AnalysisObjectStatuses[status.status];
+    this.status = AnalysisStatuses[status.status];
     this.progress = status.progress;
     this.error = status.message;
   }
@@ -117,13 +119,13 @@ export default class Analysis {
         (options.pollingInterval || components.defaultPollingInterval) * millisecondsPerSecond
       );
       await this.start(files, settings);
-      while (this.isRunning() && !this.pollingStopped) {
+      while (this.isRunning()) {
         this.pollDelay = new CancellableDelay(pollingIntervalMilliseconds);
         await this.pollDelay.promise;
         this.pollDelay = null;
         if (this.pollingStopped) {
           // May have been changed by force stop
-          continue;
+          break;
         }
         const { results } = await this.getResults();
         if (results.length && options.onResults) {
@@ -178,14 +180,14 @@ export default class Analysis {
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
-    this.status = AnalysisObjectStatuses.RUNNING;
+    this.status = AnalysisStatuses.RUNNING;
     return response;
   }
 
   /** Cancel the analysis */
   public async cancel(): Promise<AnalysisCancelApiResponse> {
     this.checkRunning();
-    const response = await components.cancelAnalysis(this.apiUrl, this.analysisId);
+    const response = await components.cancelAnalysis(this.apiUrl, this.analysisId!);
     this.updateStatus(response.status);
     return response;
   }
@@ -193,7 +195,7 @@ export default class Analysis {
   /** Get the analysis' status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
     this.checkRunning();
-    const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId);
+    const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId!);
     this.updateStatus(response);
     return response;
   }
@@ -203,7 +205,7 @@ export default class Analysis {
     this.checkRunning();
     const response = await components.getAnalysisResults(
       this.apiUrl,
-      this.analysisId,
+      this.analysisId!,
       paginate ? this.cursor : undefined,
     );
     this.cursor = response.cursor;
@@ -221,40 +223,43 @@ export default class Analysis {
 
   /** Check if status is not started */
   public isNotStarted(): boolean {
-    return this.status === AnalysisObjectStatuses.NOT_STARTED;
+    return !Boolean(this.status);
   }
 
   /** Check if status is running */
   public isRunning(): boolean {
-    return this.status === AnalysisObjectStatuses.RUNNING;
+    return this.status === AnalysisStatuses.RUNNING;
   }
 
   /** Check if status is completed */
   public isCompleted(): boolean {
-    return this.status === AnalysisObjectStatuses.COMPLETED;
+    return this.status === AnalysisStatuses.COMPLETED;
   }
 
   /** Check if status is errored */
   public isErrored(): boolean {
-    return this.status === AnalysisObjectStatuses.ERRORED;
+    return this.status === AnalysisStatuses.ERRORED;
   }
 
   /** Check if status is canceled */
   public isCanceled(): boolean {
-    return this.status === AnalysisObjectStatuses.CANCELED;
+    return this.status === AnalysisStatuses.CANCELED;
   }
 
   /** Check if status indicates that the analysis has started */
   public isStarted(): boolean {
-    return this.status !== AnalysisObjectStatuses.NOT_STARTED;
+    return Boolean(this.status);
   }
 
   /** Check if status indicates that the analysis has ended */
   public isEnded(): boolean {
+    if (!this.status) {
+      return false;
+    }
     const endedStatuses = new Set([
-      AnalysisObjectStatuses.COMPLETED,
-      AnalysisObjectStatuses.ERRORED,
-      AnalysisObjectStatuses.CANCELED,
+      AnalysisStatuses.COMPLETED,
+      AnalysisStatuses.ERRORED,
+      AnalysisStatuses.CANCELED,
     ]);
     return endedStatuses.has(this.status);
   }

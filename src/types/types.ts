@@ -2,17 +2,9 @@
 
 import { ReadStream } from 'fs';
 
-/** Possible analysis statuses, as returned by the API */
+/** Possible analysis statuses */
 export enum AnalysisStatuses {
-  RUNNING = 'RUNNING',
-  CANCELED = 'CANCELED',
-  ERRORED = 'ERRORED',
-  COMPLETED = 'COMPLETED',
-}
-
-/** Possible Analysis object statuses, extends the API status enum */
-export enum AnalysisObjectStatuses {
-  NOT_STARTED = 'NOT_STARTED',
+  QUEUED = 'QUEUED',
   RUNNING = 'RUNNING',
   CANCELED = 'CANCELED',
   ERRORED = 'ERRORED',
@@ -94,10 +86,6 @@ export interface AnalysisSettings {
   };
   ignoreDefaults?: boolean;
   phases?: AnalysisPhases;
-  webhooks?: {
-    finish?: string[];
-    testGenerated?: string[];
-  };
 }
 
 /** Status object returned by the API */
