@@ -2,7 +2,11 @@
 
 ## Object orientated interface
 
-The `Analysis` class can be used to run analyses. It makes the calling the low level api binding simpler, and keeps track of the state of the analysis.
+The `Analysis` class can be used to run analyses.
+
+It provides a high level interface to run an analysis and write tests via the `run` method.
+
+It also makes the calling the low level api binding simpler, and keeps track of the state of the analysis.
 
 ### Instantiation
 
@@ -39,26 +43,34 @@ Including `baseBuild` will enable a differential analysis.
 The second parameter is an optional settings object.
 
 ```ts
+import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadSteam('./build.jar');
-await analysis.start({ build: buildFile }, settings);
-// => {id: 'unique-analysis-id', phases: {<computed phases>}}
+(async () => {
+  const { id, phases } = await analysis.start({ build: buildFile }, settings);
+  console.log(`Analysis identifier: ${id}`);
+  console.log(`Analysis computed phases: ${phases}`);
+}();
 ```
 
 ```ts
+import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadSteam('./build.jar');
 const baseBuildFile = fs.createReadSteam('./baseBuild.jar');
 const dependenciesBuildFile = fs.createReadSteam('./dependenciesBuild.jar');
-await analysis.start(
-  {
-    build: buildFile,
-    baseBuild: baseBuildFile,
-    dependenciesBuild: dependenciesBuildFile,
-  },
-  settings,
-);
-// => {id: 'unique-analysis-id', phases: {<computed phases>}}
+(async () => {
+  const { id, phases } = await analysis.start(
+    {
+      build: buildFile,
+      baseBuild: baseBuildFile,
+      dependenciesBuild: dependenciesBuildFile,
+    },
+    settings,
+  );
+  console.log(`Analysis identifier: ${id}`);
+  console.log(`Analysis computed phases: ${phases}`);
+}();
 ```
 
 #### Get the status of an analysis
@@ -66,8 +78,11 @@ await analysis.start(
 To get the status of an analysis that has started, call `Analysis.getStatus`.
 
 ```ts
-await analysis.getStatus();
-// => {status: 'RUNNING', progress: {completed: 0. total: 0}}
+(async () => {
+  const { status, progress } = await analysis.getStatus();
+  console.log(`Analysis status: ${status}`);
+  console.log(`Analysis progress: ${progress.completed}/${progress.total}`);
+}();
 ```
 
 #### Get the results of an analysis
@@ -75,8 +90,13 @@ await analysis.getStatus();
 To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
 
 ```ts
-await analysis.getResults();
-// => {status: {<analysis status>}, cursor: '<pagination cursor>, results: [<result objects>]'}
+(async () => {
+  const { results, status, cursor } =  await analysis.getResults();
+  console.log(`Analysis status: ${status.status}`);
+  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
+  console.log(`Number of new tests: ${results.length}`);
+  console.log(`Next cursor: ${cursor}`);
+}();
 ```
 
 #### Cancel an analysis
@@ -84,8 +104,12 @@ await analysis.getResults();
 To cancel an analysis that has started, call `Analysis.cancel`.
 
 ```ts
-await analysis.cancel();
-// => {status: 'CANCELLED', progress: {completed: 10. total: 10}}
+(async () => {
+  const { status, message } = await analysis.cancel();
+  console.log(`Analysis status: ${status.status}`);
+  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
+  console.log(`Cancellation message: ${message}`);
+}();
 ```
 
 #### Get the version of the Diffblue Cover api
@@ -93,21 +117,19 @@ await analysis.cancel();
 To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
 
 ```ts
-await analysis.getApiVersion();
-// => {version: 1.0.0 }}
+(async () => {
+ const { version } = await analysis.getApiVersion();
+ console.log(`Api version: ${version}`);
+}();
 ```
 
 ### Result pagination
 
 Calling `Analysis.getResults` will save the returned pagination cursor on the `Analysis` instance
-and a subsequent call to `Analysis.getResults` will by default pass that cursor to the Diffblue Cover api and only return
+and a subsequent call to `Analysis.getResults` will, by default, pass that cursor to the Diffblue Cover api and only return
 new results generated since that cursor.
-To disable the pagination behavior and fetch the full set of generated results set the fist parameter to `false`.
-
-```ts
-await analysis.getResults(false);
-// => {status: {<analysis status>}, cursor: '<pagination cursor>, results: [<all result objects>]'}
-```
+To disable the automatic pagination behavior and fetch the full set of results generated (so far),
+set the first parameter of `Analysis.getResults` to `false`.
 
 ### Lifecycle
 
@@ -115,28 +137,38 @@ The `Analysis` object has a number of helper methods to check the saved analysis
 call to any method that changes or returns the current analysis status.
 
 ```ts
-const analysis = new Analysis('https://your-cover-api-domain.com');
-analysis.isNotStarted();
-// => true
-await analysis.start('./buildPath.jar', settings);
-analysis.isRunning();
-// => true
+import { ok } from 'assert';
+import { Analysis } from '@diffblue/cover-client';
+(async () => {
+  const analysis = new Analysis('https://your-cover-api-domain.com');
+  ok(analysis.isNotStarted());
+  await analysis.start('./buildPath.jar', settings);
+  ok(analysis.isRunning());
+}();
 ```
 
 The `Analysis` object keeps track of the status of the analysis it is running, and will throw an error
 if a method is called at an inappropriate time.
 
 ```ts
-const analysis = new Analysis('https://your-cover-api-domain.com');
-assert(analysis.isNotStarted());
-analysis.getResults();
-// => throws
-// err.code === 'NOT_RUNNING'
-await analysis.start('./buildPath.jar', settings);
-assert(analysis.isRunning());
-await analysis.start();
-// => throws
-// err.code === 'ALREADY_STARTED'
+import { ok } from 'assert';
+import { Analysis } from '@diffblue/cover-client';
+(async () => {
+  const analysis = new Analysis('https://your-cover-api-domain.com');
+  ok(analysis.isNotStarted());
+  try {
+    await analysis.getResults();
+  catch (error) {
+    console.log(`Fetching results before starting throws: ${error}`)
+  }
+  await analysis.start('./buildPath.jar', settings);
+  ok(analysis.isRunning());
+  try {
+    await analysis.start();
+  catch (error) {
+    console.log(`Starting a started analysis throws: ${error}`)
+  }
+}();
 ```
 
 ## Combining results into test classes

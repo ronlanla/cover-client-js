@@ -12,7 +12,7 @@ export class CoverClientError extends Error {
   public constructor(message: string, code?: string) {
     super(message);
     this.code = code;
-    this.name = `CoverClientError ${this.code || ''}`;
+    this.name = `CoverClientError ${ this.code || ''}`.trim();
     Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
   }
 }
