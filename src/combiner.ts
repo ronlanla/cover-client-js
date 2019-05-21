@@ -22,7 +22,7 @@ export const dependencies = {
 function parsePackageNameFromFunctionName(functionName: string): string {
   const prefixRegexp = /^java::/;
   return functionName
-  .replace(prefixRegexp, '').split('.').slice(0, -2).join('.');  // tslint:disable-line:no-magic-numbers
+  .replace(prefixRegexp, '').split('.').slice(0, -2).join('.');
 }
 
 /**
