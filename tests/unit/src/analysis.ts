@@ -169,9 +169,11 @@ describe('analysis', () => {
         startAnalysis.resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
         const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const otherResult = clone(sampleResult);
-        otherResult.testedFunction = 'com.diffblue.javademo.OtherClass.otherFunction';
-        otherResult.sourceFilePath = '/other/path';
+        const otherResult = {
+          ...sampleResult,
+          testedFunction: 'com.diffblue.javademo.OtherClass.otherFunction',
+          sourceFilePath: '/other/path',
+        };
         const resultsResponse = {
           status: responseStatus,
           cursor: 12345,
@@ -365,7 +367,7 @@ describe('analysis', () => {
         startAnalysis.resolves({ id: analysisId, phases: {}});
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
-        const allFiles = { build: build, dependenciesBuild: dependenciesBuild, baseBuild:baseBuild };
+        const allFiles = { build: build, dependenciesBuild: dependenciesBuild, baseBuild: baseBuild };
         const returnValue = await analysis.start(allFiles, settings);
         const changes = {
           analysisId: returnValue.id,

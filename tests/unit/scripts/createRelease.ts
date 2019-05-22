@@ -135,7 +135,7 @@ describe('scripts/createRelease', () => {
       sinon.stub(dependencies, 'readFile').resolves('invalid');
 
       await assert.rejectsWith(loadPackageJson(), new ExpectedError(
-        'Unable to parse package.json: SyntaxError: Unexpected token i in JSON at position 0'
+        'Unable to parse package.json: SyntaxError: Unexpected token i in JSON at position 0',
         ));
     }));
   });

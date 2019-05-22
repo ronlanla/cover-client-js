@@ -52,7 +52,7 @@ export default async function writeTests(
   }
   const groupedResults = groupResults(results);
   const successPaths: string[] = [];
-  const errors: {[sourceFilePath: string]: Error} = {};
+  const errors: { [sourceFilePath: string]: Error } = {};
   await dependencies.map(Object.entries(groupedResults), async ([sourceFilePath, results]) => {
     try {
       const fileName = components.getFileNameForResult(results[0]);

@@ -38,7 +38,7 @@ describe('utils/CancellableDelay', () => {
 
   it('Resolves immediately if resolve is called', sinonTest(async (sinon) => {
     const delay = new CancellableDelay(5 * 1000, 'resolved');
-    setImmediate(() => delay.resolve('something else'))
+    setImmediate(() => delay.resolve('something else'));
     const retval = await delay.promise;
     assert.strictEqual(retval, 'something else');
   }));
@@ -46,7 +46,7 @@ describe('utils/CancellableDelay', () => {
   it('Resolves immediately if reject is called', sinonTest(async (sinon) => {
     const delay = new CancellableDelay(5 * 1000, 'resolved');
     const error = new Error('rejected with error');
-    setImmediate(() => delay.reject(error))
+    setImmediate(() => delay.reject(error));
     await assert.rejects(async () => delay.promise, error);
   }));
 

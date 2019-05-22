@@ -1,10 +1,10 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { clone } from 'lodash';
 import { assert as sinonAssert } from 'sinon';
 
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
+import TestError from '../../../src/utils/TestError';
 
 import { WriterError, WriterErrorCodes } from '../../../src/errors';
 import writeTests, { components, dependencies } from '../../../src/writeTests';
@@ -24,8 +24,14 @@ const sampleResult = {
   phaseGenerated: 'phase',
   createdTime: 'created',
 };
-const enoentError = new Error('File not found');
-(enoentError as any).code = 'ENOENT';  // tslint-disable-line:no-any
+const otherResult = {
+  ...sampleResult,
+  testedFunction: 'com.diffblue.javademo.OtherClass.otherFunction',
+  sourceFilePath: '/other/path',
+};
+const sampleResultFilePath = '/test/path/TicTacToeTest.java';
+const otherResultFilePath = '/test/path/OtherClassTest.java';
+const enoentError = new TestError('File not found', 'ENOENT');
 
 describe('writer', () => {
   describe('writeTests', () => {
@@ -35,11 +41,6 @@ describe('writer', () => {
       const writeFile = sinon.stub(dependencies, 'writeFile').resolves();
       const generateTestClass = sinon.stub(components, 'generateTestClass').returns('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').rejects(enoentError);
-      const otherResult = clone(sampleResult);
-      otherResult.testedFunction = 'com.diffblue.javademo.OtherClass.otherFunction';
-      otherResult.sourceFilePath = '/other/path';
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
-      const otherResultFilePath = '/test/path/OtherClassTest.java';
       const returnValue = await writeTests('/test/path', [sampleResult, otherResult]);
       const expectedReturn = [otherResultFilePath, sampleResultFilePath];
       assert.deepStrictEqual(returnValue, expectedReturn);
@@ -61,13 +62,8 @@ describe('writer', () => {
       const writeFile = sinon.stub(dependencies, 'writeFile').resolves();
       const mergeIntoTestClass = sinon.stub(components, 'mergeIntoTestClass').resolves('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').resolves('existing-test-class');
-      const otherResult = clone(sampleResult);
-      otherResult.testedFunction = 'com.diffblue.javademo.OtherClass.otherFunction';
-      otherResult.sourceFilePath = '/other/path';
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
-      const otherResultFilePath = '/test/path/OtherClassTest.java';
       const returnValue = await writeTests('/test/path', [sampleResult, otherResult]);
-      const expectedReturn = [otherResultFilePath, sampleResultFilePath]
+      const expectedReturn = [otherResultFilePath, sampleResultFilePath];
       assert.deepStrictEqual(returnValue, expectedReturn);
       sinonAssert.calledOnce(mkdirp);
       sinonAssert.calledWithExactly(mkdirp, '/test/path');
@@ -95,7 +91,6 @@ describe('writer', () => {
       const generateTestClass = sinon.stub(components, 'generateTestClass').returns('test-class');
       const readFileError = new Error('readFile threw');
       const readFile = sinon.stub(dependencies, 'readFile').rejects(readFileError);
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
       await assert.rejects(
         async () => writeTests('/test/path', [sampleResult]),
         (err: Error) => {
@@ -121,7 +116,6 @@ describe('writer', () => {
       const generateTestClassError = new Error('generateTestClass threw');
       const generateTestClass = sinon.stub(components, 'generateTestClass').throws(generateTestClassError);
       const readFile = sinon.stub(dependencies, 'readFile').rejects(enoentError);
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
       await assert.rejects(
         async () => writeTests('/test/path', [sampleResult]),
         (err: Error) => {
@@ -148,7 +142,6 @@ describe('writer', () => {
       const mergeIntoTestClassError = new Error('mergeIntoTestClass rejected');
       const mergeIntoTestClass = sinon.stub(components, 'mergeIntoTestClass').rejects(mergeIntoTestClassError);
       const readFile = sinon.stub(dependencies, 'readFile').resolves('existing-test-class');
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
       await assert.rejects(
         async () => writeTests('/test/path', [sampleResult]),
         (err: Error) => {
@@ -175,7 +168,6 @@ describe('writer', () => {
       const writeFile = sinon.stub(dependencies, 'writeFile').rejects(writeFileError);
       const generateTestClass = sinon.stub(components, 'generateTestClass').returns('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').rejects(enoentError);
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
       await assert.rejects(
         async () => writeTests('/test/path', [sampleResult]),
         (err: Error) => {
@@ -203,7 +195,6 @@ describe('writer', () => {
       const writeFile = sinon.stub(dependencies, 'writeFile').rejects(writeFileError);
       const mergeIntoTestClass = sinon.stub(components, 'mergeIntoTestClass').resolves('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').resolves('existing-test-class');
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
       await assert.rejects(
         async () => writeTests('/test/path', [sampleResult]),
         (err: Error) => {
@@ -278,11 +269,6 @@ describe('writer', () => {
       const mergeIntoTestClassError = new Error('mergeIntoTestClass rejected');
       const mergeIntoTestClass = sinon.stub(components, 'mergeIntoTestClass').resolves('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').resolves('existing-test-class');
-      const otherResult = clone(sampleResult);
-      otherResult.testedFunction = 'com.diffblue.javademo.OtherClass.otherFunction';
-      otherResult.sourceFilePath = '/other/path';
-      const sampleResultFilePath = '/test/path/TicTacToeTest.java';
-      const otherResultFilePath = '/test/path/OtherClassTest.java';
       // mergeIntoTestClass rejects when called for other result, but writeFile is still called for sampleResult
       mergeIntoTestClass.withArgs('existing-test-class', [otherResult]).rejects(mergeIntoTestClassError);
       await assert.rejects(

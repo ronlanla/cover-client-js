@@ -391,12 +391,11 @@ describe('utils/assertExtra', () => {
     });
 
     it('Throws an exception when an object does not have a changed property listed in the expectedChanges', () => {
-      const originalObject: any = { a: 1 }; // tslint:disable-line:no-any
+      const originalObject = { a: 1 };
       const changedObject = { a: 1 };
       const expectedChanges = { b: 2 };
       const expectedError = getError(() => {
-        originalObject.b = 2;
-        assert.deepStrictEqual(originalObject, changedObject);
+        assert.deepStrictEqual({ a: 1, b: 2 }, changedObject);
       });
 
       assert.throws(

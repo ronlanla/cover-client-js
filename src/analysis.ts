@@ -189,7 +189,7 @@ export default class Analysis {
     return response;
   }
 
-  /** Get the analysis' status */
+  /** Get the analysis's status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
     this.checkRunning();
     const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId!);
@@ -197,16 +197,16 @@ export default class Analysis {
     return response;
   }
 
-  /** Get the analysis' results */
-  public async getResults(paginate: boolean = true): Promise<AnalysisResultsApiResponse> {
+  /** Get the analysis's results */
+  public async getResults(useCursor: boolean = true): Promise<AnalysisResultsApiResponse> {
     this.checkRunning();
     const response = await components.getAnalysisResults(
       this.apiUrl,
       this.analysisId!,
-      paginate ? this.cursor : undefined,
+      useCursor ? this.cursor : undefined,
     );
     this.cursor = response.cursor;
-    this.results = paginate ? [...this.results, ...response.results] : response.results;
+    this.results = useCursor ? [...this.results, ...response.results] : response.results;
     this.updateStatus(response.status);
     return response;
   }
@@ -220,7 +220,7 @@ export default class Analysis {
 
   /** Check if status is not started */
   public isNotStarted(): boolean {
-    return !Boolean(this.status);
+    return !this.status;
   }
 
   /** Check if status is running */

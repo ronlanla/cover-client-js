@@ -12,7 +12,7 @@ import { AnalysisResult } from '../../src/types/types';
 const readFile = promisify(readFileCallback);
 
 describe('src/combiner', () => {
-  let resultsBySourceFileAndFunction: {[sourceFilePath: string]: {[testedFunction: string]: AnalysisResult[]}};
+  let resultsBySourceFileAndFunction: { [sourceFilePath: string]: { [testedFunction: string]: AnalysisResult[] }};
   let expectedSingleTestClass: string;
   let expectedMultiTestClass: string;
   let expectedFirstTestClass: string;
