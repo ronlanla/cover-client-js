@@ -171,6 +171,7 @@ jobs:
       - tests
 
 workflows:
+  version: 2
   test:
     jobs:
       - checks

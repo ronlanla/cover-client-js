@@ -7,9 +7,9 @@ import {
   getAnalysisStatus,
   getApiVersion,
   startAnalysis,
-} from '../../../src/api/bindings';
+} from '../../../src/bindings';
+import { BindingsError, BindingsErrorCodes } from '../../../src/errors';
 import assert from '../../../src/utils/assertExtra';
-import { ApiError } from '../../../src/utils/request';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
@@ -33,9 +33,9 @@ describe('api/bindings', () => {
   });
 
   describe('startAnalysis', () => {
-    const build = new Buffer('foo');
-    const baseBuild = new Buffer('bar');
-    const dependenciesBuild = new Buffer('roh');
+    const build = Buffer.from('foo');
+    const baseBuild = Buffer.from('bar');
+    const dependenciesBuild = Buffer.from('roh');
     const startUrl = `${api}/analysis`;
     const settings = {
       ignoreDefaults: true,
@@ -46,11 +46,11 @@ describe('api/bindings', () => {
     it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: {}});
       assert.notOtherwiseCalled(post, 'post');
 
-      const actualResponse = await startAnalysis(api, { build: build, settings: settings });
-      const expectedResponse = { id: '1234-ABCD', phases: settings.phases };
+      const actualResponse = await startAnalysis(api, { build: build });
+      const expectedResponse = { id: '1234-ABCD', phases: {}};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));
@@ -62,7 +62,7 @@ describe('api/bindings', () => {
       post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
       assert.notOtherwiseCalled(post, 'post');
 
-      await startAnalysis(api, { build: build, settings: settings, baseBuild: baseBuild });
+      await startAnalysis(api, { build: build, baseBuild: baseBuild }, settings);
 
       const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'baseBuild'];
@@ -77,7 +77,7 @@ describe('api/bindings', () => {
       post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
       assert.notOtherwiseCalled(post, 'post');
 
-      await startAnalysis(api, { build: build, settings: settings, dependenciesBuild: dependenciesBuild });
+      await startAnalysis(api, { build: build, dependenciesBuild: dependenciesBuild }, settings);
 
       const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'dependenciesBuild'];
@@ -92,12 +92,15 @@ describe('api/bindings', () => {
       post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
       assert.notOtherwiseCalled(post, 'post');
 
-      await startAnalysis(api, {
-        build: build,
-        settings: settings,
-        baseBuild: baseBuild,
-        dependenciesBuild: dependenciesBuild,
-      });
+      await startAnalysis(
+        api,
+        {
+          build: build,
+          baseBuild: baseBuild,
+          dependenciesBuild: dependenciesBuild,
+        },
+        settings,
+      );
 
       const actualFiles = append.args.map((file: string[]) => file[0]);
       const expectedFiles = ['build', 'settings', 'baseBuild', 'dependenciesBuild'];
@@ -108,16 +111,8 @@ describe('api/bindings', () => {
     it('Throws an error when no build is supplied', sinonTest(async () => {
       await assert.rejectsWith(
         // tslint:disable-next-line:no-any
-        startAnalysis(api, { build: undefined, settings: settings } as any),
-        new ApiError('The required `build` JAR file was not supplied', 'buildMissing'),
-      );
-    }));
-
-    it('Throws an error when no settings are supplied', sinonTest(async () => {
-      await assert.rejectsWith(
-        // tslint:disable-next-line:no-any
-        startAnalysis(api, { build: build, settings: undefined } as any),
-        new ApiError('The required `settings` JSON file was not supplied', 'settingsMissing'),
+        startAnalysis(api, { build: undefined } as any, settings),
+        new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCodes.BUILD_MISSING),
       );
     }));
 
@@ -127,8 +122,11 @@ describe('api/bindings', () => {
       obj.a = { b: obj };
 
       await assert.rejectsWith(
-        startAnalysis(api, { build: build, settings: obj }),
-        new ApiError('TypeError: Converting circular structure to JSON', 'settingsInvalid'),
+        startAnalysis(api, { build: build }, obj as any), // tslint:disable-line:no-any
+        new BindingsError(
+          'The settings JSON was not valid:\nTypeError: Converting circular structure to JSON',
+          BindingsErrorCodes.SETTINGS_INVALID,
+        ),
       );
     }));
   });

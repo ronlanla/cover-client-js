@@ -1,11 +1,9 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { clone } from 'lodash';
-
 import {
   dependencies,
   generateTestClass,
-  getFileNameForClassName,
+  getFileNameForResult,
   GroupedResults,
   groupResults,
   mergeIntoTestClass,
@@ -62,8 +60,7 @@ describe('combiner', () => {
     }));
 
     it('Fails if passed results with differing source file paths', () => {
-      const otherResult = clone(sampleResult);
-      otherResult.sourceFilePath = '/other/path';
+      const otherResult = { ...sampleResult, sourceFilePath: '/other/path' };
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
@@ -73,8 +70,10 @@ describe('combiner', () => {
     });
 
     it('Fails if passed results with tested functions that produce different class names', () => {
-      const otherResult = clone(sampleResult);
-      otherResult.testedFunction = 'com.diffblue.javademo.SomeOtherClass.checkTicTacToePosition';
+      const otherResult = {
+        ...sampleResult,
+        testedFunction: 'com.diffblue.javademo.SomeOtherClass.checkTicTacToePosition',
+      };
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
@@ -84,8 +83,10 @@ describe('combiner', () => {
     });
 
     it('Fails if passed results with tested functions that produce different package names', () => {
-      const otherResult = clone(sampleResult);
-      otherResult.testedFunction = 'com.diffblue.someotherpackage.TicTacToe.checkTicTacToePosition';
+      const otherResult = {
+        ...sampleResult,
+        testedFunction: 'com.diffblue.someotherpackage.TicTacToe.checkTicTacToePosition',
+      };
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
@@ -95,8 +96,10 @@ describe('combiner', () => {
     });
 
     it('Fails if passed a tested function with no extractable classname', () => {
-      const badResult = clone(sampleResult);
-      badResult.testedFunction = 'not-a-valid-function-name';
+      const badResult = {
+        ...sampleResult,
+        testedFunction: 'not-a-valid-function-name',
+      };
       assert.throws(
         () => generateTestClass([badResult]),
         (err: Error) => {
@@ -221,8 +224,7 @@ describe('combiner', () => {
 
   describe('generateTestClass', () => {
     it('Groups results by testedFunction', () => {
-      const otherResult = clone(sampleResult);
-      otherResult.sourceFilePath = 'other/path';
+      const otherResult = { ...sampleResult, sourceFilePath: 'other/path' };
       const groupedResults = groupResults([sampleResult, otherResult]);
       const expected: GroupedResults = {
         [sampleResult.sourceFilePath]: [sampleResult],
@@ -232,10 +234,9 @@ describe('combiner', () => {
     });
   });
 
-  describe('getFileNameForClassName', () => {
-    it('Returns a file name for a provided class name', () => {
-      const className = 'TicTacToe';
-      const fileName = getFileNameForClassName(className);
+  describe('getFileNameForResult', () => {
+    it('Returns a file name for a provided result object', () => {
+      const fileName = getFileNameForResult(sampleResult);
       assert.deepStrictEqual(fileName, 'TicTacToeTest.java');
     });
   });

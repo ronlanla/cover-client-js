@@ -12,25 +12,38 @@ npm install diffblue-cover-client-js
 
 ## Usage
 
-To use Diffblue Cover you will need to provide a JAR file of your compiled code. The default output will be a TAR of the tests produced by Diffblue Cover.
+To use Diffblue Cover to run an analysis and produce test files you will need to provide a JAR file of your compiled code and the path to a directory where you want test files to be written.
 
 In Node.js (using promises):
 
 ```js
-const CoverClient = require('diffblue-cover-client');
-
-return CoverClient.analyse(buildJar).then((count) => {
-  console.log(`Produced ${count} tests`);
+const Analysis = require('@diffblue/cover-client').Analysis;
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const buildFile = fs.createReadSteam('./build.jar');
+const files = { build: buildFile };
+const settings = { ignoreDefaults: true, phases: {}};
+const options = { outputTests: '/tests' };
+analysis.run(files, settings, options)
+.then((results) => {
+  console.log(`Produced ${results.length} tests`);
+  console.log(`Test files written to ${options.outputTests}`);
 });
 ```
 
 In Typescript (using async/await):
 
 ```ts
-import CoverClient from 'diffblue-cover-client';
-
-const count = await CoverClient.analyse('./build.jar', './tests.tar');
-console.log(`Produced ${count} tests`);
+import { Analysis } from '@diffblue/cover-client';
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const buildFile = fs.createReadSteam('./build.jar');
+const files = { build: buildFile };
+const settings = { ignoreDefaults: true, phases: {}};
+const options = { outputTests: '/tests' };
+(async () => {
+  const results = await analysis.run(files, settings, options);
+  console.log(`Produced ${results.length} tests`);
+  console.log(`Test files written to ${options.outputTests}`);
+}();
 ```
 
 For more detailed usage, see the [programmatic interface documentation](docs/programmatic-interface.md).
@@ -38,6 +51,11 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
 ## Full documentation
 
 - [Programmatic interface](docs/programmatic-interface.md)
+  - [Object orientated interface](docs/programmatic-interface.md#object-orientated-interface)
+    - [Instantiation](docs/programmatic-interface.md#instantiation)
+    - [Usage](docs/programmatic-interface.md#usage)
+    - [Result pagination](docs/programmatic-interface.md#result-pagination)
+    - [Lifecycle](docs/programmatic-interface.md#lifecycle)
   - [Combining results into test classes](docs/programmatic-interface.md#combining-results-into-test-classes)
     - [Generate a new test class](docs/programmatic-interface.md#generate-a-new-test-class)
     - [Merge results into an existing test class](docs/programmatic-interface.md#merge-results-into-an-existing-test-class)

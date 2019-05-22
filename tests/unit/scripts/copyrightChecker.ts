@@ -2,6 +2,7 @@
 
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
+import TestError from '../../../src/utils/TestError';
 
 import copyrightChecker, {
   buildFileList,
@@ -16,18 +17,6 @@ import copyrightChecker, {
 } from '../../../src/scripts/copyrightChecker';
 
 const sinonTest = sinonTestFactory();
-
-/** Error class for testing catchMissingFile */
-class TestError extends Error implements NodeJS.ErrnoException {
-  public code: string;
-
-  public constructor(message: string, code: string) {
-    super(message);
-    this.code = code;
-    // Work around TypeScript bug
-    Object.setPrototypeOf(this, TestError.prototype);
-  }
-}
 
 describe('scripts/copyrightChecker', () => {
   describe('hasCopyrightNotice', () => {

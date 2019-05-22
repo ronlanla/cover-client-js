@@ -38,6 +38,12 @@
   "mime-types": [
     "mit"
   ],
+  "minimist": [
+    "mit"
+  ],
+  "mkdirp": [
+    "mit"
+  ],
   "ms": [
     "mit"
   ],

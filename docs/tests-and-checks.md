@@ -97,7 +97,7 @@ There is a copyright checker you can run with `yarn copyright-check`, this will 
 
 ### License checker
 
-There is a license checker which you can run with `yarn license-check check-file`, this will check that all the yarn dependancies have been approved. The approved list for front-end exists in the `acceptable-licenses.json` in the root of the repository.
+There is a license checker which you can run with `yarn license-check check-file`, this will check that all the yarn dependencies have been approved. The approved list for front-end exists in the `acceptable-licenses.json` in the root of the repository.
 
 The build will automatically fail if you introduce unapproved dependencies. If this happens, then you can update the license file by running `yarn license-check generate-file`. The `acceptable-licenses.json` file change will need to be approved by a code owner.
 

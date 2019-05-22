@@ -56,6 +56,14 @@ describe('scripts/copyrightChecker', () => {
 
       await assert.rejectsWith(authenticateNpm('abc123', { foo: 'bar' }, callback), new Error('Callback error'));
     }));
+
+    it('Ignores unlink rejection if unlink rejects when the callback rejects', sinonTest(async (sinon) => {
+      sinon.stub(dependencies, 'writeFile').resolves();
+      sinon.stub(dependencies, 'unlink').rejects();
+      const callback = sinon.stub().rejects(new Error('Callback error'));
+
+      await assert.rejectsWith(authenticateNpm('abc123', { foo: 'bar' }, callback), new Error('Callback error'));
+    }));
   });
 
   describe('extractNpmError', () => {

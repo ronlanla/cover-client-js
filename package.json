@@ -29,7 +29,7 @@
     "create-post-release-pull-request": "ts-node src/scripts/createPostReleasePullRequest.ts",
     "create-release-tag": "ts-node src/scripts/createReleaseTag.ts",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
-    "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json 'src/**/*.ts' -e 'src/types/**'",
+    "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json '{src,tests}/**/*.ts' -e 'src/types/external/**'",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
     "publish-package": "ts-node src/scripts/publishPackage.ts",
     "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'",
@@ -39,13 +39,16 @@
     "@diffblue/java-combiner": "0.0.11",
     "axios": "0.18.0",
     "form-data": "2.3.3",
-    "lodash": "4.17.11"
+    "lodash": "4.17.11",
+    "mkdirp": "0.5.1",
+    "url-join": "4.0.0"
   },
   "devDependencies": {
     "@types/axios": "0.14.0",
     "@types/form-data": "2.2.1",
     "@types/inquirer": "^6.0.1",
     "@types/lodash": "4.14.123",
+    "@types/mkdirp": "0.5.2",
     "@types/mocha": "5.2.6",
     "@types/node": "11.13.4",
     "@types/semver": "6.0.0",
@@ -64,7 +67,8 @@
     "ts-node": "8.0.3",
     "tslint": "5.15.0",
     "tslint-eslint-rules": "5.4.0",
-    "typescript": "3.4.3"
+    "typescript": "3.4.3",
+    "typescript-tslint-plugin": "0.3.1"
   },
   "nyc": {
     "include": [
