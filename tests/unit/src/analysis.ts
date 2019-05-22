@@ -278,7 +278,7 @@ describe('analysis', () => {
         getAnalysisResults.onFirstCall().resolves(resultsResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
-        setTimeout(() => analysis.forceStop(), 10);  // tslint:disable-line:no-magic-numbers
+        setTimeout(() => analysis.forceStop(), 10);
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
         assert.deepStrictEqual(returnValue, resultsResponse.results);
         assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
