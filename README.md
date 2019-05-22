@@ -7,7 +7,7 @@ The Diffblue Cover client library provides a programmatic interface and CLI for 
 Using npm:
 
 ```bash
-npm install diffblue-cover-client-js
+npm install @diffblue/cover-client
 ```
 
 ## Usage
