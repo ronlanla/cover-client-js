@@ -89,7 +89,6 @@ describe('analysis', () => {
       }));
 
       it('Can run an analysis without options or settings', sinonTestWithTimers(async (sinon) => {
-        sinon.stub(components, 'defaultPollingInterval').value(0.0001);  // tslint:disable-line:no-magic-numbers
         const startAnalysis = sinon.stub(components, 'startAnalysis');
         const startResponse = { id: analysisId, phases: {}};
         startAnalysis.resolves(startResponse);
@@ -103,6 +102,7 @@ describe('analysis', () => {
         getAnalysisResults.resolves(resultsResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
+        setImmediate(() => analysis.pollDelay!.cancel());  // tslint:disable-line:no-non-null-assertion
         const returnValue = await analysis.run(files);
         const changes = {
           analysisId: analysisId,
@@ -785,6 +785,11 @@ describe('analysis', () => {
       it('Knows if it has not ended', () => {
         const analysis = new Analysis(apiUrl);
         analysis.status = AnalysisStatuses.RUNNING;
+        assert.strictEqual(analysis.isEnded(), false);
+      });
+
+      it('Knows if it has not ended if status is not set', () => {
+        const analysis = new Analysis(apiUrl);
         assert.strictEqual(analysis.isEnded(), false);
       });
     });

@@ -37,7 +37,6 @@ export const components = {
   getAnalysisStatus: getAnalysisStatus,
   getApiVersion: getApiVersion,
   startAnalysis: startAnalysis,
-  defaultPollingInterval: 60,  // seconds
 };
 
 /** Class to run an analysis and keep track of its state */
@@ -114,9 +113,10 @@ export default class Analysis {
     try {
       this.checkNotStarted();
       this.pollingStopped = false;
+      const defaultPollingInterval = 60;  // seconds
       const millisecondsPerSecond = 1000;
       const pollingIntervalMilliseconds = (
-        (options.pollingInterval || components.defaultPollingInterval) * millisecondsPerSecond
+        (options.pollingInterval || defaultPollingInterval) * millisecondsPerSecond
       );
       await this.start(files, settings);
       while (this.isRunning()) {
