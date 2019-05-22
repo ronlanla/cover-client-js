@@ -46,6 +46,7 @@ The second parameter is an optional settings object.
 import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadSteam('./build.jar');
+const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start({ build: buildFile }, settings);
   console.log(`Analysis identifier: ${id}`);
@@ -59,6 +60,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadSteam('./build.jar');
 const baseBuildFile = fs.createReadSteam('./baseBuild.jar');
 const dependenciesBuildFile = fs.createReadSteam('./dependenciesBuild.jar');
+const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start(
     {

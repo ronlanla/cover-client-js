@@ -114,9 +114,7 @@ export default class Analysis {
       this.checkNotStarted();
       this.pollingStopped = false;
       const defaultPollingInterval = 60;  // seconds
-      const pollingIntervalMilliseconds = (
-        (options.pollingInterval || defaultPollingInterval) * 1000
-      );
+      const pollingIntervalMilliseconds = (options.pollingInterval || defaultPollingInterval) * 1000;
       await this.start(files, settings);
       while (this.isRunning()) {
         this.pollDelay = new CancellableDelay(pollingIntervalMilliseconds);
