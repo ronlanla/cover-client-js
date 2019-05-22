@@ -18,12 +18,14 @@ In Node.js (using promises):
 
 ```js
 const Analysis = require('@diffblue/cover-client').Analysis;
+const fs = require('fs');
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadSteam('./build.jar');
-const files = { build: buildFile };
+const buildFile = fs.createReadStream('./build.jar');
 const settings = { ignoreDefaults: true, phases: {}};
-const options = { outputTests: '/tests' };
-analysis.run(files, settings, options)
+const options = { outputTests: './tests' };
+
+analysis.run({ build: buildFile }, settings, options)
 .then((results) => {
   console.log(`Produced ${results.length} tests`);
   console.log(`Test files written to ${options.outputTests}`);
@@ -33,17 +35,19 @@ analysis.run(files, settings, options)
 In Typescript (using async/await):
 
 ```ts
-import { Analysis } from '@diffblue/cover-client';
+import Analysis from '@diffblue/cover-client';
+import * as fs from 'fs';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadSteam('./build.jar');
-const files = { build: buildFile };
+const buildFile = fs.createReadStream('./build.jar');
 const settings = { ignoreDefaults: true, phases: {}};
-const options = { outputTests: '/tests' };
+const options = { outputTests: './tests' };
+
 (async () => {
-  const results = await analysis.run(files, settings, options);
+  const results = await analysis.run({ build: buildFile }, settings, options);
   console.log(`Produced ${results.length} tests`);
   console.log(`Test files written to ${options.outputTests}`);
-}();
+})();
 ```
 
 For more detailed usage, see the [programmatic interface documentation](docs/programmatic-interface.md).
