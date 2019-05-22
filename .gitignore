@@ -6,3 +6,4 @@
 /coverage
 /npm-shrinkwrap.json
 /.nyc_output
+/build
