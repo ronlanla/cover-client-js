@@ -15,8 +15,7 @@ export function splitOnce(value: string, delimiter: string | RegExp) {
 /** Parses command line arguments and options from process.argv */
 export default function argvParser(argv: string[]) {
   const results: { options: Options, args: string[] } = { options: {}, args: [] };
-  const argumentStartIndex = 2;
-  argv.slice(argumentStartIndex).map((argument) => {
+  argv.slice(2).map((argument) => {
     if (argument.match(/^-/)) {
       const option = argument.replace(/^-+/, '');
       const [name, value] = splitOnce(option, '=');
