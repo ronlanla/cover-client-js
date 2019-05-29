@@ -1,5 +1,140 @@
 # Programmatic interface
 
+## Low level bindings
+
+You can submit requests using the low level bindings to a Platform Lite API by following the below examples.
+
+### How to get the current API version
+
+In Node.js (using promises):
+
+```js
+const CoverClient = require('diffblue-cover-client');
+
+const api = 'https://0.0.0.0/api';
+return CoverClient.getApiVersion(api).then(({ version }) => {
+  console.log(`Current API version: ${version}`);
+});
+```
+
+In Typescript (using async/await):
+
+```ts
+import CoverClient from 'diffblue-cover-client';
+
+const api = 'https://0.0.0.0/api';
+const { version } = await CoverClient.getApiVersion(api);
+console.log(`Current API version: ${version}`);
+```
+
+### How to start a new analysis
+
+In Node.js (using promises) with streams and the minimum required for an analysis:
+
+```js
+const CoverClient = require('diffblue-cover-client');
+const fs = require('fs');
+
+const api = 'https://0.0.0.0/api';
+const build = fs.createReadStream('./build.jar');
+const settings = fs.createReadStream('./settings.json');
+return CoverClient.startAnalysis(api, { build: build, settings: settings }).then(({ id, phases }) => {
+  console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
+});
+```
+
+In Typescript (using async/await) with buffers and the minimum required for an analysis:
+
+```ts
+import CoverClient from 'diffblue-cover-client';
+import { readFile } from 'fs';
+import { promisify } from 'utils';
+
+const asyncReadFile = promisify(readFile);
+
+const api = 'https://0.0.0.0/api';
+const build = await asyncReadFile('./build.jar');
+const settings = await asyncReadFile('./settings.json');
+const { id, phases } = await CoverClient.startAnalysis(api, { build: build, settings: settings });
+console.log(`Analysis identifier: ${id}\nPhases: ${phases}`);
+```
+
+### How to get results from an analysis
+
+In Node.js (using promises) without an optional cursor:
+
+```js
+const CoverClient = require('diffblue-cover-client');
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+return CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
+  console.log(`Analysis status: ${status}\nAnalysis results: ${results}\nNext cursor: ${phases}`);
+});
+```
+
+In Typescript (using async/await) with an optional cursor:
+
+```ts
+import CoverClient from 'diffblue-cover-client';
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+const cursor = 000000000000000;
+const { cursor, results, status } = await CoverClient.getAnalysisResults(api, id, cursor);
+console.log(`Analysis status: ${status}\nAnalysis results: ${results}\nNext cursor: ${phases}`);
+```
+
+### How to cancel a running analysis
+
+In Node.js (using promises):
+
+```js
+const CoverClient = require('diffblue-cover-client');
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+return CoverClient.cancelAnalysis(api, id).then(({ message, status }) => {
+  console.log(`Message: ${message}\nStatus: ${status}`);
+});
+```
+
+In Typescript (using async/await):
+
+```ts
+import CoverClient from 'diffblue-cover-client';
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+const { message, status } = await CoverClient.cancelAnalysis(api, id);
+console.log(`Message: ${message}\nStatus: ${status}`);
+```
+
+### How to get the status of an analysis
+
+In Node.js (using promises):
+
+```js
+const CoverClient = require('diffblue-cover-client');
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+return CoverClient.getAnalysisStatus(api, id).then(({ message, status }) => {
+  console.log(`Message: ${message}\nStatus: ${status}`);
+});
+```
+
+In Typescript (using async/await):
+
+```ts
+import CoverClient from 'diffblue-cover-client';
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+const { message, status } = await CoverClient.getAnalysisStatus(api, id);
+console.log(`Message: ${message}\nStatus: ${status}`);
+```
+
 ## Object orientated interface
 
 The `Analysis` class can be used to run analyses.
