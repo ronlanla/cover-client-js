@@ -4,7 +4,7 @@
 
 You can use the low level bindings to submit requests to a Diffblue Cover API by following the below examples.
 
-### Start an analysis
+### Start an analysis (Low level)
 
 Starts an analysis and returns the unique identifier for that analysis.
 To start an analysis the minimum you need is a build JAR file of your source code.
@@ -63,7 +63,7 @@ const api = 'https://0.0.0.0/api';
 })();
 ```
 
-### Get analysis status
+### Get analysis status (Low level)
 
 Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, ERRORED, CANCELED and COMPLETED.
 
@@ -106,7 +106,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 })();
 ```
 
-### Get analysis results
+### Get analysis results (Low level)
 
 Given an analysis identifier, returns a set of results from the analysis, along with the status of the analysis and a cursor for requesting results iteratively.
 
@@ -162,7 +162,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 })();
 ```
 
-### Cancel an analysis
+### Cancel an analysis (Low level)
 
 Given an analysis identifier, cancels that analysis. Returns the final status of the analysis.
 Any tests already produced will still be available via the get results route.
@@ -204,7 +204,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 })();
 ```
 
-### Get API version
+### Get API version (Low level)
 
 Returns the current version of the API.
 
@@ -261,7 +261,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 
 ### Usage
 
-#### Start an analysis
+#### Start an analysis (Object orientated)
 
 To start an analysis, call `Analysis.start`.
 
@@ -308,7 +308,7 @@ const settings = { ignoreDefaults: true, phases: {}};
 }();
 ```
 
-#### Get analysis status
+#### Get analysis status (Object orientated)
 
 To Get analysis status that has started, call `Analysis.getStatus`.
 
@@ -320,7 +320,7 @@ To Get analysis status that has started, call `Analysis.getStatus`.
 }();
 ```
 
-#### Get analysis results
+#### Get analysis results (Object orientated)
 
 To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
 
@@ -334,7 +334,7 @@ To get the results (so far) of an analysis that has started, call `Analysis.getR
 }();
 ```
 
-#### Cancel an analysis
+#### Cancel an analysis (Object orientated)
 
 To cancel an analysis that has started, call `Analysis.cancel`.
 
@@ -347,7 +347,7 @@ To cancel an analysis that has started, call `Analysis.cancel`.
 }();
 ```
 
-#### Get API version
+#### Get API version (Object orientated)
 
 To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
 
