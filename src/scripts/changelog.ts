@@ -1,5 +1,4 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
-/* istanbul ignore file */
 
 import * as Bluebird from 'bluebird';
 import { uniq } from 'lodash';
@@ -9,15 +8,19 @@ import { Options } from '../utils/argvParser';
 import commandLineRunner from '../utils/commandLineRunner';
 import spawnProcess from '../utils/spawnProcess';
 
-
 export const dependencies = {
-  spawn: spawn,
+  spawnProcess: spawnProcess,
+};
+
+export const components = {
+  createChangelog: createChangelog,
+  gitLog: gitLog,
 };
 
 /** A single entry in the Git log */
-type GitLogEntry = {
+export type GitLogEntry = {
   id: string;
-  parents: string[];
+  parents?: string[];
   files: Array<{ type: string, path: string }>;
   author: { name: string, email: string };
   date: Date;
@@ -25,7 +28,7 @@ type GitLogEntry = {
 };
 
 /** A collection of Git entries, grouped by release status */
-type LogVersion = {
+export type LogVersion = {
   version: string;
   entries: string[];
 };
@@ -36,9 +39,9 @@ const description = [
 ].join('\n');
 
 /** Gets the commit log for the repo this file belongs to */
-async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = true): Promise<GitLogEntry[]> {
+export async function gitLog(mergesOnly: boolean, commit: string, previousCommit?: string): Promise<GitLogEntry[]> {
   const range = previousCommit ? `${previousCommit}..${commit}` : commit;
-  const logParameters = ['--no-pager', 'log', '--name-only', range, '--merges'];
+  const logParameters = ['--no-pager', 'log', '--name-only', range];
   if (mergesOnly) {
     logParameters.push('--merges');
   }
@@ -53,12 +56,9 @@ async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = 
   });
 }
 
-const releaseRegex = /from diffblue\/release\/(\d+\.\d+\.\d+)/;
-const featureRegex = /Merge pull request (#\d+) from [^\n]+\n(.*)/;
-const versionBumpRegex = /^Bump version to \d+\.\d+\.\d+$/;
-
 /** Try to find the version of a release given a commit message */
-function getReleaseVersion(message: string): string | undefined {
+export function getReleaseVersion(message: string): string | undefined {
+  const releaseRegex = /from [^\/]+\/release\/(\d+\.\d+\.\d+)/;
   const versionMatch = message.match(releaseRegex);
   if (versionMatch) {
     return versionMatch[1];
@@ -72,62 +72,68 @@ function undefinedOnFail(value: number) {
 }
 
 /** Gets the first line of a string */
-function firstLine(message: string) {
+export function firstLine(message: string) {
   return message.substr(0, undefinedOnFail(message.indexOf('\n')));
 }
 
-/** Get a list of features from a list of commits */
-function getFeatures(commits: GitLogEntry[]): string[] {
-  return commits.map((commit) => {
-    const featureMatch = commit.comment.match(featureRegex);
-    if (!getReleaseVersion(commit.comment) && featureMatch) {
-      return `${normaliseTicketSyntax(featureMatch[1])} ${featureMatch[2]}`;
-    }
-    return '';
+
+/** Get a list of features from a list of commit messages */
+export function getFeatures(messages: string[]): string[] {
+  const featureRegex = /Merge pull request (#\d+) from [^\n]+\n(.*)/;
+  return messages
+  .filter((message) => !getReleaseVersion(message))
+  .map((message) => {
+    const featureMatch = message.match(featureRegex);
+    return featureMatch ? `${normaliseTicketSyntax(featureMatch[2])} ${featureMatch[1]}` : undefined;
   })
-  // disabling ts-lint rule due to this bug https://github.com/palantir/tslint/issues/2430
-  // tslint:disable-next-line:no-unnecessary-callback-wrapper
-  .filter<string>((feature): feature is string => Boolean(feature));
+  .filter((feature): feature is string => Boolean(feature));
 }
 
-/** Creates changelog data which can be consumed by `renderChangelog` and `renderChangelogVersion` */
+/** Gets all changes that were made on the release branch  */
+export function getReleaseBranchFeatures(commits: GitLogEntry[]) {
+  const versionBumpRegex = /^Bump version to \d+\.\d+\.\d+$/;
+  // Find the first merge in order to get all commits in the release branch
+  const mergeIndex = undefinedOnFail(
+    commits.findIndex((commit) => Boolean(commit.parents && commit.parents.length > 1)),
+  );
+  return commits.slice(0, mergeIndex)
+  .map((commit) => firstLine(commit.comment))
+  .filter((message) => !message.match(versionBumpRegex)); // Remove "Bump version to X.X.X" commits
+}
+
+/** Gets the (unique) release versions from a set of merge commits */
+export function getReleaseVersions(messages: string[]) {
+  return uniq(messages.map(getReleaseVersion).filter((version): version is string => Boolean(version)));
+}
+
+/** Creates changelog data which can be consumed by `renderChangelog` and `renderEntries` */
 export async function createChangelog(): Promise<LogVersion[]> {
-  return gitLog().then((mergeCommits) => {
-    const releaseVersions = uniq(mergeCommits.map((commit) => getReleaseVersion(commit.comment))
-    // disabling ts-lint rule due to this bug https://github.com/palantir/tslint/issues/2430
-    // tslint:disable-next-line:no-unnecessary-callback-wrapper
-    .filter<string>((version): version is string => Boolean(version)));
+  // First get a list of all the merge commits on develop
+  const mergeCommits = await components.gitLog(true, 'develop');
 
-    return Bluebird.mapSeries(releaseVersions, async (version, i: number) => {
-      // Log all commits between this version and the previous version
+  // Find all the unique release versions from these merge commits
+  const releaseVersions = getReleaseVersions(mergeCommits.map((commit) => commit.comment));
 
-      // '^2' suffix gets the parent of the release merge commit
-      return gitLog(`${version}^2`, releaseVersions[i + 1], false)
-      .then((commits) => {
-        // Find the first merge in order to get all commits in the release branch
-        const mergeIndex = undefinedOnFail(commits.findIndex((commit) => commit.parents && commit.parents.length > 1));
-        const releaseChanges = commits.slice(0, mergeIndex)
-        .map((commit) => firstLine(commit.comment))
-        .filter((comment) => !comment.match(versionBumpRegex)); // Remove "Bump version to X.X.X" commits
-
-        // Get a list of features from PRs
-        const features = getFeatures(commits);
-
-        // Combine commits from the release branch and features merged in PRs
-        return releaseChanges.concat(features);
-      });
-    })
-    .then(async (releaseFeatures) => {
-      // Get unreleased commits to add to "Unreleased" section
-      return gitLog('develop', 'master').then((commits) => {
-        return [getFeatures(commits)].concat(releaseFeatures);
-      });
-    }).then((releaseFeatures) => {
-      return ['Unreleased'].concat(releaseVersions).map((version, i) => {
-        return { version: version, entries: releaseFeatures[i] };
-      }).reverse();
-    });
+  // Get the log for all commits between each version and its previous version, then filter down to features
+  const releaseEntries = await Bluebird.mapSeries(releaseVersions, async (releaseVersion, i: number) => {
+    // '^2' suffix gets the parent of the release commit on the feature branch
+    const commits = await components.gitLog(false, `${releaseVersion}^2`, releaseVersions[i + 1]);
+    const releaseBranchFeatures = getReleaseBranchFeatures(commits);
+    const features = getFeatures(commits.map((commit) => commit.comment));
+    return {
+      version: releaseVersion,
+      entries: releaseBranchFeatures.concat(features),
+    };
   });
+
+  // Get unreleased features
+  const unreleasedCommits = await components.gitLog(true, 'develop', 'master');
+  const unreleasedEntry = {
+    version: 'Unreleased',
+    entries: getFeatures(unreleasedCommits.map((commit) => commit.comment)),
+  };
+
+  return releaseEntries.reverse().concat([unreleasedEntry]);
 }
 
 /**
@@ -137,64 +143,54 @@ export async function createChangelog(): Promise<LogVersion[]> {
  * and ensure they use the correct format e.g. "[TG-123, TG-456]"
  */
 export function normaliseTicketSyntax(feature: string) {
-  const match = feature.match(/\[?\s*((TG-\d+)(\s*,\s*TG-\d+)*)\s*\]?:?/i);
+  const match = feature.match(/\[?\s*((TG-\d+)(\s*[, ]\s*TG-\d+)*)\s*\]?:?/i);
   if (match) {
     const comment = feature.replace(match[0], '').trim().replace(/[ \t]+/g, ' ');
-    const tickets = match[1].replace(/\s+/g, '').split(',');
+    const tickets = match[1].replace(/[\s,]+/g, ' ').trim().split(' ');
     return `${comment} [${tickets.join(', ').toUpperCase()}]`;
   }
   return feature;
 }
 
-/**
- * Creates a formatted string which adds an underlined title to a LogVersion based on the version name.
- */
-function addTitleToChangelogVersion(version: LogVersion) {
-  return `${version.version}\n${Array(version.version.length + 1).join('=')}\n\n${renderChangelogVersion(version)}`;
-}
-
-/**
- * Returns a formatted string showing Git log entries, grouped by release status
- */
+/** Returns a formatted string for a list of versions */
 export function renderChangelog(changelog: LogVersion[]) {
-  // disabling ts-lint rule due to this bug https://github.com/palantir/tslint/issues/2430
-  // tslint:disable-next-line:no-unnecessary-callback-wrapper
-  return changelog.map((version) => addTitleToChangelogVersion(version)).join('\n');
+  return changelog.map(renderChangelogVersion).join('\n');
 }
 
-/**
- * Returns a formatted string showing Git log entries
- */
-export function renderChangelogVersion(changelog: LogVersion) {
-  return changelog.entries.map((entry) => `* ${entry}\n`).join('');
+/** Creates a formatted string which adds an underlined title to a LogVersion based on the version name */
+export function renderChangelogVersion(version: LogVersion) {
+  return [
+    version.version,
+    Array(version.version.length + 1).join('='),
+    '',
+    renderEntries(version.entries),
+  ].join('\n');
 }
 
- /**
-  * Returns an array of only the unreleased changes
-  */
-export async function getListOfUnreleasedChanges() {
-  const changelog = await createChangelog();
-  const changes = (changelog
-    .filter((version) => version.version === 'Unreleased')
-    .map((version) => renderChangelogVersion(version).trim()));
-  return changes;
+/** Returns a formatted string showing Git log entries */
+export function renderEntries(entries: string[]) {
+  return entries.map((entry) => `* ${entry}\n`).join('');
 }
 
-/**
- * Prints out the git log, grouped in to 'Released' and 'Unreleased' changes.
- */
+/** Get unreleased changes, if there are any */
+export function getUnreleasedChanges(changelog: LogVersion[]) {
+  const unreleased = changelog.find((version) => version.version === 'Unreleased');
+  return unreleased ? unreleased.entries : [];
+}
+
+/** Prints out the git log, grouped in to 'Released' and 'Unreleased' changes */
 export default function changelog() {
   return async (args: string[], options: Options) => {
+    const log = await components.createChangelog();
     if (options.unreleased) {
-      const changes = await getListOfUnreleasedChanges();
-      return changes.join('\n');
+      return renderEntries(getUnreleasedChanges(log));
     } else {
-      const log = await createChangelog();
       return renderChangelog(log);
     }
   };
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   commandLineRunner(description, '', process, changelog());
 }
