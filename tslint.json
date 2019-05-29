@@ -105,7 +105,6 @@
     "no-string-throw": true,
     "no-this-assignment": true,
     "no-trailing-whitespace": true,
-    "no-unnecessary-callback-wrapper": true,
     "no-unnecessary-class": [true, "allow-empty-class"],
     "no-unnecessary-initializer": true,
     "no-unnecessary-type-assertion": true,
