@@ -7,10 +7,10 @@ import {
   GroupedResults,
   groupResults,
   mergeIntoTestClass,
-} from '../../../src/combiner';
-import { CombinerError, CombinerErrorCodes } from '../../../src/errors';
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
+} from '../../src/combiner';
+import { CombinerError, CombinerErrorCodes } from '../../src/errors';
+import assert from '../../src/utils/assertExtra';
+import sinonTestFactory from '../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 
