@@ -7,8 +7,8 @@ import * as semver from 'semver';
 import * as simpleGit from 'simple-git/promise';
 import { promisify } from 'util';
 
+import { createChangelog, getUnreleasedChanges } from '../scripts/changelog';
 import { Options } from '../utils/argvParser';
-import { getListOfUnreleasedChanges } from '../utils/changelog';
 import commandLineRunner, { Command, ExpectedError } from '../utils/commandLineRunner';
 import logger from '../utils/log';
 
@@ -19,12 +19,13 @@ export const dependencies = {
   exec: promisify(exec),
   inquirer: inquirer,
   logger: logger,
+  createChangelog: createChangelog,
+  getUnreleasedChanges: getUnreleasedChanges,
 };
 
 export const components = {
   repoIsClean: repoIsClean,
   updateAndCheckBranch: updateAndCheckBranch,
-  getListOfUnreleasedChanges: getListOfUnreleasedChanges,
   loadPackageJson: loadPackageJson,
   createNewReleaseBranch: createNewReleaseBranch,
   writeChangesToPackageJson: writeChangesToPackageJson,
@@ -70,7 +71,7 @@ export default function createRelease(): Command {
     await dependencies.simpleGit.checkout('develop');
 
     // Generate changelog of develop:latest vs master:latest
-    const changes = await components.getListOfUnreleasedChanges();
+    const changes = dependencies.getUnreleasedChanges(await dependencies.createChangelog());
 
     if (changes.length === 0 && !options.force) {
       throw new ExpectedError('No changes detected in changelog. Is there anything to release?');
