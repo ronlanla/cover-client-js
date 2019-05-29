@@ -54,7 +54,7 @@ export async function startAnalysis(
     formData.append('dependenciesBuild', dependenciesBuild, options('dependenciesBuild.jar', 'java-archive'));
   }
 
-  return dependencies.request.post(dependencies.routes.start(api), formData, formData.getHeaders());
+  return dependencies.request.post(dependencies.routes.start(api), formData, { headers: formData.getHeaders() });
 }
 
 /**

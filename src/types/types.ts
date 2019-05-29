@@ -1,7 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { ReadStream } from 'fs';
-
 /** Possible analysis statuses */
 export enum AnalysisStatuses {
   QUEUED = 'QUEUED',
@@ -16,9 +14,9 @@ export enum AnalysisStatuses {
  * submitting a request using the Platform Lite API
  */
 export interface AnalysisFiles {
-  build: Buffer | ReadStream;
-  dependenciesBuild?: Buffer | ReadStream;
-  baseBuild?: Buffer | ReadStream;
+  build: Buffer | NodeJS.ReadableStream;
+  dependenciesBuild?: Buffer | NodeJS.ReadableStream;
+  baseBuild?: Buffer | NodeJS.ReadableStream;
 }
 
 /** Analysis progress returned by the API */
