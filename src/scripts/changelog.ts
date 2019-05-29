@@ -2,12 +2,12 @@
 /* istanbul ignore file */
 
 import * as Bluebird from 'bluebird';
-import { ChildProcess, spawn } from 'child_process';
 import { uniq } from 'lodash';
 import { parseGit } from 'parse-git';
 
 import { Options } from '../utils/argvParser';
 import commandLineRunner from '../utils/commandLineRunner';
+import spawnProcess from '../utils/spawnProcess';
 
 
 export const dependencies = {
@@ -35,33 +35,6 @@ const description = [
   'Use --unreleased argument to show only unreleased changes.',
 ].join('\n');
 
-/** Consume the output for a process and convert to a promise */
-async function consumeProcess(process: ChildProcess): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let output = '';
-    let error = '';
-
-    if (!process.stdout || !process.stderr) {
-      return reject('Process not set up correctly.');
-    }
-
-    process.stdout.on('data', (data) => output += data);
-
-    process.stderr.on('data', (data) => error += data);
-
-    process.on('error', (code) => {
-      return reject(`Process exited with code: ${code}\n${error}`);
-    });
-
-    process.on('close', (code) => {
-      if (code !== 0) {
-        return reject(`Process exited with code: ${code}\n${error}`);
-      }
-      resolve(output);
-    });
-  });
-}
-
 /** Gets the commit log for the repo this file belongs to */
 async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = true): Promise<GitLogEntry[]> {
   const range = previousCommit ? `${previousCommit}..${commit}` : commit;
@@ -70,7 +43,7 @@ async function gitLog(commit = 'develop', previousCommit?: string, mergesOnly = 
     logParameters.push('--merges');
   }
 
-  const log = await consumeProcess(dependencies.spawn('git', logParameters));
+  const log = await dependencies.spawnProcess('git', logParameters);
   return parseGit(log).map((entry: GitLogEntry) => {
     const match = log.match(new RegExp(`(?:\n|^)commit ${entry.id}\nMerge: (.+)`));
     if (match) {
