@@ -1,0 +1,9 @@
+{
+  "default": true,
+  "line-length": false,
+  "no-inline-html": false,
+  "ol-prefix": {
+    "style": "ordered"
+  },
+  "single-h1": false
+}

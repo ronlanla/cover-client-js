@@ -1,0 +1,53 @@
+{
+  "@diffblue/java-combiner": [
+    "mit"
+  ],
+  "asynckit": [
+    "mit"
+  ],
+  "axios": [
+    "mit"
+  ],
+  "combined-stream": [
+    "mit"
+  ],
+  "debug": [
+    "mit"
+  ],
+  "delayed-stream": [
+    "mit"
+  ],
+  "duplex-child-process": [
+    "mit"
+  ],
+  "follow-redirects": [
+    "mit"
+  ],
+  "form-data": [
+    "mit"
+  ],
+  "is-buffer": [
+    "mit"
+  ],
+  "lodash": [
+    "mit"
+  ],
+  "mime-db": [
+    "mit"
+  ],
+  "mime-types": [
+    "mit"
+  ],
+  "minimist": [
+    "mit"
+  ],
+  "mkdirp": [
+    "mit"
+  ],
+  "ms": [
+    "mit"
+  ],
+  "url-join": [
+    "mit"
+  ]
+}

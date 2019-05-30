@@ -1,0 +1,9 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/coverage
+/npm-shrinkwrap.json
+/.nyc_output
+/build

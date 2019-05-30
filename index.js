@@ -1,3 +1,0 @@
-exports.doNothing = function() {
-  return;
-}
