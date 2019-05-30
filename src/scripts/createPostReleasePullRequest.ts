@@ -24,15 +24,6 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
     const reviewers = args[0];
 
     const packageJson = await dependencies.getPackageJson();
-    const repositoryMatch: RegExpMatchArray | undefined = (
-      packageJson.repository &&
-      packageJson.repository.url &&
-      packageJson.repository.url.match(/^git@github\.com:(.+)\.git$/)
-    );
-
-    if (!repositoryMatch) {
-      throw new ExpectedError('Could not extract repository name from package.json repository.url');
-    }
 
     const title = `Merge ${packageJson.version} back into develop`;
     await components.createPullRequest(token, title, packageJson.version, 'develop', reviewers, env);
