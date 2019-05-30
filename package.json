@@ -1,6 +1,6 @@
 {
   "name": "@diffblue/cover-client",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Diffblue Cover client library - Node.js API for Diffblue Cover",
   "main": "build/index.js",
   "engines": {
