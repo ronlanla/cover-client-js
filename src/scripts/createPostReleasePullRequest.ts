@@ -43,9 +43,12 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
 /* istanbul ignore next */
 if (require.main === module) {
   commandLineRunner(
-    'Creates and pushes a tag for the current version',
-     '[<reviewers>]',
-     process,
-     createPostReleasePullRequest(process.env),
+    [
+      'Creates a pull request from master to develop to be used after a release,',
+      'optionally provide a comma separated list of reviewers',
+    ].join('\n'),
+    '[<reviewers>]',
+    process,
+    createPostReleasePullRequest(process.env),
   );
 }
