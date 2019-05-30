@@ -91,7 +91,7 @@ describe('scripts/createRelease', () => {
 
       await writeChangesToPackageJson('whatever', { version: '0.0.0' });
 
-      assert.calledOnceWith(writeFile, ['whatever', '{\n  \"version\": \"0.0.0\"\n}']);
+      assert.calledOnceWith(writeFile, ['whatever', '{\n  \"version\": \"0.0.0\"\n}\n']);
     }));
   });
 
