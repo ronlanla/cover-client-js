@@ -310,7 +310,7 @@ const settings = { ignoreDefaults: true, phases: {}};
 
 #### Get analysis status (Object orientated)
 
-To Get analysis status that has started, call `Analysis.getStatus`.
+To get the status of an analysis that has started, call `Analysis.getStatus`.
 
 ```ts
 (async () => {
