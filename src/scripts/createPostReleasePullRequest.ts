@@ -4,8 +4,10 @@
 import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 import createPullRequest from '../utils/createPullRequest';
 import getPackageJson from '../utils/getPackageJson';
+import spawn from '../utils/spawnProcess';
 
 export const dependencies = {
+  spawn: spawn,
   getPackageJson: getPackageJson,
 };
 
@@ -24,9 +26,13 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
     const reviewers = args[0];
 
     const packageJson = await dependencies.getPackageJson();
+    const branch = `post-release/${packageJson.version}`;
+
+    await dependencies.spawn('git', ['checkout', '-b', branch]);
+    await dependencies.spawn('git', ['push', '-u', 'origin', branch]);
 
     const title = `Merge ${packageJson.version} back into develop`;
-    await components.createPullRequest(token, title, packageJson.version, 'develop', reviewers, env);
+    await components.createPullRequest(token, title, branch, 'develop', reviewers, env);
     return `Created pull request to merge version ${packageJson.version} back into develop`;
   };
 }
