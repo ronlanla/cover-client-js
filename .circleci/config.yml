@@ -19,6 +19,15 @@ references:
     circleci/node:11.14.0
 
 commands:
+  git-config:
+    steps:
+      - run:
+          name: Set git username
+          command: git config user.name "Diffblue CI"
+      - run:
+          name: Set git email
+          command: git config user.email "ci@diffblue.com"
+
   install-dependencies:
     steps:
       - run:
@@ -139,6 +148,7 @@ jobs:
     steps:
       - checkout
       - install-dependencies
+      - git-config
       - deploy
 
   checks-latest:
