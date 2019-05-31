@@ -14,10 +14,10 @@ export default async function createPullRequest(
 ) {
   await dependencies.spawnProcess('hub', [
     'pull-request',
-    '--message', title,
-    '--head', head,
-    '--base', base,
-    '--reviewer', reviewers || '',
+    `--message=${title}`,
+    `--head=${head}`,
+    `--base=${base}`,
+    `--reviewer=${reviewers || ''}`,
   ], { env: { ...env, GITHUB_TOKEN: token }})
   .catch((error) => {
     if (error.message.match(/Unauthorized \(HTTP 401\)/)) {
