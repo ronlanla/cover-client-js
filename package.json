@@ -27,7 +27,7 @@
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc --check-coverage --lines 80 mocha --require ts-node/register 'tests/unit/**/*.ts'",
     "create-release": "ts-node src/scripts/createRelease.ts",
     "changelog": "ts-node src/utils/changelog.ts",
-    "create-post-release-pull-request": "ts-node src/scripts/createPostReleasePullRequest.ts @peterjwest,@myron836,@JimmehAH,@adamkowalczyk",
+    "create-post-release-pull-request": "ts-node src/scripts/createPostReleasePullRequest.ts",
     "create-release-tag": "ts-node src/scripts/createReleaseTag.ts",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
     "lint-ts": "tslint --config tslint.json --format verbose --project tsconfig.json '{src,tests}/**/*.ts' -e 'src/types/external/**'",
