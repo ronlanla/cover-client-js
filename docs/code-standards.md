@@ -169,14 +169,14 @@ const value = (
 );
 ```
 
-Some cases can be improved by using arrays and array operations:
+This case can be improved by using the `multiline` tag function:
 
 ```ts
-const value = [
-  'foo',
-  'bar',
-  'zim',
-].join('\n');
+const value = multiline`
+  foo
+  bar
+  zim
+`;
 ```
 
 ## File naming

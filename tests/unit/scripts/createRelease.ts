@@ -16,6 +16,7 @@ import createRelease, {
   writeChangesToPackageJson } from '../../../src/scripts/createRelease';
 import assert from '../../../src/utils/assertExtra';
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
+import multiline from '../../../src/utils/multiline';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
@@ -32,12 +33,10 @@ describe('scripts/createRelease', () => {
     it('Throws an error because hub is not installed', sinonTest(async (sinon) => {
       const exec = sinon.stub(dependencies, 'exec');
 
-      const error = new Error(
-        [
-
-          'Command failed: hub status',
-          '/bin/sh: hub: command not found',
-        ].join('\n'));
+      const error = new Error(multiline`
+        Command failed: hub status
+        /bin/sh: hub: command not found
+      `);
       exec.rejects(error);
 
       await assert.rejectsWith(checkPrerequisites(),
@@ -124,7 +123,11 @@ describe('scripts/createRelease', () => {
     }));
 
     it('Returns an object containing a "version" property', sinonTest(async (sinon) => {
-      sinon.stub(dependencies, 'readFile').resolves(['{', '  "version": "1.0.0"', '}'].join('\n'));
+      sinon.stub(dependencies, 'readFile').resolves(multiline`
+        {
+          "version": "1.0.0"
+        }
+      `);
 
       const packageJson = await loadPackageJson();
 

@@ -11,6 +11,7 @@ import { createChangelog, getUnreleasedChanges } from '../scripts/changelog';
 import { Options } from '../utils/argvParser';
 import commandLineRunner, { Command, ExpectedError } from '../utils/commandLineRunner';
 import logger from '../utils/log';
+import multiline from '../utils/multiline';
 
 export const dependencies = {
   writeFile: promisify(writeFile),
@@ -48,10 +49,10 @@ type PartialPackageJson = {
   version: string;
 };
 
-const description = [
-  'Begins the release process for this module.',
-  'Use --force argument to do a release even if the changelog is empty.',
-].join('\n');
+const description = multiline`
+  Begins the release process for this module.
+  Use --force argument to do a release even if the changelog is empty.
+`;
 
 /**
  * Begins the release process
@@ -138,15 +139,15 @@ export function incrementVersionNumber(originalVersion: string, patchLevel: Patc
  */
 export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]): Promise<void> {
   await dependencies.simpleGit.push('origin', newBranchName);
+
+  const title = multiline`
+    Release ${newVersion}
+
+    ${changes.join('\n')}
+  `;
   // Generate PR using github API and put in changelog
   // Could replace this with an HTTP API request and get rid of the unlabelled dependency on Hub
-  await dependencies.exec(
-    [
-      `hub pull-request -b master -m "Release ${newVersion}`,
-      '',
-      `${changes.join('\n')}"`,
-    ].join('\n'),
-  );
+  await dependencies.exec(`hub pull-request -b master -m "${title}"`);
 }
 
 /**

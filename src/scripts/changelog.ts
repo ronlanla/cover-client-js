@@ -6,6 +6,7 @@ import { parseGit } from 'parse-git';
 
 import { Options } from '../utils/argvParser';
 import commandLineRunner from '../utils/commandLineRunner';
+import multiline from '../utils/multiline';
 import spawnProcess from '../utils/spawnProcess';
 
 export const dependencies = {
@@ -33,10 +34,10 @@ export type LogVersion = {
   entries: string[];
 };
 
-const description = [
-  'Prints out the changelog, grouped by whether they have been included in a release or not.',
-  'Use --unreleased argument to show only unreleased changes.',
-].join('\n');
+const description = multiline`
+  Prints out the changelog, grouped by whether they have been included in a release or not.
+  Use --unreleased argument to show only unreleased changes.
+`;
 
 /** Gets the commit log for the repo this file belongs to */
 export async function gitLog(mergesOnly: boolean, commit: string, previousCommit?: string): Promise<GitLogEntry[]> {
@@ -159,12 +160,12 @@ export function renderChangelog(changelog: LogVersion[]) {
 
 /** Creates a formatted string which adds an underlined title to a LogVersion based on the version name */
 export function renderChangelogVersion(version: LogVersion) {
-  return [
-    version.version,
-    Array(version.version.length + 1).join('='),
-    '',
-    renderEntries(version.entries),
-  ].join('\n');
+  return multiline`
+    ${version.version}
+    ${Array(version.version.length + 1).join('=')}
+
+    ${renderEntries(version.entries)}
+  `;
 }
 
 /** Returns a formatted string showing Git log entries */

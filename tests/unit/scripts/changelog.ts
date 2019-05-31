@@ -1,7 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import { stripIndent } from 'common-tags';
-
 import changelog, {
   components,
   createChangelog,
@@ -18,13 +16,14 @@ import changelog, {
   renderEntries,
 } from '../../../src/scripts/changelog';
 import assert from '../../../src/utils/assertExtra';
+import multiline from '../../../src/utils/multiline';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 
 describe('scripts/changelog', () => {
   describe('gitLog', () => {
-    const logFile = stripIndent`
+    const logFile = multiline`
       commit 7434e2255cc7aa8f85cda66eb2fc43ee463fb804
       Author: John Smith <john.smith@example.com>
       Date:   Wed Apr 10 14:33:39 2019 +0100
@@ -45,6 +44,7 @@ describe('scripts/changelog', () => {
       Date:   Mon Apr 15 12:39:20 2019 +0100
 
           Commit message B
+
     `;
 
     const expectedLogData: GitLogEntry[] = [
@@ -106,7 +106,7 @@ describe('scripts/changelog', () => {
 
   describe('firstLine', () => {
     it('Returns the first line of a multiline string', () => {
-      const multilineString = stripIndent`
+      const multilineString = multiline`
         String which runs
         over two lines
       `;
@@ -120,12 +120,12 @@ describe('scripts/changelog', () => {
 
   describe('renderEntries', () => {
     it('Returns a string with each entry listed', () => {
-      const expectedString = [
-        '* One',
-        '* Two',
-        '* Three',
-        '',
-      ].join('\n');
+      const expectedString = multiline`
+        * One
+        * Two
+        * Three
+
+      `;
       assert.deepStrictEqual(renderEntries(['One', 'Two', 'Three']), expectedString);
     });
 
@@ -136,15 +136,15 @@ describe('scripts/changelog', () => {
 
   describe('renderChangelogVersion', () => {
     it('Returns a string with the version underlined and each entry', () => {
-      const expectedString = [
-        '1.2.3',
-        '=====',
-        '',
-        '* One',
-        '* Two',
-        '* Three',
-        '',
-      ].join('\n');
+      const expectedString = multiline`
+        1.2.3
+        =====
+
+        * One
+        * Two
+        * Three
+
+      `;
 
       const version: LogVersion = { version: '1.2.3', entries: ['One', 'Two', 'Three'] };
 
@@ -343,25 +343,25 @@ describe('scripts/changelog', () => {
     it('Resolves with a formatted changelog string when there are changes', sinonTest(async (sinon) => {
       sinon.stub(components, 'createChangelog').resolves(changelogData);
 
-      const expectedChangelog = [
-        '1.2.9',
-        '=====',
-        '',
-        '* One',
-        '* Two',
-        '',
-        '1.2.10',
-        '======',
-        '',
-        '* Three',
-        '* Four',
-        '',
-        'Unreleased',
-        '==========',
-        '',
-        '* Five',
-        '',
-      ].join('\n');
+      const expectedChangelog = multiline`
+        1.2.9
+        =====
+
+        * One
+        * Two
+
+        1.2.10
+        ======
+
+        * Three
+        * Four
+
+        Unreleased
+        ==========
+
+        * Five
+
+      `;
 
       assert.strictEqual(await changelog()([], {}), expectedChangelog);
     }));

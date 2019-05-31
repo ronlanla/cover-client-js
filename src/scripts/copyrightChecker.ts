@@ -9,14 +9,15 @@ import { join } from 'path';
 import { promisify } from 'util';
 
 import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
+import multiline from '../utils/multiline';
 
 /** Interface for the function to check copyright notices */
 type CopyrightNoticeCheck = (year: number, content: string) => boolean;
 
-const description = [
-  'Checks up to date copyright statements are present in all required files',
-  'Ignore files by adding gitignore rules to .copyrightignore',
-].join('\n');
+const description = multiline`
+  Checks up to date copyright statements are present in all required files
+  Ignore files by adding gitignore rules to .copyrightignore
+`;
 
 const currentYear = (new Date()).getFullYear();
 const baseIgnoreFiles = ['/.git', '.DS_Store'];
