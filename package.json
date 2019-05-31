@@ -22,7 +22,7 @@
   "homepage": "https://github.com/diffblue/cover-client-js#readme",
   "scripts": {
     "audit-dependencies": "auditjs --prod --noNode",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig-build.json",
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc mocha 'tests/unit/**/*.ts'",
     "create-release": "ts-node src/scripts/createRelease.ts",
