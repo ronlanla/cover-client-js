@@ -160,7 +160,7 @@ export async function commitPackageJsonChange(newVersion: string): Promise<void>
  * Writes the contents of packageJson
  */
 export async function writeChangesToPackageJson(filepath: string, packageJson: PartialPackageJson): Promise<void> {
-  await dependencies.writeFile(filepath, JSON.stringify(packageJson, null, 2));
+  await dependencies.writeFile(filepath, `${JSON.stringify(packageJson, null, 2)}\n`);
 }
 
 /**
