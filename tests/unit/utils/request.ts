@@ -11,7 +11,13 @@ const sinonTest = sinonTestFactory();
 
 describe('utils/request', () => {
   const templateResponse: AxiosResponse = { config: {}, data: {}, status: 0, statusText: '', headers: {}};
-  const templateError: AxiosError = { config: {}, response: templateResponse, message: '', name: '' };
+  const templateError: AxiosError = {
+    config: {},
+    response: templateResponse,
+    message: '',
+    name: '',
+    isAxiosError: true,
+  };
 
   describe('convertError', () => {
     it('Converts the axios error response in the Cover ApiError format', () => {
