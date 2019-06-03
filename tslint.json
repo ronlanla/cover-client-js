@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint-eslint-rules"],
+  "extends": ["tslint-eslint-rules", "tslint-sonarts"],
   "jsRules": true,
   "rules": {
     "adjacent-overload-signatures": true,
