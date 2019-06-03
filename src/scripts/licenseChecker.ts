@@ -111,13 +111,14 @@ export async function generateAcceptableLicenses(filePath: string) {
 export function getDescription(commands: Command[]) {
   const longestName = maxBy(commands, (command) => command.name.length);
   const padding = longestName ? longestName.name.length : 0;
+  const commandList = commands.map((option) => `  ${padEnd(option.name, padding)}  ${option.help}`).join('\n');
   return multiline`
     Generates an acceptable license file containing all licenses in
     npm dependencies by using the yarn command \`yarn licenses\`.
     Can compare this file against the current dependencies for discrepancies.
 
     Commands:
-    ${commands.map((option) => `  ${padEnd(option.name, padding)}  ${option.help}`).join('\n')}
+    ${commandList}
   `;
 }
 

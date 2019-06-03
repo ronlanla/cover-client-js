@@ -180,8 +180,7 @@ export async function createNewReleaseBranch(newVersion: string): Promise<string
 export async function loadPackageJson(): Promise<PartialPackageJson> {
   const packageFile = await dependencies.readFile(packageJsonFilename);
   try {
-    const packageJson: PartialPackageJson = JSON.parse(packageFile.toString());
-    return packageJson;
+    return JSON.parse(packageFile.toString());
   } catch (err) {
     throw new ExpectedError(`Unable to parse ${packageJsonFilename}: ${err}`);
   }

@@ -96,6 +96,7 @@
     "no-object-literal-type-assertion": true,
     "no-parameter-properties": true,
     "no-parameter-reassignment": true,
+    "no-redundant-boolean": false,
     "no-reference": true,
     "no-reference-import": true,
     "no-require-imports": true,
