@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint-eslint-rules"],
+  "extends": ["tslint-eslint-rules", "tslint-sonarts"],
   "jsRules": true,
   "rules": {
     "adjacent-overload-signatures": true,
@@ -29,6 +29,7 @@
     "block-spacing": true,
     "callable-types": true,
     "class-name": true,
+    "cognitive-complexity": [true, 20],
     "comment-format": [true, "check-space"],
     "completed-docs": [
       true,
@@ -52,6 +53,7 @@
     "linebreak-style": [true, "LF"],
     "max-file-line-count": [true, 1000],
     "max-line-length": [true, 120],
+    "max-union-size": [true, 4],
     "member-access": [
       true,
       "check-accessor",
@@ -71,6 +73,7 @@
     "no-debugger": true,
     "no-duplicate-imports": true,
     "no-duplicate-super": true,
+    "no-duplicate-string": [true, 5],
     "no-duplicate-switch-case": true,
     "no-duplicate-variable": [true, "check-parameters"],
     "no-dynamic-delete": true,
