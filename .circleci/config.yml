@@ -105,6 +105,8 @@ commands:
       - run:
           name: Integration tests
           command: yarn integration-test --forbid-only --forbid-pending
+      - store_artifacts:
+          path: coverage
 
   deploy:
     steps:
