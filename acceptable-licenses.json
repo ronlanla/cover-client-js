@@ -8,6 +8,9 @@
   "axios": [
     "mit"
   ],
+  "bluebird": [
+    "mit"
+  ],
   "combined-stream": [
     "mit"
   ],
