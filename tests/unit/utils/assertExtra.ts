@@ -381,7 +381,7 @@ describe('utils/assertExtra', () => {
       const changedObject = { a: 2 };
       const expectedChanges = {};
       const expectedError = getError(() => {
-        assert.deepStrictEqual(originalObject, changedObject);
+        assert.deepStrictEqual(changedObject, originalObject);
       });
 
       assert.throws(
@@ -395,7 +395,7 @@ describe('utils/assertExtra', () => {
       const changedObject = { a: 1 };
       const expectedChanges = { b: 2 };
       const expectedError = getError(() => {
-        assert.deepStrictEqual({ a: 1, b: 2 }, changedObject);
+        assert.deepStrictEqual(changedObject, { a: 1, b: 2 });
       });
 
       assert.throws(
@@ -410,7 +410,7 @@ describe('utils/assertExtra', () => {
       const changedObject = { a: 2 };
       const expectedChanges = { a: 3 };
       const expectedError = getError(() => {
-        assert.deepStrictEqual({ ...originalObject, ...expectedChanges }, changedObject);
+        assert.deepStrictEqual(changedObject, { ...originalObject, ...expectedChanges });
       });
 
       assert.throws(

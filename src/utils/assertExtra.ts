@@ -108,7 +108,7 @@ const assertExtra = {
     for (const [key, value] of Object.entries(expectedChanges)) {
       originalObject[key as keyof ObjectA] = value;
     }
-    assert.deepStrictEqual(originalObject, changedObject);
+    assert.deepStrictEqual(changedObject, originalObject);
   },
 };
 
