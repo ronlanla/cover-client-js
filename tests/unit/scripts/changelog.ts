@@ -99,7 +99,7 @@ describe('scripts/changelog', () => {
       assert.deepStrictEqual(getReleaseVersion('Merge pull request #5 from company/release/1.2.3'), '1.2.3');
     });
 
-    it('Returns undefined if there is no valid release version ', () => {
+    it('Returns undefined if there is no valid release version', () => {
       assert.deepStrictEqual(getReleaseVersion('Merge pull request #5 from random/branch'), undefined);
     });
   });
@@ -323,7 +323,7 @@ describe('scripts/changelog', () => {
       assert.deepStrictEqual(getUnreleasedChanges(changelogData), ['Two', 'Three']);
     });
 
-    it('Returns the an empty array if there are no unreleased changes', () => {
+    it('Returns an empty array if there are no unreleased changes', () => {
       const changelogData: LogVersion[] = [
         { version: '1.2.9', entries: ['One'] },
         { version: '1.2.10', entries: ['Two', 'Three'] },

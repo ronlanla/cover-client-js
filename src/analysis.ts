@@ -52,7 +52,7 @@ export default class Analysis {
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
-  public pollDelay?: CancellableDelay<void> = undefined;
+  public pollDelay?: CancellableDelay<void>;
   public pollingStopped?: boolean;
 
   public constructor(apiUrl: string) {

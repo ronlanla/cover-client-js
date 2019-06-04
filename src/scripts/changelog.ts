@@ -77,7 +77,6 @@ export function firstLine(message: string) {
   return message.substr(0, undefinedOnFail(message.indexOf('\n')));
 }
 
-
 /** Get a list of features from a list of commit messages */
 export function getFeatures(messages: string[]): string[] {
   const featureRegex = /Merge pull request (#\d+) from [^\n]+\n(.*)/;
@@ -159,12 +158,12 @@ export function renderChangelog(changelog: LogVersion[]) {
 }
 
 /** Creates a formatted string which adds an underlined title to a LogVersion based on the version name */
-export function renderChangelogVersion(version: LogVersion) {
+export function renderChangelogVersion(log: LogVersion) {
   return multiline`
-    ${version.version}
-    ${Array(version.version.length + 1).join('=')}
+    ${log.version}
+    ${Array(log.version.length + 1).join('=')}
 
-    ${renderEntries(version.entries)}
+    ${renderEntries(log.entries)}
   `;
 }
 
@@ -175,7 +174,7 @@ export function renderEntries(entries: string[]) {
 
 /** Get unreleased changes, if there are any */
 export function getUnreleasedChanges(changelog: LogVersion[]) {
-  const unreleased = changelog.find((version) => version.version === 'Unreleased');
+  const unreleased = changelog.find((log) => log.version === 'Unreleased');
   return unreleased ? unreleased.entries : [];
 }
 
