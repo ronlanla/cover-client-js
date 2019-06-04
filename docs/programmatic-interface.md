@@ -143,9 +143,10 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 (async () => {
   let results = [];
   let response;
+  let nextCursor?: number;
 
   while (!response || response.status.status === 'RUNNING' || response.status.status === 'QUEUED') {
-    response = await CoverClient.getAnalysisResults(api, id, prevCursor);
+    response = await CoverClient.getAnalysisResults(api, id, nextCursor);
     console.log(
       `Status: ${response.status.status}`,
       `Total functions: ${response.status.progress.total}`,
@@ -154,6 +155,7 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
       `Next cursor: ${response.cursor}`,
     );
 
+    nextCursor = response.cursor;
     results = results.concat(response.results);
     await delay(5000);
   }
