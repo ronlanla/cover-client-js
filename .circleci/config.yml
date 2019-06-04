@@ -101,12 +101,15 @@ commands:
     steps:
       - run:
           name: Unit tests
-          command: yarn coverage --forbid-only --forbid-pending
+          command: yarn coverage --forbid-only --forbid-pending --reporter mocha-circleci-reporter --reporter-options mochaFile=~/test-results/mocha/results.xml
       - run:
           name: Integration tests
-          command: yarn integration-test --forbid-only --forbid-pending
+          command: yarn integration-test --forbid-only --forbid-pending --reporter mocha-circleci-reporter --reporter-options mochaFile=~/test-results/mocha-integration/results.xml
       - store_artifacts:
           path: coverage
+      - store_test_results:
+          path: ~/test-results/
+
 
   deploy:
     steps:
