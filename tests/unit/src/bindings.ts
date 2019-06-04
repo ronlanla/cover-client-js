@@ -121,12 +121,10 @@ describe('api/bindings', () => {
       const obj: { a?: Object } = {};
       obj.a = { b: obj };
 
+      const expectedError = new RegExp(BindingsErrorCodes.SETTINGS_INVALID);
+
       await assert.rejectsWith(
-        startAnalysis(api, { build: build }, obj as any), // tslint:disable-line:no-any
-        new BindingsError(
-          'The settings JSON was not valid:\nTypeError: Converting circular structure to JSON',
-          BindingsErrorCodes.SETTINGS_INVALID,
-        ),
+        startAnalysis(api, { build: build }, obj as any), expectedError, // tslint:disable-line:no-any
       );
     }));
   });
