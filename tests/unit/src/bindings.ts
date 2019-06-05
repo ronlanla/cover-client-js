@@ -40,7 +40,6 @@ describe('api/bindings', () => {
     const settings = {
       ignoreDefaults: true,
       phases: {},
-      webhooks: {},
     };
 
     it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
@@ -117,7 +116,7 @@ describe('api/bindings', () => {
     }));
 
     it('Throws an error when the settings are invalid', sinonTest(async () => {
-      /** Infinite cycle object to throw an error for JSON.stringify */
+      // Infinite cycle object to throw an error for JSON.stringify
       const obj: { a?: Object } = {};
       obj.a = { b: obj };
 

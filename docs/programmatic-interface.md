@@ -1,5 +1,240 @@
 # Programmatic interface
 
+## Low level bindings
+
+You can use the low level bindings to submit requests to a Diffblue Cover API by following the below examples.
+
+### Start an analysis (Low level)
+
+Starts an analysis and returns the unique identifier for that analysis.
+To start an analysis the minimum you need is a build JAR file of your source code.
+
+You can optionally provide a settings object in order to customise the analysis.
+TODO: Describe settings format
+
+You can optionally provide a build with dependencies JAR file, which allows Diffblue Cover to verify the tests it creates.
+The dependencies JAR (often known as a "fat" or "uber" JAR) can be created with the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) or the [Maven Assembly Plugin](http://maven.apache.org/plugins/maven-assembly-plugin/).
+
+You can also optionally provide a base JAR in order to do a differential analysis. A differential analysis allows you to only analyse code which has changed since a previous version. To do this you need to provide a base JAR of a previous build (this does not need to include dependencies).
+
+Node.js example using promises and a file stream of the build JAR:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+const fs = require('fs');
+
+const api = 'https://0.0.0.0/api';
+const build = fs.createReadStream('./build.jar');
+
+return CoverClient.startAnalysis(api, { build: build }).then(({ id, phases }) => {
+  console.log([
+    `Analysis identifier: ${id}`,
+    `Phases: ${phases}\n`
+  ].join('\n'));
+});
+```
+
+Typescript/ES6 modules example using async/await, file buffers of the build JAR, base build JAR and dependencies JAR; and supplying a settings object:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+import { readFile } from 'fs';
+import { promisify } from 'util';
+
+const api = 'https://0.0.0.0/api';
+
+(async () => {
+  const build = await promisify(readFile)('./build.jar');
+  const baseBuild = await promisify(readFile)('./baseBuild.jar');
+  const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
+  const settings = { ignoreDefaults: true, phases: {}};
+
+  const { id, phases } = await CoverClient.startAnalysis(api, {
+    baseBuild: baseBuild,
+    build: build,
+    dependenciesBuild: dependenciesBuild,
+    settings: settings,
+  });
+
+  console.log([
+    `Analysis identifier: ${id}`,
+    `Phases: ${phases}\n`
+  ].join('\n'));
+})();
+```
+
+### Get analysis status (Low level)
+
+Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, ERRORED, CANCELED and COMPLETED.
+
+The progress object returns the number of functions which have been analysed compared to the total number to analyse.
+
+In the case of an ERRORED status, an error message object with further information will also be returned.
+
+Node.js example using promises:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
+return CoverClient.getAnalysisStatus(api, id).then(({ status, progress }) => {
+  console.log([
+    `Status: ${status}`,
+    `Total functions: ${progress.total}`,
+    `Total completed functions: ${progress.completed}\n`,
+  ].join('\n'));
+});
+```
+
+Typescript/ES6 modules example using async/await:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
+(async () => {
+  const { status, progress } = await CoverClient.getAnalysisStatus(api, id);
+  console.log([
+    `Status: ${status}`,
+    `Total functions: ${progress.total}`,
+    `Total completed functions: ${progress.completed}\n`,
+  ].join('\n'));
+})();
+```
+
+### Get analysis results (Low level)
+
+Given an analysis identifier, returns a set of results from the analysis, along with the status of the analysis and a cursor for requesting results iteratively.
+
+You can optionally provide a cursor, which will only return results that were generated since that cursor. This is useful if you want to incrementally download results during the analysis. Please note that making a request with the same cursor twice will not necessarily give the same number of results, since new results may have been generated.
+
+Node.js example using promises and requesting all results:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
+CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
+  console.log([
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}`,
+    `Analysis results: ${results}`,
+    `Next cursor: ${cursor}\n`
+  ].join('\n'));
+});
+```
+
+Typescript/ES6 modules example using async/await, polling for results using the cursor:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+import { delay } from 'bluebird';
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
+(async () => {
+  let results = [];
+  let response;
+  let nextCursor?: number;
+
+  while (!response || response.status.status === 'RUNNING' || response.status.status === 'QUEUED') {
+    response = await CoverClient.getAnalysisResults(api, id, nextCursor);
+    console.log(
+      `Status: ${response.status.status}`,
+      `Total functions: ${response.status.progress.total}`,
+      `Total completed functions: ${response.status.progress.completed}`,
+      `Number of new tests: ${response.results.length}`,
+      `Next cursor: ${response.cursor}`,
+    );
+
+    nextCursor = response.cursor;
+    results = results.concat(response.results);
+    await delay(5000);
+  }
+
+  console.log(`Analysis results: ${results}`);
+})();
+```
+
+### Cancel an analysis (Low level)
+
+Given an analysis identifier, cancels that analysis. Returns the final status of the analysis.
+Any tests already produced will still be available via the get results route.
+
+Node.js example using promises:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
+return CoverClient.cancelAnalysis(api, id).then(({ message, status }) => {
+  console.log(
+    `Message: ${message}`,
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}`,
+  );
+});
+```
+
+Typescript/ES6 modules example using async/await:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const api = 'https://0.0.0.0/api';
+const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+
+(async () => {
+  const { message, status } = await CoverClient.cancelAnalysis(api, id);
+  console.log([
+    `Message: ${message}`,
+    `Status: ${status.status}`,
+    `Total functions: ${status.progress.total}`,
+    `Total completed functions: ${status.progress.completed}\n`
+  ].join('\n'));
+})();
+```
+
+### Get API version (Low level)
+
+Returns the current version of the API.
+
+Node.js example using promises:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+
+const api = 'https://0.0.0.0/api';
+
+return CoverClient.getApiVersion(api).then(({ version }) => {
+  console.log(`Current API version: ${version}`);
+});
+```
+
+Typescript/ES6 modules example using async/await:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const api = 'https://0.0.0.0/api';
+
+(async () => {
+  const { version } = await CoverClient.getApiVersion(api);
+  console.log(`Current API version: ${version}`);
+})();
+```
+
 ## Object orientated interface
 
 The `Analysis` class can be used to run analyses.
@@ -28,7 +263,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 
 ### Usage
 
-#### Start an analysis
+#### Start an analysis (Object orientated)
 
 To start an analysis, call `Analysis.start`.
 
@@ -75,7 +310,7 @@ const settings = { ignoreDefaults: true, phases: {}};
 }();
 ```
 
-#### Get the status of an analysis
+#### Get analysis status (Object orientated)
 
 To get the status of an analysis that has started, call `Analysis.getStatus`.
 
@@ -87,7 +322,7 @@ To get the status of an analysis that has started, call `Analysis.getStatus`.
 }();
 ```
 
-#### Get the results of an analysis
+#### Get analysis results (Object orientated)
 
 To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
 
@@ -101,7 +336,7 @@ To get the results (so far) of an analysis that has started, call `Analysis.getR
 }();
 ```
 
-#### Cancel an analysis
+#### Cancel an analysis (Object orientated)
 
 To cancel an analysis that has started, call `Analysis.cancel`.
 
@@ -114,7 +349,7 @@ To cancel an analysis that has started, call `Analysis.cancel`.
 }();
 ```
 
-#### Get the version of the Diffblue Cover api
+#### Get API version (Object orientated)
 
 To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
 
@@ -183,7 +418,7 @@ The `generateTestClass` function will produce a test class from an array of Diff
 
 All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values.
 
-In Node.js:
+Node.js example:
 
  ```js
 const CoverClient = require('@diffblue/cover-client');
@@ -198,14 +433,17 @@ All off these results should relate to the same class under test and so must all
 
 The existing test class should relate to the same class under test as the results.
 
-In Node.js:
+Node.js example:
 
  ```js
-const fs = require(fs);
+const fs = require('fs');
 const CoverClient = require('@diffblue/cover-client');
-const existingTestClass = fs.readFileSync('./FooBarTest.java');
-CoverClient.generateTestClass(existingTestClass, results).then((testClass) => {
-  console.log(`Merged test class:\n${testClass}`);
+const util = require('util');
+
+util.promisify(fs.readFile)('./FooBarTest.java').then((existingTestClass) => {
+  return CoverClient.generateTestClass(existingTestClass, results).then((testClass) => {
+    console.log(`Merged test class:\n${testClass}`);
+  });
 });
 ```
 
@@ -219,7 +457,7 @@ Each value in this object should be suitable to pass to `generateTestClass` or `
 
 It is assumed that all `testedFunctions` for a given `sourceFilePath` will produce the same `className` and `packageName` values when parsed.
 
-In Node.js:
+Node.js example:
 
  ```js
 const CoverClient = require('@diffblue/cover-client');
