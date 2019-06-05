@@ -65,7 +65,7 @@
     "semver": "^6.0.0",
     "simple-git": "^1.110.0",
     "sinon": "7.3.2",
-    "ts-node": "8.0.3",
+    "ts-node": "8.2.0",
     "tslint": "5.15.0",
     "tslint-eslint-rules": "5.4.0",
     "tslint-sonarts": "^1.9.0",
