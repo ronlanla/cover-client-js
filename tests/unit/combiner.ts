@@ -33,7 +33,8 @@ const sampleTestData = {
   imports: sampleResult.imports,
   staticImports: sampleResult.staticImports,
   name: sampleResult.testName,
-  test: sampleResult.testBody,
+  body: sampleResult.testBody,
+  id: sampleResult.testId,
 };
 
 describe('combiner', () => {

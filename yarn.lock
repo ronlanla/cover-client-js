@@ -124,10 +124,10 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@diffblue/java-combiner@0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@diffblue/java-combiner/-/java-combiner-0.0.11.tgz#449b99df56e35bf85804a711663b06a047f81b02"
-  integrity sha512-ayiRKHkm1Fin4LPbFAuHV/B3hqRBm1NTF9h7O/y4Z4kf8uMpGCAbL0LfqI78CfSutkvHtv5RElGdh+A9OzifDw==
+"@diffblue/java-combiner@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@diffblue/java-combiner/-/java-combiner-0.1.0.tgz#df45bc873549c9d58b254770ac551f4b141749ed"
+  integrity sha512-vOgoUoIKgOGgDv8az6L8WROylq1/2pSEpW+l5eCCgKccqYbjft7VJaaLuSBXmgWLXtEpL7tI24BQfAG0t5OZSw==
   dependencies:
     duplex-child-process "^1.0.0"
 
