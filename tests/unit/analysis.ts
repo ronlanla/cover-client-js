@@ -2,12 +2,12 @@
 
 import { clone } from 'lodash';
 
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
+import assert from '../../src/utils/assertExtra';
+import sinonTestFactory from '../../src/utils/sinonTest';
 
-import Analysis, { components } from '../../../src/analysis';
-import { AnalysisError, AnalysisErrorCodes } from '../../../src/errors';
-import { AnalysisStatuses } from '../../../src/types/types';
+import Analysis, { components } from '../../src/analysis';
+import { AnalysisError, AnalysisErrorCodes } from '../../src/errors';
+import { AnalysisStatuses } from '../../src/types/types';
 
 const sinonTest = sinonTestFactory();
 const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });
@@ -76,6 +76,7 @@ describe('analysis', () => {
           settings: settings,
           status: AnalysisStatuses.CANCELED,
           phases: {},
+          pollDelay: undefined,
           cursor: resultsResponse.cursor,
           progress: resultsResponse.status.progress,
           results: resultsResponse.results,
@@ -109,6 +110,7 @@ describe('analysis', () => {
           settings: settings,
           status: AnalysisStatuses.CANCELED,
           phases: {},
+          pollDelay: undefined,
           cursor: resultsResponse.cursor,
           progress: resultsResponse.status.progress,
           results: resultsResponse.results,

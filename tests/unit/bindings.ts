@@ -7,10 +7,10 @@ import {
   getAnalysisStatus,
   getApiVersion,
   startAnalysis,
-} from '../../../src/bindings';
-import { BindingsError, BindingsErrorCodes } from '../../../src/errors';
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
+} from '../../src/bindings';
+import { BindingsError, BindingsErrorCodes } from '../../src/errors';
+import assert from '../../src/utils/assertExtra';
+import sinonTestFactory from '../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 

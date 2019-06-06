@@ -1,6 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
+import multiline from '../../../src/utils/multiline';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 import commandLineRunner, {
@@ -47,15 +48,15 @@ describe('utils/commandLineRunner', () => {
 
   describe('getHelpMessage', () => {
     it('Returns a help message.', () => {
-      const expectedMessage = [
-        'Description:',
-        '  Foo',
-        '  Bar',
-        '',
-        'Usage:',
-        '  yarn some-command <zim> [--help]',
-        '',
-      ].join('\n');
+      const expectedMessage = multiline`
+        Description:
+          Foo
+          Bar
+
+        Usage:
+          yarn some-command <zim> [--help]
+
+      `;
 
       assert.strictEqual(getHelpMessage('Foo\nBar', '<zim>', 'yarn some-command'), expectedMessage);
     });

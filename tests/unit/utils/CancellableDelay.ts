@@ -11,7 +11,7 @@ const sinonTest = sinonTestFactory({ useFakeTimers: false });
 describe('utils/CancellableDelay', () => {
 
   it('Resolves after the specified delay', sinonTest(async (sinon) => {
-    const delay = new CancellableDelay(1);
+    const delay = new CancellableDelay(1, undefined);
     const retval = await delay.promise;
     assert.strictEqual(retval, undefined);
   }));

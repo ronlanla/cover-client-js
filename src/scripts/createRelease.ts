@@ -7,10 +7,11 @@ import * as semver from 'semver';
 import * as simpleGit from 'simple-git/promise';
 import { promisify } from 'util';
 
+import { createChangelog, getUnreleasedChanges } from '../scripts/changelog';
 import { Options } from '../utils/argvParser';
-import { getListOfUnreleasedChanges } from '../utils/changelog';
 import commandLineRunner, { Command, ExpectedError } from '../utils/commandLineRunner';
 import logger from '../utils/log';
+import multiline from '../utils/multiline';
 
 export const dependencies = {
   writeFile: promisify(writeFile),
@@ -19,12 +20,13 @@ export const dependencies = {
   exec: promisify(exec),
   inquirer: inquirer,
   logger: logger,
+  createChangelog: createChangelog,
+  getUnreleasedChanges: getUnreleasedChanges,
 };
 
 export const components = {
   repoIsClean: repoIsClean,
   updateAndCheckBranch: updateAndCheckBranch,
-  getListOfUnreleasedChanges: getListOfUnreleasedChanges,
   loadPackageJson: loadPackageJson,
   createNewReleaseBranch: createNewReleaseBranch,
   writeChangesToPackageJson: writeChangesToPackageJson,
@@ -47,10 +49,10 @@ type PartialPackageJson = {
   version: string;
 };
 
-const description = [
-  'Begins the release process for this module.',
-  'Use --force argument to do a release even if the changelog is empty.',
-].join('\n');
+const description = multiline`
+  Begins the release process for this module.
+  Use --force argument to do a release even if the changelog is empty.
+`;
 
 /**
  * Begins the release process
@@ -70,7 +72,7 @@ export default function createRelease(): Command {
     await dependencies.simpleGit.checkout('develop');
 
     // Generate changelog of develop:latest vs master:latest
-    const changes = await components.getListOfUnreleasedChanges();
+    const changes = dependencies.getUnreleasedChanges(await dependencies.createChangelog());
 
     if (changes.length === 0 && !options.force) {
       throw new ExpectedError('No changes detected in changelog. Is there anything to release?');
@@ -137,15 +139,15 @@ export function incrementVersionNumber(originalVersion: string, patchLevel: Patc
  */
 export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]): Promise<void> {
   await dependencies.simpleGit.push('origin', newBranchName);
+
+  const title = multiline`
+    Release ${newVersion}
+
+    ${changes.join('\n')}
+  `;
   // Generate PR using github API and put in changelog
   // Could replace this with an HTTP API request and get rid of the unlabelled dependency on Hub
-  await dependencies.exec(
-    [
-      `hub pull-request -b master -m "Release ${newVersion}`,
-      '',
-      `${changes.join('\n')}"`,
-    ].join('\n'),
-  );
+  await dependencies.exec(`hub pull-request -b master -m "${title}"`);
 }
 
 /**
@@ -178,8 +180,7 @@ export async function createNewReleaseBranch(newVersion: string): Promise<string
 export async function loadPackageJson(): Promise<PartialPackageJson> {
   const packageFile = await dependencies.readFile(packageJsonFilename);
   try {
-    const packageJson: PartialPackageJson = JSON.parse(packageFile.toString());
-    return packageJson;
+    return JSON.parse(packageFile.toString());
   } catch (err) {
     throw new ExpectedError(`Unable to parse ${packageJsonFilename}: ${err}`);
   }

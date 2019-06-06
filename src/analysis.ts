@@ -52,7 +52,7 @@ export default class Analysis {
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
-  public pollDelay: CancellableDelay | null = null;
+  public pollDelay?: CancellableDelay<void>;
   public pollingStopped?: boolean;
 
   public constructor(apiUrl: string) {
@@ -117,9 +117,9 @@ export default class Analysis {
       const pollingIntervalMilliseconds = (options.pollingInterval || defaultPollingInterval) * 1000;
       await this.start(files, settings);
       while (this.isRunning()) {
-        this.pollDelay = new CancellableDelay(pollingIntervalMilliseconds);
+        this.pollDelay = new CancellableDelay(pollingIntervalMilliseconds, undefined);
         await this.pollDelay.promise;
-        this.pollDelay = null;
+        this.pollDelay = undefined;
         if (this.pollingStopped) {
           // May have been changed by force stop
           break;

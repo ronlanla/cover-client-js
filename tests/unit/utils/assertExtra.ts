@@ -3,17 +3,17 @@
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 
-import assertExtra, { errorEquals, getError } from '../../../src/utils/assertExtra';
+import assertExtra, { captureError, errorEquals } from '../../../src/utils/assertExtra';
 
 // "Quis custodiet ipsos custodes"
 describe('utils/assertExtra', () => {
-  describe('getError', () => {
+  describe('captureError', () => {
     it('Returns the error thrown by the callback', () => {
-      assert.deepStrictEqual(getError(() => { throw new Error('Some error'); }), new Error('Some error'));
+      assert.deepStrictEqual(captureError(() => { throw new Error('Some error'); }), new Error('Some error'));
     });
 
     it('Throws an error if the callback did not throw an error', () => {
-      assert.throws(() => getError(() => undefined), errorEquals(new Error('Expected callback to throw an error')));
+      assert.throws(() => captureError(() => undefined), errorEquals(new Error('Expected callback to throw an error')));
     });
   });
 
@@ -22,7 +22,7 @@ describe('utils/assertExtra', () => {
       const spy = sinon.spy();
       spy();
 
-      const expectedError = getError(() => assert.strictEqual(1, 0, 'Called 1 times'));
+      const expectedError = captureError(() => assert.strictEqual(1, 0, 'Called 1 times'));
 
       assert.throws(
         () => assertExtra.notCalled(spy),
@@ -40,7 +40,7 @@ describe('utils/assertExtra', () => {
     it('Throws an exception when a spy has not been called', () => {
       const spy = sinon.spy();
 
-      const expectedError = getError(() => assert.strictEqual(0, 1, 'Called 0 times'));
+      const expectedError = captureError(() => assert.strictEqual(0, 1, 'Called 0 times'));
 
       assert.throws(() => assertExtra.calledOnce(spy), errorEquals(expectedError));
     });
@@ -50,7 +50,7 @@ describe('utils/assertExtra', () => {
       spy();
       spy();
 
-      const expectedError = getError(() => assert.strictEqual(2, 1, 'Called 2 times'));
+      const expectedError = captureError(() => assert.strictEqual(2, 1, 'Called 2 times'));
 
       assert.throws(() => assertExtra.calledOnce(spy), errorEquals(expectedError));
     });
@@ -66,7 +66,7 @@ describe('utils/assertExtra', () => {
     it('Throws an exception when a spy has not been called', () => {
       const spy = sinon.spy();
 
-      const expectedError = getError(() => assert.strictEqual(0, 1, 'Called 0 times'));
+      const expectedError = captureError(() => assert.strictEqual(0, 1, 'Called 0 times'));
 
       assert.throws(() => assertExtra.calledOnceWith(spy, []), errorEquals(expectedError));
     });
@@ -76,7 +76,7 @@ describe('utils/assertExtra', () => {
       spy();
       spy();
 
-      const expectedError = getError(() => assert.strictEqual(2, 1, 'Called 2 times'));
+      const expectedError = captureError(() => assert.strictEqual(2, 1, 'Called 2 times'));
 
       assert.throws(() => assertExtra.calledOnceWith(spy, []), errorEquals(expectedError));
     });
@@ -102,7 +102,7 @@ describe('utils/assertExtra', () => {
 
       const expectedCalls = [['foo']];
       const actualCalls = [['foo'], ['bar']];
-      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+      const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
       assert.throws(() => assertExtra.calledWith(spy, expectedCalls), errorEquals(expectedError));
     });
@@ -113,7 +113,7 @@ describe('utils/assertExtra', () => {
 
       const expectedCalls = [['foo'], ['bar']];
       const actualCalls = [['foo']];
-      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+      const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
       assert.throws(() => assertExtra.calledWith(spy, expectedCalls), errorEquals(expectedError));
     });
@@ -127,7 +127,7 @@ describe('utils/assertExtra', () => {
 
         const expectedCalls = [['foo'], ['bar']];
         const actualCalls = [['foo'], ['bar', 'zim']];
-        const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+        const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
         assert.throws(() => assertExtra.calledWith(spy, expectedCalls), errorEquals(expectedError));
       },
@@ -153,7 +153,7 @@ describe('utils/assertExtra', () => {
 
       const expectedCalls = [['foo']];
       const actualCalls = [['foo'], ['bar']];
-      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+      const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
       assert.throws(() => assertExtra.calledStartingWith(spy, expectedCalls), errorEquals(expectedError));
     });
@@ -164,7 +164,7 @@ describe('utils/assertExtra', () => {
 
       const expectedCalls = [['foo'], ['bar']];
       const actualCalls = [['foo']];
-      const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+      const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
       assert.throws(() => assertExtra.calledStartingWith(spy, expectedCalls), errorEquals(expectedError));
     });
@@ -178,7 +178,7 @@ describe('utils/assertExtra', () => {
 
         const expectedCalls = [['foo'], ['zim']];
         const actualCalls = [['foo'], ['bar']];
-        const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+        const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
         assert.throws(() => assertExtra.calledStartingWith(spy, expectedCalls), errorEquals(expectedError));
       },
@@ -215,7 +215,7 @@ describe('utils/assertExtra', () => {
       spy('foo');
       spy('bar');
 
-      const expectedError = getError(() => assert.strictEqual(2, 1, 'Called 2 times'));
+      const expectedError = captureError(() => assert.strictEqual(2, 1, 'Called 2 times'));
 
       assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), errorEquals(expectedError));
     });
@@ -223,7 +223,7 @@ describe('utils/assertExtra', () => {
     it('Throws an exception when a spy has been called less times than expected', () => {
       const spy = sinon.spy();
 
-      const expectedError = getError(() => assert.strictEqual(0, 1, 'Called 0 times'));
+      const expectedError = captureError(() => assert.strictEqual(0, 1, 'Called 0 times'));
 
       assert.throws(() => assertExtra.calledOnceStartingWith(spy, ['foo']), errorEquals(expectedError));
     });
@@ -236,7 +236,7 @@ describe('utils/assertExtra', () => {
 
         const expectedCalls = ['zim'];
         const actualCalls = ['bar'];
-        const expectedError = getError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
+        const expectedError = captureError(() => assert.deepStrictEqual(actualCalls, expectedCalls));
 
         assert.throws(() => assertExtra.calledOnceStartingWith(spy, expectedCalls), errorEquals(expectedError));
       },
@@ -341,7 +341,7 @@ describe('utils/assertExtra', () => {
 
   describe('matches', () => {
     it('Throws an exception when a string does not match a regex', () => {
-      assert.throws(() => assertExtra.matches('Foo AB', /Foo \d\d/), errorEquals(getError(() => {
+      assert.throws(() => assertExtra.matches('Foo AB', /Foo \d\d/), errorEquals(captureError(() => {
         assert.strictEqual(false, true, '"Foo AB" did not match pattern "/Foo \\d\\d/"');
       })));
     });
@@ -353,7 +353,7 @@ describe('utils/assertExtra', () => {
 
   describe('startsWith', () => {
     it('Throws an exception when a string does not start with a value', () => {
-      assert.throws(() => assertExtra.startsWith('abc123', 'abcd'), errorEquals(getError(() => {
+      assert.throws(() => assertExtra.startsWith('abc123', 'abcd'), errorEquals(captureError(() => {
         assert.strictEqual(false, true, '"abc123" does not start with "abcd"');
       })));
     });
@@ -365,7 +365,7 @@ describe('utils/assertExtra', () => {
 
   describe('endsWith', () => {
     it('Throws an exception when a string does not end with a value', () => {
-      assert.throws(() => assertExtra.endsWith('abc123', '1234'), errorEquals(getError(() => {
+      assert.throws(() => assertExtra.endsWith('abc123', '1234'), errorEquals(captureError(() => {
         assert.strictEqual(false, true, '"abc123" does not end with "1234"');
       })));
     });
@@ -380,8 +380,8 @@ describe('utils/assertExtra', () => {
       const originalObject = { a: 1 };
       const changedObject = { a: 2 };
       const expectedChanges = {};
-      const expectedError = getError(() => {
-        assert.deepStrictEqual(originalObject, changedObject);
+      const expectedError = captureError(() => {
+        assert.deepStrictEqual(changedObject, originalObject);
       });
 
       assert.throws(
@@ -394,12 +394,13 @@ describe('utils/assertExtra', () => {
       const originalObject = { a: 1 };
       const changedObject = { a: 1 };
       const expectedChanges = { b: 2 };
-      const expectedError = getError(() => {
-        assert.deepStrictEqual({ a: 1, b: 2 }, changedObject);
+      const expectedError = captureError(() => {
+        assert.deepStrictEqual(changedObject, { a: 1, b: 2 });
       });
 
       assert.throws(
-        () => assertExtra.changedProperties(originalObject, changedObject, expectedChanges),
+        // tslint:disable-next-line: no-any
+        () => assertExtra.changedProperties(originalObject, changedObject, expectedChanges as any),
         errorEquals(expectedError),
       );
     });
@@ -408,8 +409,8 @@ describe('utils/assertExtra', () => {
       const originalObject = { a: 1 };
       const changedObject = { a: 2 };
       const expectedChanges = { a: 3 };
-      const expectedError = getError(() => {
-        assert.deepStrictEqual({ ...originalObject, ...expectedChanges }, changedObject);
+      const expectedError = captureError(() => {
+        assert.deepStrictEqual(changedObject, { ...originalObject, ...expectedChanges });
       });
 
       assert.throws(

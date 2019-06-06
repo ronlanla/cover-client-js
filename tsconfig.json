@@ -15,12 +15,13 @@
     "strictBindCallApply": true,
     "alwaysStrict": true,
     "typeRoots": [
-      "./node_modules/@types/",
-      "./src/types/external/"
+      "src/types/external",
+      "node_modules/@types"
     ],
     "baseUrl": "."
   },
   "include": [
-    "index.ts"
+    "src/**/*.ts",
+    "tests/**/*.ts"
   ]
 }

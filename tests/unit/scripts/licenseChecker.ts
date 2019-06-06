@@ -15,6 +15,7 @@ import licenseChecker, {
   loadAcceptableLicenses,
   parseLicenseInfo,
 } from '../../../src/scripts/licenseChecker';
+import multiline from '../../../src/utils/multiline';
 
 const sinonTest = sinonTestFactory();
 
@@ -43,20 +44,22 @@ const sampleBadLicenseData = {
   },
 };
 
-const missingLicenseError = new Error(
-  `Licenses missing from acceptable list:
- - Module "lodash" using license "wtf" not in acceptable licenses`,
-);
+const missingLicenseError = new Error(multiline`
+  Licenses missing from acceptable list:
+   - Module "lodash" using license "wtf" not in acceptable licenses
+`);
 
-const sampleAcceptableLicenseFile = `{
-  "lodash": [
-    "mit",
-    "isc"
-  ],
-  "bluebird": [
-    "mit"
-  ]
-}
+const sampleAcceptableLicenseFile = multiline`
+  {
+    "lodash": [
+      "mit",
+      "isc"
+    ],
+    "bluebird": [
+      "mit"
+    ]
+  }
+
 `;
 
 const sampleCommands: Command[] = [
@@ -255,16 +258,16 @@ describe('scripts/licenseChecker', () => {
         { name: 'foo', help: 'Foo command', run: () => Promise.resolve(undefined) },
         { name: 'bar-zim', help: 'Bar-zim command', run: () => Promise.resolve(undefined) },
       ]);
-      assert.endsWith(description, [
-        'Commands:',
-        '  foo      Foo command',
-        '  bar-zim  Bar-zim command',
-      ].join('\n'));
+      assert.endsWith(description, multiline`
+        Commands:
+          foo      Foo command
+          bar-zim  Bar-zim command
+      `);
     });
 
     it('Returns a description with no commands', () => {
       const description = getDescription([]);
-      assert.endsWith(description, 'Commands:');
+      assert.endsWith(description, 'Commands:\n');
     });
   });
 

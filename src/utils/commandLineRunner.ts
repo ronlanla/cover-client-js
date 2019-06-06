@@ -3,6 +3,7 @@
 import { basename } from 'path';
 import argvParser, { Options } from './argvParser';
 import logger from './log';
+import multiline from './multiline';
 
 export const dependencies = {
   processExit: process.exit,
@@ -41,13 +42,14 @@ export function getCommandName(process: { argv: string[], env: NodeJS.ProcessEnv
 /** Returns the help message for the command */
 export function getHelpMessage(description: string, pattern: string, command: string) {
   const usage = `${command} ${pattern} [--help]`.replace(/ +/g, ' ');
-  return [
-    'Description:',
-    `${indent(description)}\n`,
-    'Usage:',
-    `${indent(usage)}`,
-    '',
-  ].join('\n');
+  return multiline`
+    Description:
+    ${indent(description)}
+
+    Usage:
+    ${indent(usage)}
+
+  `;
 }
 
 /** Runs an asynchronous command */

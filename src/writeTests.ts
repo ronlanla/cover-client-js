@@ -67,7 +67,7 @@ export default async function writeTests(
           throw error;
         }
       }
-      if (existingClass) { // tslint:disable-line:prefer-conditional-expression
+      if (existingClass) {
         testClass = await components.mergeIntoTestClass(existingClass.toString(), results);
       } else {
         testClass = components.generateTestClass(results);

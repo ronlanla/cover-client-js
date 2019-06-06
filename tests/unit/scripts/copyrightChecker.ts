@@ -1,6 +1,7 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
+import multiline from '../../../src/utils/multiline';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 import TestError from '../../../src/utils/TestError';
 
@@ -179,7 +180,10 @@ describe('scripts/copyrightChecker', () => {
   describe('getIgnoreRules', () => {
     it('Resolves with a list of all ignored files', sinonTest(async (sinon) => {
       const readFile = sinon.stub(dependencies, 'readFile');
-      readFile.withArgs('.gitignore').resolves(['*.json', '/node_modules'].join('\n'));
+      readFile.withArgs('.gitignore').resolves(multiline`
+        *.json
+        /node_modules
+      `);
       readFile.withArgs('.copyrightignore').resolves('/yarn.lock');
 
       assert.notOtherwiseCalled(readFile, 'readFile');

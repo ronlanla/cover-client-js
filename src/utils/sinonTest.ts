@@ -19,7 +19,7 @@ import * as sinon from 'sinon';
  * ```
  */
 export default function sinonTest(config?: Partial<sinon.SinonSandboxConfig>) {
-  return (callback: (this: Context, sandbox: sinon.SinonSandbox) => void) => {
+  return (callback: (this: Context, sandbox: sinon.SinonSandbox) => Promise<void> | void) => {
     return async function(this: Context) {
       const sandbox = sinon.createSandbox({ ...sinon.defaultConfig, ...config });
 
