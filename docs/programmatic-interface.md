@@ -280,7 +280,7 @@ The second parameter is an optional settings object.
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadSteam('./build.jar');
+const buildFile = fs.createReadStream('./build.jar');
 const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start({ build: buildFile }, settings);
@@ -292,9 +292,9 @@ const settings = { ignoreDefaults: true, phases: {}};
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadSteam('./build.jar');
-const baseBuildFile = fs.createReadSteam('./baseBuild.jar');
-const dependenciesBuildFile = fs.createReadSteam('./dependenciesBuild.jar');
+const buildFile = fs.createReadStream('./build.jar');
+const baseBuildFile = fs.createReadStream('./baseBuild.jar');
+const dependenciesBuildFile = fs.createReadStream('./dependenciesBuild.jar');
 const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start(
