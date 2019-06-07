@@ -108,10 +108,11 @@ function checkExistingClass(existingClass: string): void {
 
 /** Map AnalysisResults to ITestData */
 export function prepareTestData(results: AnalysisResult[]): ITestData[] {
-  return results.map(({ classAnnotations, imports, staticImports, testName, testBody }) => {
+  return results.map(({ classAnnotations, imports, staticImports, testName, testBody, testId }) => {
     return {
+      id: testId,
       name: testName,
-      test: testBody,
+      body: testBody,
       classAnnotations: classAnnotations,
       imports: imports,
       staticImports: staticImports,
