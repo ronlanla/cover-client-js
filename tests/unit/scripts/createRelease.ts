@@ -56,7 +56,7 @@ describe('scripts/createRelease', () => {
       await createReleasePR(newBranchName, newVersion, changes);
 
       assert.calledOnceWith(push, ['origin', newBranchName]);
-      assert.calledOnceWith(exec, ['hub pull-request -b master -m \"Release 1.0.0\n\nChange 1\nChange 2\"']);
+      assert.calledOnceWith(exec, ['hub pull-request -b master -m \"Release 1.0.0\n\n- Change 1\n- Change 2\"']);
     }));
   });
 
