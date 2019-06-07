@@ -1,6 +1,8 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
+import { ExpectedError } from '../../../src/utils/commandLineRunner';
+import multiline from '../../../src/utils/multiline';
 import sinonTestFactory from '../../../src/utils/sinonTest';
 
 import publishPackage, {
@@ -11,8 +13,6 @@ import publishPackage, {
   extractNpmError,
   getAuthUser,
 } from '../../../src/scripts/publishPackage';
-
-import { ExpectedError } from '../../../src/utils/commandLineRunner';
 
 const sinonTest = sinonTestFactory();
 
@@ -68,16 +68,16 @@ describe('scripts/copyrightChecker', () => {
 
   describe('extractNpmError', () => {
     it('Returns the error message from NPM output', () => {
-      const output = [
-        'npm notice',
-        'npm ERR! code ENEEDAUTH',
-        'npm ERR! need auth auth required for publishing',
-      ].join('\n');
+      const output = multiline`
+        npm notice
+        npm ERR! code ENEEDAUTH
+        npm ERR! need auth auth required for publishing
+      `;
 
-      const errorMessage = [
-        'code ENEEDAUTH',
-        'need auth auth required for publishing',
-      ].join('\n');
+      const errorMessage = multiline`
+        code ENEEDAUTH
+        need auth auth required for publishing
+      `;
 
       assert.strictEqual(extractNpmError(output), errorMessage);
     });

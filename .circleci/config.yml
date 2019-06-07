@@ -15,8 +15,8 @@ references:
     circleci/node:8.16.0
   node-10: &node-10
     circleci/node:10.15.3
-  node-11: &node-11
-    circleci/node:11.14.0
+  node-12: &node-12
+    circleci/node:12.3.1
 
 commands:
   install-hub:
@@ -101,10 +101,15 @@ commands:
     steps:
       - run:
           name: Unit tests
-          command: yarn coverage --forbid-only --forbid-pending
+          command: yarn coverage --forbid-only --forbid-pending --reporter mocha-circleci-reporter --reporter-options mochaFile=~/test-results/mocha/results.xml
       - run:
           name: Integration tests
-          command: yarn integration-test --forbid-only --forbid-pending
+          command: yarn integration-test --forbid-only --forbid-pending --reporter mocha-circleci-reporter --reporter-options mochaFile=~/test-results/mocha-integration/results.xml
+      - store_artifacts:
+          path: coverage
+      - store_test_results:
+          path: ~/test-results/
+
 
   deploy:
     steps:
@@ -146,9 +151,9 @@ jobs:
       - install-dependencies
       - tests
 
-  test-node-11:
+  test-node-12:
     docker:
-      - image: *node-11
+      - image: *node-12
     steps:
       - checkout
       - install-dependencies
@@ -188,9 +193,9 @@ jobs:
       - install-dependencies-latest
       - tests
 
-  test-node-11-latest:
+  test-node-12-latest:
     docker:
-      - image: *node-11
+      - image: *node-12
     steps:
       - checkout
       - install-dependencies-latest
@@ -203,9 +208,9 @@ workflows:
       - checks
       - test-node-8
       - test-node-10
-      - test-node-11
+      - test-node-12
       - deploy:
-          requires: [checks, test-node-8, test-node-10, test-node-11]
+          requires: [checks, test-node-8, test-node-10, test-node-12]
           filters:
             branches:
               only: master
@@ -215,7 +220,7 @@ workflows:
       - checks-latest
       - test-node-8-latest
       - test-node-10-latest
-      - test-node-11-latest
+      - test-node-12-latest
     triggers:
       - schedule:
           # Nightly at midnight

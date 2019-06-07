@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 
 /** Returns the error thrown by a callback */
-export function getError(callback: () => void): Error {
+export function captureError(callback: () => void): Error {
   try {
     callback();
   } catch (error) {
@@ -100,12 +100,15 @@ const assertExtra = {
   },
 
   /** Assert that the expected changes and only the expected changes have occurred on an object */
-  // tslint:disable-next-line:no-any
-  changedProperties: (originalObject: {[index: string]: any}, changedObject: object, expectedChanges: object) => {
+  changedProperties: <ObjectA, ObjectB>(
+    originalObject: ObjectA,
+    changedObject: ObjectB,
+    expectedChanges: Partial<ObjectA & ObjectB>,
+  ) => {
     for (const [key, value] of Object.entries(expectedChanges)) {
-      originalObject[key] = value;
+      originalObject[key as keyof ObjectA] = value;
     }
-    assert.deepStrictEqual(originalObject, changedObject);
+    assert.deepStrictEqual(changedObject, originalObject);
   },
 };
 

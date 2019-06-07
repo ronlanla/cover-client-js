@@ -2,24 +2,30 @@
 
 import {
   cancelAnalysis,
+  components,
   dependencies,
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
   startAnalysis,
-} from '../../../src/bindings';
-import { BindingsError, BindingsErrorCodes } from '../../../src/errors';
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
+} from '../../src/bindings';
+import { BindingsError, BindingsErrorCodes } from '../../src/errors';
+import assert from '../../src/utils/assertExtra';
+import sinonTestFactory from '../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
+
+const sampleConfig = {
+  httpsAgent: components.permissiveHttpsAgent,
+};
 
 describe('api/bindings', () => {
   const api = 'http://localhost/api';
 
   describe('getApiVersion', () => {
+    const versionUrl = `${api}/version`;
+
     it('Returns the current version of the API', sinonTest(async (sinon) => {
-      const versionUrl = `${api}/version`;
       const get = sinon.stub(dependencies.request, 'get');
 
       get.withArgs(versionUrl).resolves({ version: '1.0.1' });
@@ -29,6 +35,12 @@ describe('api/bindings', () => {
       const expectedVersion = { version: '1.0.1' };
 
       assert.deepStrictEqual(actualVersion, expectedVersion);
+    }));
+
+    it('Handles the allowUnauthorizedHttps option correctly', sinonTest(async (sinon) => {
+      const get = sinon.stub(dependencies.request, 'get').resolves();
+      await getApiVersion(api, { allowUnauthorizedHttps: true });
+      assert.calledOnceWith(get, [versionUrl, sampleConfig]);
     }));
   });
 
@@ -40,7 +52,6 @@ describe('api/bindings', () => {
     const settings = {
       ignoreDefaults: true,
       phases: {},
-      webhooks: {},
     };
 
     it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
@@ -117,17 +128,28 @@ describe('api/bindings', () => {
     }));
 
     it('Throws an error when the settings are invalid', sinonTest(async () => {
-      /** Infinite cycle object to throw an error for JSON.stringify */
+      // Infinite cycle object to throw an error for JSON.stringify
       const obj: { a?: Object } = {};
       obj.a = { b: obj };
 
+      const expectedError = new RegExp(BindingsErrorCodes.SETTINGS_INVALID);
+
       await assert.rejectsWith(
-        startAnalysis(api, { build: build }, obj as any), // tslint:disable-line:no-any
-        new BindingsError(
-          'The settings JSON was not valid:\nTypeError: Converting circular structure to JSON',
-          BindingsErrorCodes.SETTINGS_INVALID,
-        ),
+        startAnalysis(api, { build: build }, obj as any), expectedError, // tslint:disable-line:no-any
       );
+    }));
+
+    it('Handles the allowUnauthorizedHttps option correctly', sinonTest(async (sinon) => {
+      const post = sinon.stub(dependencies.request, 'post').resolves();
+      const headers = { someKey: 'someValue' };
+      const formData = {
+        getHeaders: () => headers,
+        append: () => undefined,
+      };
+      sinon.stub(dependencies, 'FormData').returns(formData);
+      await startAnalysis(api, { build: build }, settings, { allowUnauthorizedHttps: true });
+      const config = { ...sampleConfig, headers: headers };
+      assert.calledOnceWith(post, [startUrl, formData, config]);
     }));
   });
 
@@ -186,11 +208,19 @@ describe('api/bindings', () => {
 
       assert.deepStrictEqual(actualResponse, expectedResults);
     }));
+
+    it('Handles the allowUnauthorizedHttps option correctly', sinonTest(async (sinon) => {
+      const get = sinon.stub(dependencies.request, 'get').resolves();
+      await getAnalysisResults(api, 'ABCD-1234', undefined, { allowUnauthorizedHttps: true });
+      const config = { ...sampleConfig, params: { cursor: undefined }};
+      assert.calledOnceWith(get, [resultUrl, config]);
+    }));
   });
 
   describe('cancelAnalysis', () => {
-    it('Cancels the targetted analysis', sinonTest(async (sinon) => {
-      const cancelUrl = `${api}/analysis/ABCD-1234/cancel`;
+    const cancelUrl = `${api}/analysis/ABCD-1234/cancel`;
+
+    it('Cancels the target analysis', sinonTest(async (sinon) => {
       const post = sinon.stub(dependencies.request, 'post');
 
       post.withArgs(cancelUrl).resolves({
@@ -213,11 +243,18 @@ describe('api/bindings', () => {
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));
+
+    it('Handles the allowUnauthorizedHttps option correctly', sinonTest(async (sinon) => {
+      const post = sinon.stub(dependencies.request, 'post').resolves();
+      await cancelAnalysis(api, 'ABCD-1234', { allowUnauthorizedHttps: true });
+      assert.calledOnceWith(post, [cancelUrl, undefined, sampleConfig]);
+    }));
   });
 
   describe('getAnalysisStatus', () => {
-    it('Cancels the targetted analysis', sinonTest(async (sinon) => {
-      const statusUrl = `${api}/analysis/ABCD-1234/status`;
+    const statusUrl = `${api}/analysis/ABCD-1234/status`;
+
+    it('Gets the target analysis status', sinonTest(async (sinon) => {
       const get = sinon.stub(dependencies.request, 'get');
 
       get.withArgs(statusUrl).resolves({ status: { status: 'RUNNING', progress: 75 }});
@@ -227,6 +264,12 @@ describe('api/bindings', () => {
       const expectedResponse = { status: { status: 'RUNNING', progress: 75 }};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
+    }));
+
+    it('Handles the allowUnauthorizedHttps option correctly', sinonTest(async (sinon) => {
+      const get = sinon.stub(dependencies.request, 'get').resolves();
+      await getAnalysisStatus(api, 'ABCD-1234', { allowUnauthorizedHttps: true });
+      assert.calledOnceWith(get, [statusUrl, sampleConfig]);
     }));
   });
 });

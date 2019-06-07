@@ -2,12 +2,12 @@
 
 import { clone } from 'lodash';
 
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
+import assert from '../../src/utils/assertExtra';
+import sinonTestFactory from '../../src/utils/sinonTest';
 
-import Analysis, { components } from '../../../src/analysis';
-import { AnalysisError, AnalysisErrorCodes } from '../../../src/errors';
-import { AnalysisStatuses } from '../../../src/types/types';
+import Analysis, { components } from '../../src/analysis';
+import { AnalysisError, AnalysisErrorCodes } from '../../src/errors';
+import { AnalysisStatuses } from '../../src/types/types';
 
 const sinonTest = sinonTestFactory();
 const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });
@@ -32,42 +32,59 @@ const sampleResult = {
   phaseGenerated: 'phase',
   createdTime: 'created',
 };
+const sampleBindingOptions = { allowUnauthorizedHttps: true };
 
 describe('analysis', () => {
   describe('Analysis object', () => {
-    it('Can be instantiated', sinonTest(async (sinon) => {
-      const analysis = new Analysis(apiUrl);
-      assert.strictEqual(analysis.status, undefined);
-    }));
+    describe('instantiation', () => {
+      it('Can be instantiated', sinonTest(async (sinon) => {
+        const analysis = new Analysis(apiUrl);
+        assert.strictEqual(analysis.status, undefined);
+        assert.strictEqual(analysis.apiUrl, apiUrl);
+      }));
+
+      it('Can be instantiated with bindings options', sinonTest(async (sinon) => {
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        assert.strictEqual(analysis.status, undefined);
+        assert.strictEqual(analysis.apiUrl, apiUrl);
+        assert.strictEqual(analysis.bindingsOptions, sampleBindingOptions);
+      }));
+    });
 
     describe('getApiVersion', () => {
+      const versionResponse = { version: '1.2.3' };
+
       it('Can get the api version', sinonTest(async (sinon) => {
-        const getApiVersion = sinon.stub(components, 'getApiVersion');
-        const versionResponse = { version: '1.2.3' };
-        getApiVersion.resolves(versionResponse);
+        const getApiVersion = sinon.stub(components, 'getApiVersion').resolves(versionResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         const returnValue = await analysis.getApiVersion();
         const changes = { apiVersion: returnValue.version };
         assert.deepStrictEqual(returnValue, versionResponse);
-        assert.calledOnceWith(getApiVersion, [apiUrl]);
+        assert.calledOnceWith(getApiVersion, [apiUrl, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
+      }));
+
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        const getApiVersion = sinon.stub(components, 'getApiVersion').resolves(versionResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.getApiVersion();
+        assert.calledOnceWith(getApiVersion, [apiUrl, sampleBindingOptions]);
       }));
     });
 
     describe('run', () => {
+      const startResponse = { id: analysisId, phases: {}};
+      const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+      const resultsResponse = {
+        status: responseStatus,
+        cursor: 12345,
+        results: [sampleResult],
+      };
+
       it('Can run an analysis', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
@@ -76,6 +93,7 @@ describe('analysis', () => {
           settings: settings,
           status: AnalysisStatuses.CANCELED,
           phases: {},
+          pollDelay: undefined,
           cursor: resultsResponse.cursor,
           progress: resultsResponse.status.progress,
           results: resultsResponse.results,
@@ -83,23 +101,14 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
       it('Can run an analysis without options or settings', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         setImmediate(() => analysis.pollDelay!.cancel());  // tslint:disable-line:no-non-null-assertion
@@ -109,6 +118,7 @@ describe('analysis', () => {
           settings: settings,
           status: AnalysisStatuses.CANCELED,
           phases: {},
+          pollDelay: undefined,
           cursor: resultsResponse.cursor,
           progress: resultsResponse.status.progress,
           results: resultsResponse.results,
@@ -116,75 +126,52 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
       it('Can run an analysis and write test files', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const analysis = new Analysis(apiUrl);
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path' };
         await analysis.run(files, settings, options);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledOnceWith(writeTests, ['/test/path', undefined]);
       }));
 
       it('Can run an analysis and write test files with concurrency option', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const analysis = new Analysis(apiUrl);
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path', writingConcurrency: 1 };
         await analysis.run(files, settings, options);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1 }]);
       }));
 
       it('Can pass new result groups to onResults callback when polling', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const otherResult = {
           ...sampleResult,
           testedFunction: 'com.diffblue.javademo.OtherClass.otherFunction',
           sourceFilePath: '/other/path',
         };
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
+        const response = {
+          ...resultsResponse,
           results: [sampleResult, otherResult],
         };
-        getAnalysisResults.resolves(resultsResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(response);
         const onResults = sinon.spy();
         const analysis = new Analysis(apiUrl);
         await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledWith(
           onResults,
           [
@@ -195,37 +182,23 @@ describe('analysis', () => {
       }));
 
       it('Does not call the onResults callback when polling if no new results', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const response = {
+          ...resultsResponse,
           results: [],
         };
-        getAnalysisResults.resolves(resultsResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(response);
         const onResults = sinon.spy();
         const analysis = new Analysis(apiUrl);
         await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.notCalled(onResults);
       }));
 
       it('Calls the onError callback if provided, rather than rejecting', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const analysis = new Analysis(apiUrl);
         const writeTestsError = new Error('writeTests rejected');
         const writeTests = sinon.stub(analysis, 'writeTests').rejects(writeTestsError);
@@ -233,24 +206,20 @@ describe('analysis', () => {
         const options = { pollingInterval: 0.0001, outputTests: '/test/path', onError: onError };
         const returnValue = await analysis.run(files, settings, options);
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledOnceWith(writeTests, ['/test/path', undefined]);
         assert.calledOnceWith(onError, [writeTestsError]);
       }));
 
       it('Rejects if analysis errors, and does not write test files', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const responseStatus = { status: AnalysisStatuses.ERRORED, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
+        const response = {
+          ...resultsResponse,
           status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
         };
-        getAnalysisResults.resolves(resultsResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(response);
         const analysis = new Analysis(apiUrl);
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path' };
@@ -260,53 +229,46 @@ describe('analysis', () => {
             return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.RUN_ERRORED;
           },
         );
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.notCalled(writeTests);
       }));
 
       it('Calling forceStop stops polling (after polling occurs)', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
         const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
+        const response = {
+          ...resultsResponse,
           status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
         };
-        getAnalysisResults.resolves({ ...resultsResponse, results: [] });
-        getAnalysisResults.onFirstCall().resolves(resultsResponse);
+        getAnalysisResults.resolves({ ...response, results: [] });
+        getAnalysisResults.onFirstCall().resolves(response);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         setTimeout(() => analysis.forceStop(), 10);
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
         assert.deepStrictEqual(returnValue, resultsResponse.results);
         assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
-        sinon.assert.calledWith(getAnalysisResults, apiUrl, analysisId, undefined);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        sinon.assert.calledWith(getAnalysisResults, apiUrl, analysisId, undefined, {});
       }));
 
       it('Calling forceStop stops polling (before polling occurs)', sinonTestWithTimers(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
+        const response = {
+          ...resultsResponse,
           status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
         };
-        getAnalysisResults.resolves(resultsResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(response);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         setImmediate(() => analysis.forceStop());
         const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
         assert.deepStrictEqual(returnValue, []);
-        assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.strictEqual(analysis.status, AnalysisStatuses.QUEUED);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
         assert.notCalled(getAnalysisResults);
       }));
     });
@@ -344,27 +306,26 @@ describe('analysis', () => {
     });
 
     describe('start', () => {
+      const startResponse = { id: analysisId, phases: {}};
+
       it('Can start an analysis', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        const startResponse = { id: analysisId, phases: {}};
-        startAnalysis.resolves(startResponse);
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         const returnValue = await analysis.start(files);
         const changes = {
           analysisId: returnValue.id,
           settings: settings,
-          status: AnalysisStatuses.RUNNING,
+          status: AnalysisStatuses.QUEUED,
           phases: returnValue.phases,
         };
         assert.deepStrictEqual(returnValue, startResponse);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
       it('Can start an analysis with all arguments', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         const allFiles = { build: build, dependenciesBuild: dependenciesBuild, baseBuild: baseBuild };
@@ -372,11 +333,18 @@ describe('analysis', () => {
         const changes = {
           analysisId: returnValue.id,
           settings: settings,
-          status: AnalysisStatuses.RUNNING,
+          status: AnalysisStatuses.QUEUED,
           phases: returnValue.phases,
         };
-        assert.calledOnceWith(startAnalysis, [apiUrl, allFiles, settings]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, allFiles, settings, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
+      }));
+
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.start(files);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, sampleBindingOptions]);
       }));
 
       it('Fails to start an analysis, if api method throws', sinonTest(async (sinon) => {
@@ -389,11 +357,10 @@ describe('analysis', () => {
       }));
 
       it('Fails to start an analysis, if already started', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl);
         await analysis.start(files, settings);
-        assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
+        assert.strictEqual(analysis.status, AnalysisStatuses.QUEUED);
         await assert.rejects(
           async () => analysis.start(files, settings),
           (err: Error) => {
@@ -403,8 +370,7 @@ describe('analysis', () => {
       }));
 
       it('Fails to start an analysis, if already canceled', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const cancelAnalysis = sinon.stub(components, 'cancelAnalysis');
         const cancelStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
         const cancelMessage = 'Analysis cancelled successfully';
@@ -424,14 +390,14 @@ describe('analysis', () => {
     });
 
     describe('cancel', () => {
+      const startResponse = { id: analysisId, phases: {}};
+      const cancelStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+      const cancelMessage = 'Analysis cancelled successfully';
+      const cancelResponse = { message: cancelMessage, status: cancelStatus };
+
       it('Can cancel an analysis', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
-        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis');
-        const cancelStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
-        const cancelMessage = 'Analysis cancelled successfully';
-        const cancelResponse = { message: cancelMessage, status: cancelStatus };
-        cancelAnalysis.resolves(cancelResponse);
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis').resolves(cancelResponse);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const canceledAnalysis = clone(startedAnalysis);
@@ -442,16 +408,23 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, cancelResponse);
-        assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId]);
+        assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, {}]);
         assert.changedProperties(startedAnalysis, canceledAnalysis, changes);
       }));
 
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis').resolves(cancelResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.start(files, settings);
+        await analysis.cancel();
+        assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, sampleBindingOptions]);
+      }));
+
       it('Fails to cancel an analysis, if api method throws', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const cancelError = new Error('cancel api call failed');
-        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis');
-        cancelAnalysis.throws(cancelError);
+        sinon.stub(components, 'cancelAnalysis').throws(cancelError);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const analysis = clone(startedAnalysis);
@@ -465,7 +438,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -477,15 +450,14 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
 
       it('Fails to cancel an analysis, if id not set', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl);
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
         await analysis.start(files, settings);
         analysis.analysisId = '';
         await assert.rejects(
@@ -498,12 +470,12 @@ describe('analysis', () => {
     });
 
     describe('getStatus', () => {
+      const startResponse = { id: analysisId, phases: {}};
+      const statusResponse = { status: AnalysisStatuses.COMPLETED, progress: { completed: 100, total: 100 }};
+
       it('Can get the status of an analysis', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
-        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus');
-        const statusResponse = { status: AnalysisStatuses.COMPLETED, progress: { completed: 100, total: 100 }};
-        getAnalysisStatus.resolves(statusResponse);
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const analysis = clone(startedAnalysis);
@@ -514,20 +486,18 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, statusResponse);
-        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId]);
+        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, {}]);
         assert.changedProperties(startedAnalysis, analysis, changes);
       }));
 
       it('Can get the status of an errored analysis', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
-        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus');
-        const statusResponse = {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const response = {
+          ...statusResponse,
           status: AnalysisStatuses.ERRORED,
-          progress: { completed: 10, total: 20 },
           message: { code: 'analysis-not-found', message: 'Analysis not found' },
         };
-        getAnalysisStatus.resolves(statusResponse);
+        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(response);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const analysis = clone(startedAnalysis);
@@ -537,17 +507,24 @@ describe('analysis', () => {
           progress: returnValue.progress,
           error: returnValue.message,
         };
-        assert.deepStrictEqual(returnValue, statusResponse);
-        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId]);
+        assert.deepStrictEqual(returnValue, response);
+        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, {}]);
         assert.changedProperties(startedAnalysis, analysis, changes);
       }));
 
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.start(files);
+        await analysis.getStatus();
+        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, sampleBindingOptions]);
+      }));
+
       it('Fails to get the status of an analysis, if api method throws', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const statusError = new Error('get status api call failed');
-        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus');
-        getAnalysisStatus.throws(statusError);
+        sinon.stub(components, 'getAnalysisStatus').throws(statusError);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const analysis = clone(startedAnalysis);
@@ -561,7 +538,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -573,7 +550,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -594,17 +571,17 @@ describe('analysis', () => {
     });
 
     describe('getResults', () => {
+      const startResponse = { id: analysisId, phases: {}};
+      const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
+      const resultsResponse = {
+        status: responseStatus,
+        cursor: 12345,
+        results: [sampleResult],
+      };
+
       it('Can get the paginated results of an analysis', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const startingCursor = 98765;
@@ -622,21 +599,13 @@ describe('analysis', () => {
           cursor: returnValue.cursor,
         };
         assert.deepStrictEqual(returnValue, resultsResponse);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, startedAnalysis.cursor]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, startedAnalysis.cursor, {}]);
         assert.changedProperties(startedAnalysis, analysis, changes);
       }));
 
       it('Can get the full results of an analysis', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
-        const resultsResponse = {
-          status: responseStatus,
-          cursor: 12345,
-          results: [sampleResult],
-        };
-        getAnalysisResults.resolves(resultsResponse);
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const extantResult = clone(sampleResult);
@@ -652,16 +621,23 @@ describe('analysis', () => {
           cursor: returnValue.cursor,
         };
         assert.deepStrictEqual(returnValue, resultsResponse);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(startedAnalysis, analysis, changes);
       }));
 
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.start(files);
+        await analysis.getResults();
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, sampleBindingOptions]);
+      }));
+
       it('Fails to get the results of an analysis, if api method throws', sinonTest(async (sinon) => {
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const resultsError = new Error('results api call failed');
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        getAnalysisResults.throws(resultsError);
+        sinon.stub(components, 'getAnalysisResults').throws(resultsError);
         const startedAnalysis = new Analysis(apiUrl);
         await startedAnalysis.start(files, settings);
         const analysis = clone(startedAnalysis);
@@ -675,7 +651,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -687,15 +663,14 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
 
       it('Fails to get the results an analysis, if id not set', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl);
-        const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, phases: {}});
         await analysis.start(files, settings);
         analysis.analysisId = '';
         await assert.rejects(
@@ -718,6 +693,19 @@ describe('analysis', () => {
         analysis.status = AnalysisStatuses.RUNNING;
         assert.strictEqual(analysis.isNotStarted(), false);
       });
+
+      it('Knows if its status is queued', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatuses.QUEUED;
+        assert.strictEqual(analysis.isQueued(), true);
+      });
+
+      it('Knows if its status is not queued', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatuses.COMPLETED;
+        assert.strictEqual(analysis.isQueued(), false);
+      });
+
 
       it('Knows if its status is running', () => {
         const analysis = new Analysis(apiUrl);
@@ -793,6 +781,21 @@ describe('analysis', () => {
       it('Knows if it has not ended if status is not set', () => {
         const analysis = new Analysis(apiUrl);
         assert.strictEqual(analysis.isEnded(), false);
+      });
+
+      it('Knows if it is in progress', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatuses.QUEUED;
+        assert.strictEqual(analysis.isInProgress(), true);
+        analysis.status = AnalysisStatuses.RUNNING;
+        assert.strictEqual(analysis.isInProgress(), true);
+      });
+
+      it('Knows if it is not in progress', () => {
+        const analysis = new Analysis(apiUrl);
+        assert.strictEqual(analysis.isInProgress(), false);
+        analysis.status = AnalysisStatuses.ERRORED;
+        assert.strictEqual(analysis.isInProgress(), false);
       });
     });
   });

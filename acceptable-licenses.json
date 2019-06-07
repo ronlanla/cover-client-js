@@ -2,13 +2,22 @@
   "@diffblue/java-combiner": [
     "mit"
   ],
+  "@types/common-tags": [
+    "mit"
+  ],
   "asynckit": [
     "mit"
   ],
   "axios": [
     "mit"
   ],
+  "bluebird": [
+    "mit"
+  ],
   "combined-stream": [
+    "mit"
+  ],
+  "common-tags": [
     "mit"
   ],
   "debug": [

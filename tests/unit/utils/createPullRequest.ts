@@ -16,10 +16,10 @@ describe('utils/createPullRequest', () => {
       'hub',
       [
         'pull-request',
-        '--message', 'Title',
-        '--head', 'master',
-        '--base', 'develop',
-        '--reviewer', '',
+        '--message=Title',
+        '--head=master',
+        '--base=develop',
+        '--reviewer=',
       ],
       { env: {
         GITHUB_TOKEN: 'abc123',
@@ -35,10 +35,10 @@ describe('utils/createPullRequest', () => {
       'hub',
       [
         'pull-request',
-        '--message', 'Title',
-        '--head', 'master',
-        '--base', 'develop',
-        '--reviewer', '@foo,@bar',
+        '--message=Title',
+        '--head=master',
+        '--base=develop',
+        '--reviewer=@foo,@bar',
       ],
       { env: {
         GITHUB_TOKEN: 'abc123',

@@ -1,26 +1,25 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 /** Signature of Promise resolver callback */
-type resolver = (value?: {} | PromiseLike<{}> | undefined) => void;
+type Resolver<Value> = (value?: Value | PromiseLike<Value> | undefined) => void;
 /** Signature of Promise rejector callback */
-type rejector = (reason?: any) => void;  // tslint:disable-line:no-any
+type Rejector = (reason?: string | Error) => void;
 
 /**
  * A deferred whose promise resolves after the specified delay, with any supplied value.
  *
  * Calling cancel will clear the internal timer and can cause the promise to resolve or reject as required.
  */
-export default class CancellableDelay {
+export default class CancellableDelay<Value> {
 
   public timer?: NodeJS.Timeout | null = null;
-  public promise: Promise<any>; // tslint:disable-line:no-any
-  public resolve: resolver;
-  public reject: rejector;
-  public resolveValue: any; // tslint:disable-line:no-any
+  public promise: Promise<Value>;
+  public resolve: Resolver<Value>;
+  public reject: Rejector;
+  public resolveValue: Value;
 
-  public constructor(delay: number, value?: any) { // tslint:disable-line:no-any
-    // tslint:disable-next-line:no-inferred-empty-object-type
-    this.promise = new Promise((resolve: resolver, reject: rejector) => {
+  public constructor(delay: number, value: Value) {
+    this.promise = new Promise((resolve: Resolver<Value>, reject: Rejector) => {
       this.resolve = resolve;
       this.reject = reject;
     });
