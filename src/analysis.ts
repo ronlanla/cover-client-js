@@ -60,12 +60,15 @@ export default class Analysis {
   }
 
   /** Check if analysis is running */
-  private checkRunning(): void {
-    if (!this.isRunning()) {
-      throw new AnalysisError(`Analysis is not running (status: ${this.status}).`, AnalysisErrorCodes.NOT_RUNNING);
+  private checkInProgress(): void {
+    if (!this.isInProgress()) {
+      throw new AnalysisError(
+        `Analysis is not in progress (status: ${this.status}).`,
+        AnalysisErrorCodes.NOT_IN_PROGRESS,
+      );
     }
     if (!this.analysisId) {
-      throw new AnalysisError('Analysis is running but the analysis id is not set.', AnalysisErrorCodes.NO_ID);
+      throw new AnalysisError('Analysis is in progress but the analysis id is not set.', AnalysisErrorCodes.NO_ID);
     }
   }
 
@@ -116,7 +119,7 @@ export default class Analysis {
       const defaultPollingInterval = 60;  // seconds
       const pollingIntervalMilliseconds = (options.pollingInterval || defaultPollingInterval) * 1000;
       await this.start(files, settings);
-      while (this.isRunning()) {
+      while (this.isInProgress()) {
         this.pollDelay = new CancellableDelay(pollingIntervalMilliseconds, undefined);
         await this.pollDelay.promise;
         this.pollDelay = undefined;
@@ -177,13 +180,13 @@ export default class Analysis {
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
-    this.status = AnalysisStatuses.RUNNING;
+    this.status = AnalysisStatuses.QUEUED;
     return response;
   }
 
   /** Cancel the analysis */
   public async cancel(): Promise<AnalysisCancelApiResponse> {
-    this.checkRunning();
+    this.checkInProgress();
     const response = await components.cancelAnalysis(this.apiUrl, this.analysisId!);
     this.updateStatus(response.status);
     return response;
@@ -191,7 +194,7 @@ export default class Analysis {
 
   /** Get the analysis's status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
-    this.checkRunning();
+    this.checkInProgress();
     const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId!);
     this.updateStatus(response);
     return response;
@@ -199,7 +202,7 @@ export default class Analysis {
 
   /** Get the analysis's results */
   public async getResults(useCursor: boolean = true): Promise<AnalysisResultsApiResponse> {
-    this.checkRunning();
+    this.checkInProgress();
     const response = await components.getAnalysisResults(
       this.apiUrl,
       this.analysisId!,
@@ -221,6 +224,11 @@ export default class Analysis {
   /** Check if status is not started */
   public isNotStarted(): boolean {
     return !this.status;
+  }
+
+  /** Check if status is queued */
+  public isQueued(): boolean {
+    return this.status === AnalysisStatuses.QUEUED;
   }
 
   /** Check if status is running */
@@ -259,5 +267,10 @@ export default class Analysis {
       AnalysisStatuses.CANCELED,
     ]);
     return endedStatuses.has(this.status);
+  }
+
+  /** Check if status indicates that the analysis is in progress (started but not finished) */
+  public isInProgress(): boolean {
+    return this.isQueued() || this.isRunning();
   }
 }
