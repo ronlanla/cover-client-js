@@ -71,6 +71,8 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
     - [Get analysis results (low level)](docs/programmatic-interface.md#get-analysis-results-low-level)
     - [Cancel an analysis (low level)](docs/programmatic-interface.md#cancel-an-analysis-low-level)
     - [Get API version (low level)](docs/programmatic-interface.md#get-api-version-low-level)
+    - [Low level options](docs/programmatic-interface.md#low-level-options)
+      - [Ignore https rejection](docs/programmatic-interface.md#ignore-https-rejection)
   - [Combining results into test classes](docs/programmatic-interface.md#combining-results-into-test-classes)
     - [Generate a new test class](docs/programmatic-interface.md#generate-a-new-test-class)
     - [Merge results into an existing test class](docs/programmatic-interface.md#merge-results-into-an-existing-test-class)
