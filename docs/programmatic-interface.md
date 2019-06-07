@@ -49,8 +49,9 @@ The second parameter is an optional settings object.
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadStream('./build.jar');
+const buildFile = createReadStream('./build.jar');
 const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start({ build: buildFile }, settings);
@@ -61,10 +62,11 @@ const settings = { ignoreDefaults: true, phases: {}};
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadStream('./build.jar');
-const baseBuildFile = fs.createReadStream('./baseBuild.jar');
-const dependenciesBuildFile = fs.createReadStream('./dependenciesBuild.jar');
+const buildFile = createReadStream('./build.jar');
+const baseBuildFile = createReadStream('./baseBuild.jar');
+const dependenciesBuildFile = createReadStream('./dependenciesBuild.jar');
 const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start(
@@ -144,12 +146,14 @@ The `Analysis` object has a number of helper methods to check the saved analysis
 call to any method that changes or returns the current analysis status.
 
 ```ts
-import { ok } from 'assert';
 import { Analysis } from '@diffblue/cover-client';
+import { ok } from 'assert';
+import { createReadStream } from 'fs';
+const buildFile = createReadStream('./build.jar');
 (async () => {
   const analysis = new Analysis('https://your-cover-api-domain.com');
   ok(analysis.isNotStarted());
-  await analysis.start('./buildPath.jar', settings);
+  await analysis.start({ build: buildFile }, settings);
   ok(analysis.isRunning());
 }();
 ```
@@ -158,8 +162,10 @@ The `Analysis` object keeps track of the status of the analysis it is running, a
 if a method is called at an inappropriate time.
 
 ```ts
-import { ok } from 'assert';
 import { Analysis } from '@diffblue/cover-client';
+import { ok } from 'assert';
+import { createReadStream } from 'fs';
+const buildFile = createReadStream('./build.jar');
 (async () => {
   const analysis = new Analysis('https://your-cover-api-domain.com');
   ok(analysis.isNotStarted());
@@ -168,10 +174,10 @@ import { Analysis } from '@diffblue/cover-client';
   catch (error) {
     console.log(`Fetching results before starting throws: ${error}`)
   }
-  await analysis.start('./buildPath.jar', settings);
+  await analysis.start({ build: buildFile }, settings);
   ok(analysis.isRunning());
   try {
-    await analysis.start();
+    await analysis.start({ build: buildFile }, settings);
   catch (error) {
     console.log(`Starting a started analysis throws: ${error}`)
   }
@@ -187,7 +193,7 @@ You can use the low level bindings to submit requests to a Diffblue Cover API by
 Starts an analysis and returns the unique identifier for that analysis.
 To start an analysis the minimum you need is a build JAR file of your source code.
 
-You can optionally provide a settings object in order to customise the analysis.
+You can optionally provide a settings object in order to customize the analysis.
 TODO: Describe settings format
 
 You can optionally provide a build with dependencies JAR file, which allows Diffblue Cover to verify the tests it creates.
@@ -226,13 +232,13 @@ const api = 'https://0.0.0.0/api';
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
   const settings = { ignoreDefaults: true, phases: {}};
-
-  const { id, phases } = await CoverClient.startAnalysis(api, {
+  const files = {
     baseBuild: baseBuild,
     build: build,
     dependenciesBuild: dependenciesBuild,
-    settings: settings,
-  });
+  };
+
+  const { id, phases } = await CoverClient.startAnalysis(api, files, settings);
 
   console.log([
     `Analysis identifier: ${id}`,
