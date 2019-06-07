@@ -1,4 +1,5 @@
 package com.diffblue.javademo;
+
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.isA;
@@ -28,15 +29,15 @@ import java.lang.reflect.Method;
 
 
 
-
-
-@RunWith(PowerMockRunner.class)
 @RunWith(PowerMockRunner.class)
 public class UserAccess {
+
   @Rule
   public final ExpectedException thrown = ExpectedException.none();
+
   @Rule
   public final Timeout globalTimeout = new Timeout(10000);
+
   /* testedClasses: UserAccessTest */
   /*
    * Test written by Diffblue Cover.
