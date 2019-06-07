@@ -307,7 +307,7 @@ describe('analysis', () => {
         setImmediate(() => analysis.forceStop());
         const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
         assert.deepStrictEqual(returnValue, []);
-        assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
+        assert.strictEqual(analysis.status, AnalysisStatuses.QUEUED);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, {}]);
         assert.notCalled(getAnalysisResults);
       }));
@@ -356,7 +356,7 @@ describe('analysis', () => {
         const changes = {
           analysisId: returnValue.id,
           settings: settings,
-          status: AnalysisStatuses.RUNNING,
+          status: AnalysisStatuses.QUEUED,
           phases: returnValue.phases,
         };
         assert.deepStrictEqual(returnValue, startResponse);
@@ -374,7 +374,7 @@ describe('analysis', () => {
         const changes = {
           analysisId: returnValue.id,
           settings: settings,
-          status: AnalysisStatuses.RUNNING,
+          status: AnalysisStatuses.QUEUED,
           phases: returnValue.phases,
         };
         assert.calledOnceWith(startAnalysis, [apiUrl, allFiles, settings]);
@@ -395,7 +395,7 @@ describe('analysis', () => {
         startAnalysis.resolves({ id: analysisId, phases: {}});
         const analysis = new Analysis(apiUrl);
         await analysis.start(files, settings);
-        assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
+        assert.strictEqual(analysis.status, AnalysisStatuses.QUEUED);
         await assert.rejects(
           async () => analysis.start(files, settings),
           (err: Error) => {
@@ -467,7 +467,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -479,7 +479,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -563,7 +563,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -575,7 +575,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -677,7 +677,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -689,7 +689,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_RUNNING;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
           },
         );
       }));
@@ -720,6 +720,19 @@ describe('analysis', () => {
         analysis.status = AnalysisStatuses.RUNNING;
         assert.strictEqual(analysis.isNotStarted(), false);
       });
+
+      it('Knows if its status is queued', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatuses.QUEUED;
+        assert.strictEqual(analysis.isQueued(), true);
+      });
+
+      it('Knows if its status is not queued', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatuses.COMPLETED;
+        assert.strictEqual(analysis.isQueued(), false);
+      });
+
 
       it('Knows if its status is running', () => {
         const analysis = new Analysis(apiUrl);
@@ -795,6 +808,21 @@ describe('analysis', () => {
       it('Knows if it has not ended if status is not set', () => {
         const analysis = new Analysis(apiUrl);
         assert.strictEqual(analysis.isEnded(), false);
+      });
+
+      it('Knows if it is in progress', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatuses.QUEUED;
+        assert.strictEqual(analysis.isInProgress(), true);
+        analysis.status = AnalysisStatuses.RUNNING;
+        assert.strictEqual(analysis.isInProgress(), true);
+      });
+
+      it('Knows if it is not in progress', () => {
+        const analysis = new Analysis(apiUrl);
+        assert.strictEqual(analysis.isInProgress(), false);
+        analysis.status = AnalysisStatuses.ERRORED;
+        assert.strictEqual(analysis.isInProgress(), false);
       });
     });
   });
