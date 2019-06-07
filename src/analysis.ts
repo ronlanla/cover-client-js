@@ -24,6 +24,7 @@ import {
   AnalysisStatuses,
   ApiErrorResponse,
   ApiVersionApiResponse,
+  BindingsOptions,
   RunAnalysisOptions,
   WriteTestsOptions,
 } from './types/types';
@@ -43,6 +44,7 @@ export const components = {
 export default class Analysis {
 
   public apiUrl: string;
+  public bindingsOptions: BindingsOptions;
   public analysisId?: string;
   public settings?: AnalysisSettings;
   public status?: AnalysisStatuses;
@@ -55,8 +57,9 @@ export default class Analysis {
   public pollDelay?: CancellableDelay<void>;
   public pollingStopped?: boolean;
 
-  public constructor(apiUrl: string) {
+  public constructor(apiUrl: string, bindingsOptions: BindingsOptions = {}) {
     this.apiUrl = apiUrl;
+    this.bindingsOptions = bindingsOptions;
   }
 
   /** Check if analysis is running */
@@ -176,7 +179,7 @@ export default class Analysis {
     settings: AnalysisSettings = {},
   ): Promise<AnalysisStartApiResponse> {
     this.checkNotStarted();
-    const response = await components.startAnalysis(this.apiUrl, files, settings);
+    const response = await components.startAnalysis(this.apiUrl, files, settings, this.bindingsOptions);
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
@@ -187,7 +190,7 @@ export default class Analysis {
   /** Cancel the analysis */
   public async cancel(): Promise<AnalysisCancelApiResponse> {
     this.checkInProgress();
-    const response = await components.cancelAnalysis(this.apiUrl, this.analysisId!);
+    const response = await components.cancelAnalysis(this.apiUrl, this.analysisId!, this.bindingsOptions);
     this.updateStatus(response.status);
     return response;
   }
@@ -195,7 +198,7 @@ export default class Analysis {
   /** Get the analysis's status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
     this.checkInProgress();
-    const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId!);
+    const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId!, this.bindingsOptions);
     this.updateStatus(response);
     return response;
   }
@@ -207,6 +210,7 @@ export default class Analysis {
       this.apiUrl,
       this.analysisId!,
       useCursor ? this.cursor : undefined,
+      this.bindingsOptions,
     );
     this.cursor = response.cursor;
     this.results = useCursor ? [...this.results, ...response.results] : response.results;
@@ -216,7 +220,7 @@ export default class Analysis {
 
   /** Get api version */
   public async getApiVersion(): Promise<ApiVersionApiResponse> {
-    const response = await components.getApiVersion(this.apiUrl);
+    const response = await components.getApiVersion(this.apiUrl, this.bindingsOptions);
     this.apiVersion = response.version;
     return response;
   }

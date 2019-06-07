@@ -132,3 +132,8 @@ export interface RunAnalysisOptions {
 export interface WriteTestsOptions {
   concurrency?: number;
 }
+
+/** Options accepted by low level bindings */
+export interface BindingsOptions {
+  allowUnauthorizedHttps?: boolean;
+}

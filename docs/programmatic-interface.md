@@ -15,7 +15,7 @@ TODO: Describe settings format
 You can optionally provide a build with dependencies JAR file, which allows Diffblue Cover to verify the tests it creates.
 The dependencies JAR (often known as a "fat" or "uber" JAR) can be created with the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) or the [Maven Assembly Plugin](http://maven.apache.org/plugins/maven-assembly-plugin/).
 
-You can also optionally provide a base JAR in order to do a differential analysis. A differential analysis allows you to only analyse code which has changed since a previous version. To do this you need to provide a base JAR of a previous build (this does not need to include dependencies).
+You can also optionally provide a base JAR in order to do a differential analysis. A differential analysis allows you to only analyze code which has changed since a previous version. To do this you need to provide a base JAR of a previous build (this does not need to include dependencies).
 
 Node.js example using promises and a file stream of the build JAR:
 
@@ -67,7 +67,7 @@ const api = 'https://0.0.0.0/api';
 
 Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, ERRORED, CANCELED and COMPLETED.
 
-The progress object returns the number of functions which have been analysed compared to the total number to analyse.
+The progress object returns the number of functions which have been analyzed compared to the total number to analyze.
 
 In the case of an ERRORED status, an error message object with further information will also be returned.
 
@@ -235,6 +235,28 @@ const api = 'https://0.0.0.0/api';
 })();
 ```
 
+### Low level options
+
+All of the low level bindings accept an optional `options` object as their final parameter, which can be used to configure their behavior.
+
+#### Ignore https rejection
+
+Pass an `options` object to a low level binding with the property `allowUnauthorizedHttps` set to `true` in order make the API request with an https agent with `rejectUnauthorized` set to `false`.
+
+Typescript/ES6 modules example using async/await:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const api = 'https://0.0.0.0/api';
+const options = { allowUnauthorizedHttps: true };
+
+(async () => {
+  const { version } = await CoverClient.getApiVersion(api, options);
+  console.log(`Current API version: ${version}`);
+})();
+```
+
 ## Object orientated interface
 
 The `Analysis` class can be used to run analyses.
@@ -247,11 +269,15 @@ It also makes the calling the low level api binding simpler, and keeps track of 
 
 The `Analysis` constructor has one required parameter, which is the url of the Diffblue Cover api.
 
+The constructor also accepts a second optional parameter of bindings options, which will be applied to all calls the object makes to the low level API bindings.
+(see [low level options](#-low-level-options))
+
 In Node.js:
 
 ```js
 const Analysis = require('@diffblue/cover-client').Analysis;
 const analysis = new Analysis('https://your-cover-api-domain.com');
+const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
 ```
 
 In Typescript:
@@ -259,6 +285,7 @@ In Typescript:
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 const analysis = new Analysis('https://your-cover-api-domain.com');
+const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
 ```
 
 ### Usage
