@@ -1,6 +1,8 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import { AxiosRequestConfig } from 'axios';
 import * as FormData from 'form-data';
+import { Agent } from 'https';
 
 import { BindingsError, BindingsErrorCodes } from './errors';
 import {
@@ -11,15 +13,35 @@ import {
   AnalysisStartApiResponse,
   AnalysisStatusApiResponse,
   ApiVersionApiResponse,
+  BindingsOptions,
 } from './types/types';
 import request from './utils/request';
 import routes from './utils/routes';
 
-export const dependencies = { FormData: FormData, request: request, routes: routes };
+export const dependencies = {
+  FormData: FormData,
+  request: request,
+  routes: routes,
+};
+
+export const components = {
+  permissiveHttpsAgent: new Agent({
+    rejectUnauthorized: false,
+  }),
+};
+
+/** Convert bindings options to an axios request config */
+function convertOptions(options: BindingsOptions = {}): AxiosRequestConfig {
+  const config: AxiosRequestConfig = {};
+  if (options.allowUnauthorizedHttps) {
+    config.httpsAgent = components.permissiveHttpsAgent;
+  }
+  return config;
+}
 
 /** Gets the version used for the API */
-export async function getApiVersion(api: string): Promise<ApiVersionApiResponse> {
-  return dependencies.request.get(dependencies.routes.version(api));
+export async function getApiVersion(api: string, options?: BindingsOptions): Promise<ApiVersionApiResponse> {
+  return dependencies.request.get(dependencies.routes.version(api), convertOptions(options));
 }
 
 /** Starts an analysis and returns the analysis id */
@@ -27,34 +49,37 @@ export async function startAnalysis(
   api: string,
   { baseBuild, build, dependenciesBuild }: AnalysisFiles,
   settings: AnalysisSettings = {},
+  options?: BindingsOptions,
 ): Promise<AnalysisStartApiResponse> {
   if (!build) {
     throw new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCodes.BUILD_MISSING);
   }
 
-  const options = (filename: string, type: 'java-archive' | 'json') => ({
+  const getOptions = (filename: string, type: 'java-archive' | 'json') => ({
     contentType: `application/${type}`,
     filename: filename,
   });
 
   const formData = new dependencies.FormData();
-  formData.append('build', build, options('build.jar', 'java-archive'));
+  formData.append('build', build, getOptions('build.jar', 'java-archive'));
 
   try {
-    formData.append('settings', JSON.stringify(settings), options('settings.json', 'json'));
+    formData.append('settings', JSON.stringify(settings), getOptions('settings.json', 'json'));
   } catch (error) {
     throw new BindingsError(`The settings JSON was not valid:\n${error}`, BindingsErrorCodes.SETTINGS_INVALID);
   }
 
   if (baseBuild) {
-    formData.append('baseBuild', baseBuild, options('baseBuild.jar', 'java-archive'));
+    formData.append('baseBuild', baseBuild, getOptions('baseBuild.jar', 'java-archive'));
   }
 
   if (dependenciesBuild) {
-    formData.append('dependenciesBuild', dependenciesBuild, options('dependenciesBuild.jar', 'java-archive'));
+    formData.append('dependenciesBuild', dependenciesBuild, getOptions('dependenciesBuild.jar', 'java-archive'));
   }
 
-  return dependencies.request.post(dependencies.routes.start(api), formData, { headers: formData.getHeaders() });
+  const axiosConfig = { ...convertOptions(options), headers: formData.getHeaders() };
+
+  return dependencies.request.post(dependencies.routes.start(api), formData, axiosConfig);
 }
 
 /**
@@ -65,16 +90,26 @@ export async function getAnalysisResults(
   api: string,
   id: string,
   cursor?: number,
+  options?: BindingsOptions,
 ): Promise<AnalysisResultsApiResponse> {
-  return dependencies.request.get(dependencies.routes.results(api, id), { params: { cursor: cursor }});
+  const axiosConfig = { ...convertOptions(options), params: { cursor: cursor }};
+  return dependencies.request.get(dependencies.routes.results(api, id), axiosConfig);
 }
 
 /** Cancel the analysis tied to the specified id */
-export async function cancelAnalysis(api: string, id: string): Promise<AnalysisCancelApiResponse> {
-  return dependencies.request.post(dependencies.routes.cancel(api, id));
+export async function cancelAnalysis(
+  api: string,
+  id: string,
+  options?: BindingsOptions,
+): Promise<AnalysisCancelApiResponse> {
+  return dependencies.request.post(dependencies.routes.cancel(api, id), undefined, convertOptions(options));
 }
 
 /** Get the status of the analysis tied to the specified id */
-export async function getAnalysisStatus(api: string, id: string): Promise<AnalysisStatusApiResponse> {
-  return dependencies.request.get(dependencies.routes.status(api, id));
+export async function getAnalysisStatus(
+  api: string,
+  id: string,
+  options?: BindingsOptions,
+): Promise<AnalysisStatusApiResponse> {
+  return dependencies.request.get(dependencies.routes.status(api, id), convertOptions(options));
 }

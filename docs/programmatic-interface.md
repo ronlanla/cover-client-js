@@ -1,5 +1,189 @@
 # Programmatic interface
 
+## Object orientated interface
+
+The `Analysis` class can be used to run analyses.
+
+It provides a high level interface to run an analysis and write tests via the `run` method.
+
+It also makes the calling the low level api binding simpler, and keeps track of the state of the analysis.
+
+### Instantiation
+
+The `Analysis` constructor has one required parameter, which is the url of the Diffblue Cover api.
+
+The constructor also accepts a second optional parameter of bindings options, which will be applied to all calls the object makes to the low level API bindings.
+(see [low level options](#-low-level-options))
+
+In Node.js:
+
+```js
+const Analysis = require('@diffblue/cover-client').Analysis;
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
+```
+
+In Typescript:
+
+```ts
+import { Analysis } from '@diffblue/cover-client';
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
+```
+
+### Usage
+
+#### Start an analysis (Object orientated)
+
+To start an analysis, call `Analysis.start`.
+
+The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
+
+This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
+
+Including `dependenciesBuild` will enable test verification.
+
+Including `baseBuild` will enable a differential analysis.
+
+The second parameter is an optional settings object.
+
+```ts
+import { Analysis } from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const buildFile = createReadStream('./build.jar');
+const settings = { ignoreDefaults: true, phases: {}};
+(async () => {
+  const { id, phases } = await analysis.start({ build: buildFile }, settings);
+  console.log(`Analysis identifier: ${id}`);
+  console.log(`Analysis computed phases: ${phases}`);
+}();
+```
+
+```ts
+import { Analysis } from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const buildFile = createReadStream('./build.jar');
+const baseBuildFile = createReadStream('./baseBuild.jar');
+const dependenciesBuildFile = createReadStream('./dependenciesBuild.jar');
+const settings = { ignoreDefaults: true, phases: {}};
+(async () => {
+  const { id, phases } = await analysis.start(
+    {
+      build: buildFile,
+      baseBuild: baseBuildFile,
+      dependenciesBuild: dependenciesBuildFile,
+    },
+    settings,
+  );
+  console.log(`Analysis identifier: ${id}`);
+  console.log(`Analysis computed phases: ${phases}`);
+}();
+```
+
+#### Get analysis status (Object orientated)
+
+To get the status of an analysis that has started, call `Analysis.getStatus`.
+
+```ts
+(async () => {
+  const { status, progress } = await analysis.getStatus();
+  console.log(`Analysis status: ${status}`);
+  console.log(`Analysis progress: ${progress.completed}/${progress.total}`);
+}();
+```
+
+#### Get analysis results (Object orientated)
+
+To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
+
+```ts
+(async () => {
+  const { results, status, cursor } =  await analysis.getResults();
+  console.log(`Analysis status: ${status.status}`);
+  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
+  console.log(`Number of new tests: ${results.length}`);
+  console.log(`Next cursor: ${cursor}`);
+}();
+```
+
+#### Cancel an analysis (Object orientated)
+
+To cancel an analysis that has started, call `Analysis.cancel`.
+
+```ts
+(async () => {
+  const { status, message } = await analysis.cancel();
+  console.log(`Analysis status: ${status.status}`);
+  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
+  console.log(`Cancellation message: ${message}`);
+}();
+```
+
+#### Get API version (Object orientated)
+
+To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
+
+```ts
+(async () => {
+ const { version } = await analysis.getApiVersion();
+ console.log(`Api version: ${version}`);
+}();
+```
+
+### Result pagination
+
+Calling `Analysis.getResults` will save the returned pagination cursor on the `Analysis` instance
+and a subsequent call to `Analysis.getResults` will, by default, pass that cursor to the Diffblue Cover api and only return
+new results generated since that cursor.
+To disable the automatic pagination behavior and fetch the full set of results generated (so far),
+set the first parameter of `Analysis.getResults` to `false`.
+
+### Lifecycle
+
+The `Analysis` object has a number of helper methods to check the saved analysis status, as of the last
+call to any method that changes or returns the current analysis status.
+
+```ts
+import { Analysis } from '@diffblue/cover-client';
+import { ok } from 'assert';
+import { createReadStream } from 'fs';
+const buildFile = createReadStream('./build.jar');
+(async () => {
+  const analysis = new Analysis('https://your-cover-api-domain.com');
+  ok(analysis.isNotStarted());
+  await analysis.start({ build: buildFile }, settings);
+  ok(analysis.isRunning());
+}();
+```
+
+The `Analysis` object keeps track of the status of the analysis it is running, and will throw an error
+if a method is called at an inappropriate time.
+
+```ts
+import { Analysis } from '@diffblue/cover-client';
+import { ok } from 'assert';
+import { createReadStream } from 'fs';
+const buildFile = createReadStream('./build.jar');
+(async () => {
+  const analysis = new Analysis('https://your-cover-api-domain.com');
+  ok(analysis.isNotStarted());
+  try {
+    await analysis.getResults();
+  catch (error) {
+    console.log(`Fetching results before starting throws: ${error}`)
+  }
+  await analysis.start({ build: buildFile }, settings);
+  ok(analysis.isRunning());
+  try {
+    await analysis.start({ build: buildFile }, settings);
+  catch (error) {
+    console.log(`Starting a started analysis throws: ${error}`)
+  }
+}();
+```
+
 ## Low level bindings
 
 You can use the low level bindings to submit requests to a Diffblue Cover API by following the below examples.
@@ -9,13 +193,13 @@ You can use the low level bindings to submit requests to a Diffblue Cover API by
 Starts an analysis and returns the unique identifier for that analysis.
 To start an analysis the minimum you need is a build JAR file of your source code.
 
-You can optionally provide a settings object in order to customise the analysis.
+You can optionally provide a settings object in order to customize the analysis.
 TODO: Describe settings format
 
 You can optionally provide a build with dependencies JAR file, which allows Diffblue Cover to verify the tests it creates.
 The dependencies JAR (often known as a "fat" or "uber" JAR) can be created with the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) or the [Maven Assembly Plugin](http://maven.apache.org/plugins/maven-assembly-plugin/).
 
-You can also optionally provide a base JAR in order to do a differential analysis. A differential analysis allows you to only analyse code which has changed since a previous version. To do this you need to provide a base JAR of a previous build (this does not need to include dependencies).
+You can also optionally provide a base JAR in order to do a differential analysis. A differential analysis allows you to only analyze code which has changed since a previous version. To do this you need to provide a base JAR of a previous build (this does not need to include dependencies).
 
 Node.js example using promises and a file stream of the build JAR:
 
@@ -48,13 +232,13 @@ const api = 'https://0.0.0.0/api';
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
   const settings = { ignoreDefaults: true, phases: {}};
-
-  const { id, phases } = await CoverClient.startAnalysis(api, {
+  const files = {
     baseBuild: baseBuild,
     build: build,
     dependenciesBuild: dependenciesBuild,
-    settings: settings,
-  });
+  };
+
+  const { id, phases } = await CoverClient.startAnalysis(api, files, settings);
 
   console.log([
     `Analysis identifier: ${id}`,
@@ -67,7 +251,7 @@ const api = 'https://0.0.0.0/api';
 
 Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, ERRORED, CANCELED and COMPLETED.
 
-The progress object returns the number of functions which have been analysed compared to the total number to analyse.
+The progress object returns the number of functions which have been analyzed compared to the total number to analyze.
 
 In the case of an ERRORED status, an error message object with further information will also be returned.
 
@@ -235,177 +419,26 @@ const api = 'https://0.0.0.0/api';
 })();
 ```
 
-## Object orientated interface
+### Low level options
 
-The `Analysis` class can be used to run analyses.
+All of the low level bindings accept an optional `options` object as their final parameter, which can be used to configure their behavior.
 
-It provides a high level interface to run an analysis and write tests via the `run` method.
+#### Ignore https rejection
 
-It also makes the calling the low level api binding simpler, and keeps track of the state of the analysis.
+Pass an `options` object to a low level binding with the property `allowUnauthorizedHttps` set to `true` in order make the API request with an https agent with `rejectUnauthorized` set to `false`.
 
-### Instantiation
-
-The `Analysis` constructor has one required parameter, which is the url of the Diffblue Cover api.
-
-In Node.js:
-
-```js
-const Analysis = require('@diffblue/cover-client').Analysis;
-const analysis = new Analysis('https://your-cover-api-domain.com');
-```
-
-In Typescript:
+Typescript/ES6 modules example using async/await:
 
 ```ts
-import { Analysis } from '@diffblue/cover-client';
-const analysis = new Analysis('https://your-cover-api-domain.com');
-```
+import CoverClient from '@diffblue/cover-client';
 
-### Usage
+const api = 'https://0.0.0.0/api';
+const options = { allowUnauthorizedHttps: true };
 
-#### Start an analysis (Object orientated)
-
-To start an analysis, call `Analysis.start`.
-
-The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
-
-This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
-
-Including `dependenciesBuild` will enable test verification.
-
-Including `baseBuild` will enable a differential analysis.
-
-The second parameter is an optional settings object.
-
-```ts
-import { Analysis } from '@diffblue/cover-client';
-const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
 (async () => {
-  const { id, phases } = await analysis.start({ build: buildFile }, settings);
-  console.log(`Analysis identifier: ${id}`);
-  console.log(`Analysis computed phases: ${phases}`);
-}();
-```
-
-```ts
-import { Analysis } from '@diffblue/cover-client';
-const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadStream('./build.jar');
-const baseBuildFile = fs.createReadStream('./baseBuild.jar');
-const dependenciesBuildFile = fs.createReadStream('./dependenciesBuild.jar');
-const settings = { ignoreDefaults: true, phases: {}};
-(async () => {
-  const { id, phases } = await analysis.start(
-    {
-      build: buildFile,
-      baseBuild: baseBuildFile,
-      dependenciesBuild: dependenciesBuildFile,
-    },
-    settings,
-  );
-  console.log(`Analysis identifier: ${id}`);
-  console.log(`Analysis computed phases: ${phases}`);
-}();
-```
-
-#### Get analysis status (Object orientated)
-
-To get the status of an analysis that has started, call `Analysis.getStatus`.
-
-```ts
-(async () => {
-  const { status, progress } = await analysis.getStatus();
-  console.log(`Analysis status: ${status}`);
-  console.log(`Analysis progress: ${progress.completed}/${progress.total}`);
-}();
-```
-
-#### Get analysis results (Object orientated)
-
-To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
-
-```ts
-(async () => {
-  const { results, status, cursor } =  await analysis.getResults();
-  console.log(`Analysis status: ${status.status}`);
-  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
-  console.log(`Number of new tests: ${results.length}`);
-  console.log(`Next cursor: ${cursor}`);
-}();
-```
-
-#### Cancel an analysis (Object orientated)
-
-To cancel an analysis that has started, call `Analysis.cancel`.
-
-```ts
-(async () => {
-  const { status, message } = await analysis.cancel();
-  console.log(`Analysis status: ${status.status}`);
-  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
-  console.log(`Cancellation message: ${message}`);
-}();
-```
-
-#### Get API version (Object orientated)
-
-To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
-
-```ts
-(async () => {
- const { version } = await analysis.getApiVersion();
- console.log(`Api version: ${version}`);
-}();
-```
-
-### Result pagination
-
-Calling `Analysis.getResults` will save the returned pagination cursor on the `Analysis` instance
-and a subsequent call to `Analysis.getResults` will, by default, pass that cursor to the Diffblue Cover api and only return
-new results generated since that cursor.
-To disable the automatic pagination behavior and fetch the full set of results generated (so far),
-set the first parameter of `Analysis.getResults` to `false`.
-
-### Lifecycle
-
-The `Analysis` object has a number of helper methods to check the saved analysis status, as of the last
-call to any method that changes or returns the current analysis status.
-
-```ts
-import { ok } from 'assert';
-import { Analysis } from '@diffblue/cover-client';
-(async () => {
-  const analysis = new Analysis('https://your-cover-api-domain.com');
-  ok(analysis.isNotStarted());
-  await analysis.start('./buildPath.jar', settings);
-  ok(analysis.isRunning());
-}();
-```
-
-The `Analysis` object keeps track of the status of the analysis it is running, and will throw an error
-if a method is called at an inappropriate time.
-
-```ts
-import { ok } from 'assert';
-import { Analysis } from '@diffblue/cover-client';
-(async () => {
-  const analysis = new Analysis('https://your-cover-api-domain.com');
-  ok(analysis.isNotStarted());
-  try {
-    await analysis.getResults();
-  catch (error) {
-    console.log(`Fetching results before starting throws: ${error}`)
-  }
-  await analysis.start('./buildPath.jar', settings);
-  ok(analysis.isRunning());
-  try {
-    await analysis.start();
-  catch (error) {
-    console.log(`Starting a started analysis throws: ${error}`)
-  }
-}();
+  const { version } = await CoverClient.getApiVersion(api, options);
+  console.log(`Current API version: ${version}`);
+})();
 ```
 
 ## Combining results into test classes
