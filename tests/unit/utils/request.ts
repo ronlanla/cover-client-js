@@ -44,10 +44,9 @@ describe('utils/request', () => {
       assert.throws(() => convertError(error), errorEquals(expectedError));
     });
 
-    it('Throws an unknown error in the Cover ApiError format', () => {
+    it('Throws an unknown error directly as the original Axios error', () => {
       const error: AxiosError = { ...templateError, response: undefined };
-      const expectedError = new ApiError('An unknown error occurred', 'requestError');
-      assert.throws(() => convertError(error), errorEquals(expectedError));
+      assert.throws(() => convertError(error), errorEquals(error));
     });
   });
 
