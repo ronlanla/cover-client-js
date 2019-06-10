@@ -83,6 +83,8 @@ export default function createRelease(): Command {
     const originalVersion = packageJson.version;
     dependencies.logger.info(`Current ${packageJsonFilename} version is ${originalVersion}`);
 
+    dependencies.logger.info(`Changelog:\n${getFormattedChangeList(changes)}`);
+
     // Ask user if this is major/minor/patch
     const answer: PatchTypeAnswer = await components.askUserForPatchType();
 
@@ -140,10 +142,13 @@ export function incrementVersionNumber(originalVersion: string, patchLevel: Patc
 export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]): Promise<void> {
   await dependencies.simpleGit.push('origin', newBranchName);
 
+  // Make a nicely formatted list of changes that will show up properly bulleted in the PR
+  const changeList = getFormattedChangeList(changes);
+
   const title = multiline`
     Release ${newVersion}
 
-    ${changes.join('\n')}
+    ${changeList}
   `;
   // Generate PR using github API and put in changelog
   // Could replace this with an HTTP API request and get rid of the unlabelled dependency on Hub
@@ -184,6 +189,13 @@ export async function loadPackageJson(): Promise<PartialPackageJson> {
   } catch (err) {
     throw new ExpectedError(`Unable to parse ${packageJsonFilename}: ${err}`);
   }
+}
+
+/**
+ * Takes in an array of git commit messages and returns a nicely formatted and bulleted list of changes
+ */
+export function getFormattedChangeList(changes: string[]) {
+  return changes.map((change) => `- ${change}`).join('\n');
 }
 
 /**
