@@ -142,7 +142,7 @@ export function incrementVersionNumber(originalVersion: string, patchLevel: Patc
 export async function createReleasePR(newBranchName: string, newVersion: string, changes: string[]): Promise<void> {
   await dependencies.simpleGit.push('origin', newBranchName);
 
-  // make a nicely formatted list of changes that will show up properly bulleted in the PR
+  // Make a nicely formatted list of changes that will show up properly bulleted in the PR
   const changeList = getFormattedChangeList(changes);
 
   const title = multiline`
