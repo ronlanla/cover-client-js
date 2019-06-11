@@ -7,9 +7,9 @@ import { ApiError } from '../errors';
 import { ApiErrorResponse } from '../types/types';
 
 /** Convert an axios error into the standard Platform Lite API format */
-export const convertError = ({ response }: AxiosError) => {
-  if (response) {
-    const { data, status, statusText } = response;
+export const convertError = (err: AxiosError) => {
+  if (err.response) {
+    const { data, status, statusText } = err.response;
     const { code, message }: ApiErrorResponse = data;
 
     if (message && code) {
@@ -19,7 +19,8 @@ export const convertError = ({ response }: AxiosError) => {
     throw new ApiError(statusText, 'requestError', status);
   }
 
-  throw new ApiError('An unknown error occurred', 'requestError');
+  // Give up and just throw the Axios error
+  throw err;
 };
 
 const request = {
