@@ -148,7 +148,7 @@ describe('api/bindings', () => {
       };
       sinon.stub(dependencies, 'FormData').returns(formData);
       await startAnalysis(api, { build: build }, settings, { allowUnauthorizedHttps: true });
-      const config = { ...sampleConfig, headers: headers };
+      const config = { ...sampleConfig, headers: headers, maxContentLength: 1024 * 1024 * 1024 * 2 };
       assert.calledOnceWith(post, [startUrl, formData, config]);
     }));
   });
