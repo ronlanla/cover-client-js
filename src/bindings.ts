@@ -30,6 +30,8 @@ export const components = {
   }),
 };
 
+const Gb = 1024 * 1024 * 1024;
+
 /** Convert bindings options to an axios request config */
 function convertOptions(options: BindingsOptions = {}): AxiosRequestConfig {
   const config: AxiosRequestConfig = {};
@@ -77,7 +79,11 @@ export async function startAnalysis(
     formData.append('dependenciesBuild', dependenciesBuild, getOptions('dependenciesBuild.jar', 'java-archive'));
   }
 
-  const axiosConfig = { ...convertOptions(options), headers: formData.getHeaders() };
+  const axiosConfig: AxiosRequestConfig = {
+    ...convertOptions(options),
+    headers: formData.getHeaders(),
+    maxContentLength: Gb * 2, // 2 Gb
+  };
 
   return dependencies.request.post(dependencies.routes.start(api), formData, axiosConfig);
 }
