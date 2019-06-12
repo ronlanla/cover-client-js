@@ -6,7 +6,7 @@ import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 import TestError from '../../src/utils/TestError';
 
-import { WriterError, WriterErrorCodes } from '../../src/errors';
+import { WriterError, WriterErrorCode } from '../../src/errors';
 import writeTests, { components, dependencies } from '../../src/writeTests';
 
 const sinonTest = sinonTestFactory();
@@ -96,7 +96,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${sampleResult.sourceFilePath}`)
             && err.message.includes(readFileError.message)
           );
@@ -121,7 +121,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${sampleResult.sourceFilePath}`)
             && err.message.includes(generateTestClassError.message)
           );
@@ -147,7 +147,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${sampleResult.sourceFilePath}`)
             && err.message.includes(mergeIntoTestClassError.message)
           );
@@ -173,7 +173,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${sampleResult.sourceFilePath}`)
             && err.message.includes(writeFileError.message)
           );
@@ -200,7 +200,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${sampleResult.sourceFilePath}`)
             && err.message.includes(writeFileError.message)
           );
@@ -226,7 +226,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.DIR_FAILED
+            && err.code === WriterErrorCode.DIR_FAILED
           );
         },
       );
@@ -250,7 +250,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${sampleResult.sourceFilePath}`)
             && err.message.includes(getFileNameForResultError.message)
           );
@@ -276,7 +276,7 @@ describe('writer', () => {
         (err: Error) => {
           return (
             (err instanceof WriterError)
-            && err.code === WriterErrorCodes.WRITE_FAILED
+            && err.code === WriterErrorCode.WRITE_FAILED
             && err.message.includes(`sourceFilePath: ${otherResult.sourceFilePath}`)
             && err.message.includes(mergeIntoTestClassError.message)
           );

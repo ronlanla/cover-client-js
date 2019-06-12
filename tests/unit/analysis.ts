@@ -6,8 +6,8 @@ import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 
 import Analysis, { components } from '../../src/analysis';
-import { AnalysisError, AnalysisErrorCodes } from '../../src/errors';
-import { AnalysisStatuses } from '../../src/types/types';
+import { AnalysisError, AnalysisErrorCode } from '../../src/errors';
+import { AnalysisStatus } from '../../src/types/types';
 
 const sinonTest = sinonTestFactory();
 const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });
@@ -75,7 +75,7 @@ describe('analysis', () => {
 
     describe('run', () => {
       const startResponse = { id: analysisId, phases: {}};
-      const responseStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+      const responseStatus = { status: AnalysisStatus.CANCELED, progress: { completed: 10, total: 20 }};
       const resultsResponse = {
         status: responseStatus,
         cursor: 12345,
@@ -91,7 +91,7 @@ describe('analysis', () => {
         const changes = {
           analysisId: analysisId,
           settings: settings,
-          status: AnalysisStatuses.CANCELED,
+          status: AnalysisStatus.CANCELED,
           phases: {},
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
@@ -116,7 +116,7 @@ describe('analysis', () => {
         const changes = {
           analysisId: analysisId,
           settings: settings,
-          status: AnalysisStatuses.CANCELED,
+          status: AnalysisStatus.CANCELED,
           phases: {},
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
@@ -214,7 +214,7 @@ describe('analysis', () => {
 
       it('Rejects if analysis errors, and does not write test files', sinonTestWithTimers(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
-        const responseStatus = { status: AnalysisStatuses.ERRORED, progress: { completed: 10, total: 20 }};
+        const responseStatus = { status: AnalysisStatus.ERRORED, progress: { completed: 10, total: 20 }};
         const response = {
           ...resultsResponse,
           status: responseStatus,
@@ -226,7 +226,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.run(files, settings, options),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.RUN_ERRORED;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.RUN_ERRORED;
           },
         );
         assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
@@ -237,7 +237,7 @@ describe('analysis', () => {
       it('Calling forceStop stops polling (after polling occurs)', sinonTestWithTimers(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
+        const responseStatus = { status: AnalysisStatus.RUNNING, progress: { completed: 10, total: 20 }};
         const response = {
           ...resultsResponse,
           status: responseStatus,
@@ -249,14 +249,14 @@ describe('analysis', () => {
         setTimeout(() => analysis.forceStop(), 10);
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.strictEqual(analysis.status, AnalysisStatuses.RUNNING);
+        assert.strictEqual(analysis.status, AnalysisStatus.RUNNING);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
         sinon.assert.calledWith(getAnalysisResults, apiUrl, analysisId, undefined, {});
       }));
 
       it('Calling forceStop stops polling (before polling occurs)', sinonTestWithTimers(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
-        const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
+        const responseStatus = { status: AnalysisStatus.RUNNING, progress: { completed: 10, total: 20 }};
         const response = {
           ...resultsResponse,
           status: responseStatus,
@@ -267,7 +267,7 @@ describe('analysis', () => {
         setImmediate(() => analysis.forceStop());
         const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
         assert.deepStrictEqual(returnValue, []);
-        assert.strictEqual(analysis.status, AnalysisStatuses.QUEUED);
+        assert.strictEqual(analysis.status, AnalysisStatus.QUEUED);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
         assert.notCalled(getAnalysisResults);
       }));
@@ -316,7 +316,7 @@ describe('analysis', () => {
         const changes = {
           analysisId: returnValue.id,
           settings: settings,
-          status: AnalysisStatuses.QUEUED,
+          status: AnalysisStatus.QUEUED,
           phases: returnValue.phases,
         };
         assert.deepStrictEqual(returnValue, startResponse);
@@ -333,7 +333,7 @@ describe('analysis', () => {
         const changes = {
           analysisId: returnValue.id,
           settings: settings,
-          status: AnalysisStatuses.QUEUED,
+          status: AnalysisStatus.QUEUED,
           phases: returnValue.phases,
         };
         assert.calledOnceWith(startAnalysis, [apiUrl, allFiles, settings, {}]);
@@ -360,11 +360,11 @@ describe('analysis', () => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl);
         await analysis.start(files, settings);
-        assert.strictEqual(analysis.status, AnalysisStatuses.QUEUED);
+        assert.strictEqual(analysis.status, AnalysisStatus.QUEUED);
         await assert.rejects(
           async () => analysis.start(files, settings),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.ALREADY_STARTED;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.ALREADY_STARTED;
           },
         );
       }));
@@ -372,18 +372,18 @@ describe('analysis', () => {
       it('Fails to start an analysis, if already canceled', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const cancelAnalysis = sinon.stub(components, 'cancelAnalysis');
-        const cancelStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+        const cancelStatus = { status: AnalysisStatus.CANCELED, progress: { completed: 10, total: 20 }};
         const cancelMessage = 'Analysis cancelled successfully';
         const cancelResponse = { message: cancelMessage, status: cancelStatus };
         cancelAnalysis.resolves(cancelResponse);
         const analysis = new Analysis(apiUrl);
         await analysis.start(files, settings);
         await analysis.cancel();
-        assert.strictEqual(analysis.status, AnalysisStatuses.CANCELED);
+        assert.strictEqual(analysis.status, AnalysisStatus.CANCELED);
         await assert.rejects(
           async () => analysis.start(files, settings),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.ALREADY_STARTED;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.ALREADY_STARTED;
           },
         );
       }));
@@ -391,7 +391,7 @@ describe('analysis', () => {
 
     describe('cancel', () => {
       const startResponse = { id: analysisId, phases: {}};
-      const cancelStatus = { status: AnalysisStatuses.CANCELED, progress: { completed: 10, total: 20 }};
+      const cancelStatus = { status: AnalysisStatus.CANCELED, progress: { completed: 10, total: 20 }};
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
 
@@ -421,6 +421,17 @@ describe('analysis', () => {
         assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, sampleBindingOptions]);
       }));
 
+      it('Can attempt to cancel an analysis if the analysis is ended', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis').resolves(cancelResponse);
+        const analysis = new Analysis(apiUrl);
+        await analysis.start(files, settings);
+        analysis.status = AnalysisStatus.COMPLETED;
+        const returnValue = await analysis.cancel();
+        assert.deepStrictEqual(returnValue, cancelResponse);
+        assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, {}]);
+      }));
+
       it('Fails to cancel an analysis, if api method throws', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const cancelError = new Error('cancel api call failed');
@@ -438,19 +449,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
-          },
-        );
-      }));
-
-      it('Fails to cancel an analysis, if already completed', sinonTest(async (sinon) => {
-        const analysis = new Analysis(apiUrl);
-        analysis.analysisId = analysisId;
-        analysis.status = AnalysisStatuses.COMPLETED;
-        await assert.rejects(
-          async () => analysis.cancel(),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.NOT_STARTED;
           },
         );
       }));
@@ -463,7 +462,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NO_ID;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.NO_ID;
           },
         );
       }));
@@ -471,7 +470,7 @@ describe('analysis', () => {
 
     describe('getStatus', () => {
       const startResponse = { id: analysisId, phases: {}};
-      const statusResponse = { status: AnalysisStatuses.COMPLETED, progress: { completed: 100, total: 100 }};
+      const statusResponse = { status: AnalysisStatus.COMPLETED, progress: { completed: 100, total: 100 }};
 
       it('Can get the status of an analysis', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
@@ -494,7 +493,7 @@ describe('analysis', () => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const response = {
           ...statusResponse,
-          status: AnalysisStatuses.ERRORED,
+          status: AnalysisStatus.ERRORED,
           message: { code: 'analysis-not-found', message: 'Analysis not found' },
         };
         const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(response);
@@ -521,6 +520,17 @@ describe('analysis', () => {
         assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, sampleBindingOptions]);
       }));
 
+      it('Can get status if the analysis is ended', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
+        const analysis = new Analysis(apiUrl);
+        await analysis.start(files, settings);
+        analysis.status = AnalysisStatus.COMPLETED;
+        const returnValue = await analysis.getStatus();
+        assert.deepStrictEqual(returnValue, statusResponse);
+        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, {}]);
+      }));
+
       it('Fails to get the status of an analysis, if api method throws', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const statusError = new Error('get status api call failed');
@@ -538,19 +548,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
-          },
-        );
-      }));
-
-      it('Fails to get the status of an analysis, if already completed', sinonTest(async (sinon) => {
-        const analysis = new Analysis(apiUrl);
-        analysis.analysisId = analysisId;
-        analysis.status = AnalysisStatuses.COMPLETED;
-        await assert.rejects(
-          async () => analysis.getStatus(),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.NOT_STARTED;
           },
         );
       }));
@@ -564,7 +562,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NO_ID;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.NO_ID;
           },
         );
       }));
@@ -572,7 +570,7 @@ describe('analysis', () => {
 
     describe('getResults', () => {
       const startResponse = { id: analysisId, phases: {}};
-      const responseStatus = { status: AnalysisStatuses.RUNNING, progress: { completed: 10, total: 20 }};
+      const responseStatus = { status: AnalysisStatus.RUNNING, progress: { completed: 10, total: 20 }};
       const resultsResponse = {
         status: responseStatus,
         cursor: 12345,
@@ -634,6 +632,39 @@ describe('analysis', () => {
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, sampleBindingOptions]);
       }));
 
+      it('Can get the full results of an analysis', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const startedAnalysis = new Analysis(apiUrl);
+        await startedAnalysis.start(files, settings);
+        const extantResult = clone(sampleResult);
+        extantResult.testId = 'overwritten';
+        startedAnalysis.results = [extantResult];
+        const analysis = clone(startedAnalysis);
+        const returnValue = await analysis.getResults(false);
+        const changes = {
+          status: returnValue.status.status,
+          progress: returnValue.status.progress,
+          error: undefined,
+          results: returnValue.results,
+          cursor: returnValue.cursor,
+        };
+        assert.deepStrictEqual(returnValue, resultsResponse);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
+        assert.changedProperties(startedAnalysis, analysis, changes);
+      }));
+
+      it('Can get results if the analysis is ended', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl);
+        await analysis.start(files, settings);
+        analysis.status = AnalysisStatus.COMPLETED;
+        const returnValue = await analysis.getResults(false);
+        assert.deepStrictEqual(returnValue, resultsResponse);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
+      }));
+
       it('Fails to get the results of an analysis, if api method throws', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const resultsError = new Error('results api call failed');
@@ -651,19 +682,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
-          },
-        );
-      }));
-
-      it('Fails to get the results of an analysis, if already completed', sinonTest(async (sinon) => {
-        const analysis = new Analysis(apiUrl);
-        analysis.analysisId = analysisId;
-        analysis.status = AnalysisStatuses.COMPLETED;
-        await assert.rejects(
-          async () => analysis.getResults(),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.NOT_STARTED;
           },
         );
       }));
@@ -676,7 +695,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NO_ID;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.NO_ID;
           },
         );
       }));
@@ -690,74 +709,74 @@ describe('analysis', () => {
 
       it('Knows if its status is not not started', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.RUNNING;
+        analysis.status = AnalysisStatus.RUNNING;
         assert.strictEqual(analysis.isNotStarted(), false);
       });
 
       it('Knows if its status is queued', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.QUEUED;
+        analysis.status = AnalysisStatus.QUEUED;
         assert.strictEqual(analysis.isQueued(), true);
       });
 
       it('Knows if its status is not queued', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.COMPLETED;
+        analysis.status = AnalysisStatus.COMPLETED;
         assert.strictEqual(analysis.isQueued(), false);
       });
 
 
       it('Knows if its status is running', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.RUNNING;
+        analysis.status = AnalysisStatus.RUNNING;
         assert.strictEqual(analysis.isRunning(), true);
       });
 
       it('Knows if its status is not running', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.COMPLETED;
+        analysis.status = AnalysisStatus.COMPLETED;
         assert.strictEqual(analysis.isRunning(), false);
       });
 
       it('Knows if its status is canceled', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.CANCELED;
+        analysis.status = AnalysisStatus.CANCELED;
         assert.strictEqual(analysis.isCanceled(), true);
       });
 
       it('Knows if its status is not canceled', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.ERRORED;
+        analysis.status = AnalysisStatus.ERRORED;
         assert.strictEqual(analysis.isCanceled(), false);
       });
 
       it('Knows if its status is errored', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.ERRORED;
+        analysis.status = AnalysisStatus.ERRORED;
         assert.strictEqual(analysis.isErrored(), true);
       });
 
       it('Knows if its status is not errored', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.COMPLETED;
+        analysis.status = AnalysisStatus.COMPLETED;
         assert.strictEqual(analysis.isErrored(), false);
       });
 
       it('Knows if its status is completed', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.COMPLETED;
+        analysis.status = AnalysisStatus.COMPLETED;
         assert.strictEqual(analysis.isCompleted(), true);
       });
 
       it('Knows if its status is not completed', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.RUNNING;
+        analysis.status = AnalysisStatus.RUNNING;
         assert.strictEqual(analysis.isCompleted(), false);
       });
 
       it('Knows if it has started', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.RUNNING;
+        analysis.status = AnalysisStatus.RUNNING;
         assert.strictEqual(analysis.isStarted(), true);
       });
 
@@ -768,13 +787,13 @@ describe('analysis', () => {
 
       it('Knows if it has ended', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.CANCELED;
+        analysis.status = AnalysisStatus.CANCELED;
         assert.strictEqual(analysis.isEnded(), true);
       });
 
       it('Knows if it has not ended', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.RUNNING;
+        analysis.status = AnalysisStatus.RUNNING;
         assert.strictEqual(analysis.isEnded(), false);
       });
 
@@ -785,16 +804,16 @@ describe('analysis', () => {
 
       it('Knows if it is in progress', () => {
         const analysis = new Analysis(apiUrl);
-        analysis.status = AnalysisStatuses.QUEUED;
+        analysis.status = AnalysisStatus.QUEUED;
         assert.strictEqual(analysis.isInProgress(), true);
-        analysis.status = AnalysisStatuses.RUNNING;
+        analysis.status = AnalysisStatus.RUNNING;
         assert.strictEqual(analysis.isInProgress(), true);
       });
 
       it('Knows if it is not in progress', () => {
         const analysis = new Analysis(apiUrl);
         assert.strictEqual(analysis.isInProgress(), false);
-        analysis.status = AnalysisStatuses.ERRORED;
+        analysis.status = AnalysisStatus.ERRORED;
         assert.strictEqual(analysis.isInProgress(), false);
       });
     });

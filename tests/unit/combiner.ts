@@ -8,7 +8,7 @@ import {
   groupResults,
   mergeIntoTestClass,
 } from '../../src/combiner';
-import { CombinerError, CombinerErrorCodes } from '../../src/errors';
+import { CombinerError, CombinerErrorCode } from '../../src/errors';
 import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 
@@ -65,7 +65,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.SOURCE_FILE_PATH_DIFFERS;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.SOURCE_FILE_PATH_DIFFERS;
         },
       );
     });
@@ -78,7 +78,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.CLASS_NAME_DIFFERS;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.CLASS_NAME_DIFFERS;
         },
       );
     });
@@ -91,7 +91,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.PACKAGE_NAME_DIFFERS;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.PACKAGE_NAME_DIFFERS;
         },
       );
     });
@@ -104,7 +104,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass([badResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.NO_CLASS_NAME;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.NO_CLASS_NAME;
         },
       );
     });
@@ -113,7 +113,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass(undefined as any),  // tslint:disable-line:no-any
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_MISSING;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_MISSING;
         },
       );
     });
@@ -122,7 +122,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass(new Set([sampleResult]) as any),  // tslint:disable-line:no-any
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_TYPE;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_TYPE;
         },
       );
     });
@@ -131,7 +131,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass([] as any),  // tslint:disable-line:no-any
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_EMPTY;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_EMPTY;
         },
       );
     });
@@ -142,7 +142,7 @@ describe('combiner', () => {
       assert.throws(
         () => generateTestClass([sampleResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.GENERATE_ERROR;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.GENERATE_ERROR;
         },
       );
     }));
@@ -163,7 +163,7 @@ describe('combiner', () => {
       await assert.rejects(
         async () => mergeIntoTestClass('', [sampleResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.EXISTING_CLASS_MISSING;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.EXISTING_CLASS_MISSING;
         },
       );
     });
@@ -172,7 +172,7 @@ describe('combiner', () => {
       await assert.rejects(
         async () => mergeIntoTestClass(Buffer.alloc(0) as any, [sampleResult]), // tslint:disable-line:no-any
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.EXISTING_CLASS_TYPE;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.EXISTING_CLASS_TYPE;
         },
       );
     });
@@ -184,7 +184,7 @@ describe('combiner', () => {
       await assert.rejects(
         async () => mergeIntoTestClass(existingTestClass, [sampleResult]),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.MERGE_ERROR;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.MERGE_ERROR;
         },
       );
     }));
@@ -194,7 +194,7 @@ describe('combiner', () => {
       await assert.rejects(
         async () => mergeIntoTestClass(existingTestClass, undefined as any),  // tslint:disable-line:no-any
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_MISSING;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_MISSING;
         },
       );
     });
@@ -207,7 +207,7 @@ describe('combiner', () => {
           new Set([sampleResult]) as any,  // tslint:disable-line:no-any
         ),
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_TYPE;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_TYPE;
         },
       );
     });
@@ -217,7 +217,7 @@ describe('combiner', () => {
       await assert.rejects(
         async () => mergeIntoTestClass(existingTestClass, [] as any),  // tslint:disable-line:no-any
         (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCodes.RESULTS_EMPTY;
+          return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_EMPTY;
         },
       );
     });
