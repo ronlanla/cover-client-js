@@ -13,7 +13,7 @@ import {
   groupResults,
   mergeIntoTestClass,
 } from './combiner';
-import { WriterError, WriterErrorCodes } from './errors';
+import { WriterError, WriterErrorCode } from './errors';
 import { AnalysisResult, WriteTestsOptions } from './types/types';
 
 export const dependencies = {
@@ -47,7 +47,7 @@ export default async function writeTests(
   } catch (error) {
     throw new WriterError(
       `Could not create the directory ${directoryPath}:\n${error}.`,
-      WriterErrorCodes.DIR_FAILED,
+      WriterErrorCode.DIR_FAILED,
     );
   }
   const groupedResults = groupResults(results);
@@ -85,7 +85,7 @@ export default async function writeTests(
     });
     throw new WriterError(
       `Test writing failed for some results:\n${errorList.join('\n')}.`,
-      WriterErrorCodes.WRITE_FAILED,
+      WriterErrorCode.WRITE_FAILED,
     );
   }
   return successPaths.sort();

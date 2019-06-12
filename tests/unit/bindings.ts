@@ -9,7 +9,7 @@ import {
   getApiVersion,
   startAnalysis,
 } from '../../src/bindings';
-import { BindingsError, BindingsErrorCodes } from '../../src/errors';
+import { BindingsError, BindingsErrorCode } from '../../src/errors';
 import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 
@@ -123,7 +123,7 @@ describe('api/bindings', () => {
       await assert.rejectsWith(
         // tslint:disable-next-line:no-any
         startAnalysis(api, { build: undefined } as any, settings),
-        new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCodes.BUILD_MISSING),
+        new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCode.BUILD_MISSING),
       );
     }));
 
@@ -132,7 +132,7 @@ describe('api/bindings', () => {
       const obj: { a?: Object } = {};
       obj.a = { b: obj };
 
-      const expectedError = new RegExp(BindingsErrorCodes.SETTINGS_INVALID);
+      const expectedError = new RegExp(BindingsErrorCode.SETTINGS_INVALID);
 
       await assert.rejectsWith(
         startAnalysis(api, { build: build }, obj as any), expectedError, // tslint:disable-line:no-any

@@ -10,7 +10,7 @@ import {
   startAnalysis,
 } from './bindings';
 import { getFileNameForResult, groupResults } from './combiner';
-import { AnalysisError, AnalysisErrorCodes } from './errors';
+import { AnalysisError, AnalysisErrorCode } from './errors';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
@@ -20,8 +20,8 @@ import {
   AnalysisResultsApiResponse,
   AnalysisSettings,
   AnalysisStartApiResponse,
+  AnalysisStatus,
   AnalysisStatusApiResponse,
-  AnalysisStatuses,
   ApiErrorResponse,
   ApiVersionApiResponse,
   BindingsOptions,
@@ -47,7 +47,7 @@ export default class Analysis {
   public bindingsOptions: BindingsOptions;
   public analysisId?: string;
   public settings?: AnalysisSettings;
-  public status?: AnalysisStatuses;
+  public status?: AnalysisStatus;
   public progress?: AnalysisProgress;
   public error?: ApiErrorResponse;
   public phases?: AnalysisPhases;
@@ -67,11 +67,11 @@ export default class Analysis {
     if (this.isNotStarted()) {
       throw new AnalysisError(
         'Analysis has not been started.',
-        AnalysisErrorCodes.NOT_STARTED,
+        AnalysisErrorCode.NOT_STARTED,
       );
     }
     if (!this.analysisId) {
-      throw new AnalysisError('Analysis is in progress but the analysis id is not set.', AnalysisErrorCodes.NO_ID);
+      throw new AnalysisError('Analysis is in progress but the analysis id is not set.', AnalysisErrorCode.NO_ID);
     }
   }
 
@@ -80,14 +80,14 @@ export default class Analysis {
     if (this.isStarted()) {
       throw new AnalysisError(
         `Analysis has already started (status: ${this.status}).`,
-        AnalysisErrorCodes.ALREADY_STARTED,
+        AnalysisErrorCode.ALREADY_STARTED,
       );
     }
   }
 
   /** Update status related properties */
   private updateStatus(status: AnalysisStatusApiResponse): void {
-    this.status = AnalysisStatuses[status.status];
+    this.status = AnalysisStatus[status.status];
     this.progress = status.progress;
     this.error = status.message;
   }
@@ -141,7 +141,7 @@ export default class Analysis {
         if (this.isErrored()) {
           throw new AnalysisError(
             'Analysis ended with ERRORED status.',
-            AnalysisErrorCodes.RUN_ERRORED,
+            AnalysisErrorCode.RUN_ERRORED,
           );
         }
       }
@@ -183,7 +183,7 @@ export default class Analysis {
     this.settings = settings;
     this.analysisId = response.id;
     this.phases = response.phases;
-    this.status = AnalysisStatuses.QUEUED;
+    this.status = AnalysisStatus.QUEUED;
     return response;
   }
 
@@ -232,27 +232,27 @@ export default class Analysis {
 
   /** Check if status is queued */
   public isQueued(): boolean {
-    return this.status === AnalysisStatuses.QUEUED;
+    return this.status === AnalysisStatus.QUEUED;
   }
 
   /** Check if status is running */
   public isRunning(): boolean {
-    return this.status === AnalysisStatuses.RUNNING;
+    return this.status === AnalysisStatus.RUNNING;
   }
 
   /** Check if status is completed */
   public isCompleted(): boolean {
-    return this.status === AnalysisStatuses.COMPLETED;
+    return this.status === AnalysisStatus.COMPLETED;
   }
 
   /** Check if status is errored */
   public isErrored(): boolean {
-    return this.status === AnalysisStatuses.ERRORED;
+    return this.status === AnalysisStatus.ERRORED;
   }
 
   /** Check if status is canceled */
   public isCanceled(): boolean {
-    return this.status === AnalysisStatuses.CANCELED;
+    return this.status === AnalysisStatus.CANCELED;
   }
 
   /** Check if status indicates that the analysis has started */
@@ -266,9 +266,9 @@ export default class Analysis {
       return false;
     }
     const endedStatuses = new Set([
-      AnalysisStatuses.COMPLETED,
-      AnalysisStatuses.ERRORED,
-      AnalysisStatuses.CANCELED,
+      AnalysisStatus.COMPLETED,
+      AnalysisStatus.ERRORED,
+      AnalysisStatus.CANCELED,
     ]);
     return endedStatuses.has(this.status);
   }
