@@ -104,7 +104,7 @@ export class WriterError extends CoverClientError {
 
 /** Error codes used by AnalysisError */
 export enum AnalysisErrorCodes {
-  NOT_IN_PROGRESS = 'NOT_IN_PROGRESS',
+  NOT_STARTED = 'NOT_STARTED',
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
   RUN_ERRORED = 'RUN_ERRORED',

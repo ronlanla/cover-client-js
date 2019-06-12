@@ -63,11 +63,11 @@ export default class Analysis {
   }
 
   /** Check if analysis is running */
-  private checkInProgress(): void {
-    if (!this.isInProgress()) {
+  private checkStarted(): void {
+    if (this.isNotStarted()) {
       throw new AnalysisError(
-        `Analysis is not in progress (status: ${this.status}).`,
-        AnalysisErrorCodes.NOT_IN_PROGRESS,
+        'Analysis has not been started.',
+        AnalysisErrorCodes.NOT_STARTED,
       );
     }
     if (!this.analysisId) {
@@ -189,7 +189,7 @@ export default class Analysis {
 
   /** Cancel the analysis */
   public async cancel(): Promise<AnalysisCancelApiResponse> {
-    this.checkInProgress();
+    this.checkStarted();
     const response = await components.cancelAnalysis(this.apiUrl, this.analysisId!, this.bindingsOptions);
     this.updateStatus(response.status);
     return response;
@@ -197,7 +197,7 @@ export default class Analysis {
 
   /** Get the analysis's status */
   public async getStatus(): Promise<AnalysisStatusApiResponse> {
-    this.checkInProgress();
+    this.checkStarted();
     const response = await components.getAnalysisStatus(this.apiUrl, this.analysisId!, this.bindingsOptions);
     this.updateStatus(response);
     return response;
@@ -205,7 +205,7 @@ export default class Analysis {
 
   /** Get the analysis's results */
   public async getResults(useCursor: boolean = true): Promise<AnalysisResultsApiResponse> {
-    this.checkInProgress();
+    this.checkStarted();
     const response = await components.getAnalysisResults(
       this.apiUrl,
       this.analysisId!,

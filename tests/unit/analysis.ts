@@ -421,6 +421,17 @@ describe('analysis', () => {
         assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, sampleBindingOptions]);
       }));
 
+      it('Can attempt to cancel an analysis if the analysis is ended', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis').resolves(cancelResponse);
+        const analysis = new Analysis(apiUrl);
+        await analysis.start(files, settings);
+        analysis.status = AnalysisStatuses.COMPLETED;
+        const returnValue = await analysis.cancel();
+        assert.deepStrictEqual(returnValue, cancelResponse);
+        assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, {}]);
+      }));
+
       it('Fails to cancel an analysis, if api method throws', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const cancelError = new Error('cancel api call failed');
@@ -438,19 +449,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.cancel(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
-          },
-        );
-      }));
-
-      it('Fails to cancel an analysis, if already completed', sinonTest(async (sinon) => {
-        const analysis = new Analysis(apiUrl);
-        analysis.analysisId = analysisId;
-        analysis.status = AnalysisStatuses.COMPLETED;
-        await assert.rejects(
-          async () => analysis.cancel(),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_STARTED;
           },
         );
       }));
@@ -521,6 +520,17 @@ describe('analysis', () => {
         assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, sampleBindingOptions]);
       }));
 
+      it('Can get status if the analysis is ended', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
+        const analysis = new Analysis(apiUrl);
+        await analysis.start(files, settings);
+        analysis.status = AnalysisStatuses.COMPLETED;
+        const returnValue = await analysis.getStatus();
+        assert.deepStrictEqual(returnValue, statusResponse);
+        assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, {}]);
+      }));
+
       it('Fails to get the status of an analysis, if api method throws', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const statusError = new Error('get status api call failed');
@@ -538,19 +548,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getStatus(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
-          },
-        );
-      }));
-
-      it('Fails to get the status of an analysis, if already completed', sinonTest(async (sinon) => {
-        const analysis = new Analysis(apiUrl);
-        analysis.analysisId = analysisId;
-        analysis.status = AnalysisStatuses.COMPLETED;
-        await assert.rejects(
-          async () => analysis.getStatus(),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_STARTED;
           },
         );
       }));
@@ -634,6 +632,39 @@ describe('analysis', () => {
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, sampleBindingOptions]);
       }));
 
+      it('Can get the full results of an analysis', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const startedAnalysis = new Analysis(apiUrl);
+        await startedAnalysis.start(files, settings);
+        const extantResult = clone(sampleResult);
+        extantResult.testId = 'overwritten';
+        startedAnalysis.results = [extantResult];
+        const analysis = clone(startedAnalysis);
+        const returnValue = await analysis.getResults(false);
+        const changes = {
+          status: returnValue.status.status,
+          progress: returnValue.status.progress,
+          error: undefined,
+          results: returnValue.results,
+          cursor: returnValue.cursor,
+        };
+        assert.deepStrictEqual(returnValue, resultsResponse);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
+        assert.changedProperties(startedAnalysis, analysis, changes);
+      }));
+
+      it('Can get results if the analysis is ended', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl);
+        await analysis.start(files, settings);
+        analysis.status = AnalysisStatuses.COMPLETED;
+        const returnValue = await analysis.getResults(false);
+        assert.deepStrictEqual(returnValue, resultsResponse);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
+      }));
+
       it('Fails to get the results of an analysis, if api method throws', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const resultsError = new Error('results api call failed');
@@ -651,19 +682,7 @@ describe('analysis', () => {
         await assert.rejects(
           async () => analysis.getResults(),
           (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
-          },
-        );
-      }));
-
-      it('Fails to get the results of an analysis, if already completed', sinonTest(async (sinon) => {
-        const analysis = new Analysis(apiUrl);
-        analysis.analysisId = analysisId;
-        analysis.status = AnalysisStatuses.COMPLETED;
-        await assert.rejects(
-          async () => analysis.getResults(),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_IN_PROGRESS;
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCodes.NOT_STARTED;
           },
         );
       }));
