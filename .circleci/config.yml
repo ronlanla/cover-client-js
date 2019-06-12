@@ -124,7 +124,7 @@ commands:
           command: yarn create-release-tag
       - run:
           name: Create a pull request from the release back to develop
-          command: yarn create-post-release-pull-request '@peterjwest,@adamkowalczyk,@myron836,@JimmehAH'
+          command: yarn create-post-release-pull-request 'peterjwest,adamkowalczyk,myron836,JimmehAH'
 
 jobs:
   checks:
