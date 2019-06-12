@@ -34,7 +34,7 @@ export class ApiError extends CoverClientError {
 }
 
 /** Error codes used by BindingsError */
-export enum BindingsErrorCodes {
+export enum BindingsErrorCode {
   BUILD_MISSING = 'BUILD_MISSING',
   SETTINGS_INVALID = 'SETTINGS_INVALID',
 }
@@ -43,9 +43,9 @@ export enum BindingsErrorCodes {
 export class BindingsError extends CoverClientError {
 
   public message: string;
-  public code: BindingsErrorCodes;
+  public code: BindingsErrorCode;
 
-  public constructor(message: string, code: BindingsErrorCodes) {
+  public constructor(message: string, code: BindingsErrorCode) {
     super(message);
     this.code = code;
     this.name = `BindingsError ${this.code}`;
@@ -54,7 +54,7 @@ export class BindingsError extends CoverClientError {
 }
 
 /** Error codes used by CombinerError */
-export enum CombinerErrorCodes {
+export enum CombinerErrorCode {
   RESULTS_MISSING = 'RESULTS_MISSING',
   RESULTS_EMPTY = 'RESULTS_EMPTY',
   RESULTS_TYPE = 'RESULTS_TYPE',
@@ -72,9 +72,9 @@ export enum CombinerErrorCodes {
 export class CombinerError extends CoverClientError {
 
   public message: string;
-  public code: CombinerErrorCodes;
+  public code: CombinerErrorCode;
 
-  public constructor(message: string, code: CombinerErrorCodes) {
+  public constructor(message: string, code: CombinerErrorCode) {
     super(message);
     this.code = code;
     this.name = `CombinerError ${this.code}`;
@@ -83,7 +83,7 @@ export class CombinerError extends CoverClientError {
 }
 
 /** Error codes used by WriterError */
-export enum WriterErrorCodes {
+export enum WriterErrorCode {
   DIR_FAILED = 'DIR_FAILED',
   WRITE_FAILED = 'WRITE_FAILED',
 }
@@ -92,9 +92,9 @@ export enum WriterErrorCodes {
 export class WriterError extends CoverClientError {
 
   public message: string;
-  public code: WriterErrorCodes;
+  public code: WriterErrorCode;
 
-  public constructor(message: string, code: WriterErrorCodes) {
+  public constructor(message: string, code: WriterErrorCode) {
     super(message);
     this.code = code;
     this.name = `WriterError ${this.code}`;
@@ -103,8 +103,8 @@ export class WriterError extends CoverClientError {
 }
 
 /** Error codes used by AnalysisError */
-export enum AnalysisErrorCodes {
-  NOT_IN_PROGRESS = 'NOT_IN_PROGRESS',
+export enum AnalysisErrorCode {
+  NOT_STARTED = 'NOT_STARTED',
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
   RUN_ERRORED = 'RUN_ERRORED',
@@ -114,9 +114,9 @@ export enum AnalysisErrorCodes {
 export class AnalysisError extends CoverClientError {
 
   public message: string;
-  public code: AnalysisErrorCodes;
+  public code: AnalysisErrorCode;
 
-  public constructor(message: string, code: AnalysisErrorCodes) {
+  public constructor(message: string, code: AnalysisErrorCode) {
     super(message);
     this.code = code;
     this.name = `AnalysisError ${this.code}`;

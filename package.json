@@ -1,6 +1,6 @@
 {
   "name": "@diffblue/cover-client",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Diffblue Cover client library - Node.js API for Diffblue Cover",
   "main": "build/index.js",
   "engines": {
@@ -26,7 +26,7 @@
     "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
     "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc mocha 'tests/unit/**/*.ts'",
     "create-release": "ts-node src/scripts/createRelease.ts",
-    "changelog": "ts-node src/utils/changelog.ts",
+    "changelog": "ts-node src/scripts/changelog.ts",
     "create-post-release-pull-request": "ts-node src/scripts/createPostReleasePullRequest.ts",
     "create-release-tag": "ts-node src/scripts/createReleaseTag.ts",
     "license-check": "ts-node src/scripts/licenseChecker.ts",

@@ -4,7 +4,7 @@ import { AxiosRequestConfig } from 'axios';
 import * as FormData from 'form-data';
 import { Agent } from 'https';
 
-import { BindingsError, BindingsErrorCodes } from './errors';
+import { BindingsError, BindingsErrorCode } from './errors';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
@@ -30,6 +30,8 @@ export const components = {
   }),
 };
 
+const Gb = 1024 * 1024 * 1024;
+
 /** Convert bindings options to an axios request config */
 function convertOptions(options: BindingsOptions = {}): AxiosRequestConfig {
   const config: AxiosRequestConfig = {};
@@ -52,7 +54,7 @@ export async function startAnalysis(
   options?: BindingsOptions,
 ): Promise<AnalysisStartApiResponse> {
   if (!build) {
-    throw new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCodes.BUILD_MISSING);
+    throw new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCode.BUILD_MISSING);
   }
 
   const getOptions = (filename: string, type: 'java-archive' | 'json') => ({
@@ -66,7 +68,7 @@ export async function startAnalysis(
   try {
     formData.append('settings', JSON.stringify(settings), getOptions('settings.json', 'json'));
   } catch (error) {
-    throw new BindingsError(`The settings JSON was not valid:\n${error}`, BindingsErrorCodes.SETTINGS_INVALID);
+    throw new BindingsError(`The settings JSON was not valid:\n${error}`, BindingsErrorCode.SETTINGS_INVALID);
   }
 
   if (baseBuild) {
@@ -77,7 +79,11 @@ export async function startAnalysis(
     formData.append('dependenciesBuild', dependenciesBuild, getOptions('dependenciesBuild.jar', 'java-archive'));
   }
 
-  const axiosConfig = { ...convertOptions(options), headers: formData.getHeaders() };
+  const axiosConfig: AxiosRequestConfig = {
+    ...convertOptions(options),
+    headers: formData.getHeaders(),
+    maxContentLength: Gb * 2, // 2 Gb
+  };
 
   return dependencies.request.post(dependencies.routes.start(api), formData, axiosConfig);
 }

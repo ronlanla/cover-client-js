@@ -3,7 +3,7 @@
 import { genTestClass, ITestData, mergeTests } from '@diffblue/java-combiner';
 import { groupBy, isString } from 'lodash';
 
-import { CombinerError, CombinerErrorCodes } from './errors';
+import { CombinerError, CombinerErrorCode } from './errors';
 import { AnalysisResult } from './types/types';
 
 export const dependencies = {
@@ -37,7 +37,7 @@ function parseClassNameFromFunctionName(functionName: string): string {
   const classNameRegexp = /([^.:]+)[.][^.]*$/;
   const classNameMatch = functionName.match(classNameRegexp);
   if (!classNameMatch) {
-    throw new CombinerError(`Can't find classname in ${functionName}`, CombinerErrorCodes.NO_CLASS_NAME);
+    throw new CombinerError(`Can't find classname in ${functionName}`, CombinerErrorCode.NO_CLASS_NAME);
   }
   return classNameMatch[1].replace(/\$/g, '_');
 }
@@ -47,19 +47,19 @@ function checkResults(results: AnalysisResult[]): void {
   if (!results) {
     throw new CombinerError(
       'Missing required parameter "results"',
-      CombinerErrorCodes.RESULTS_MISSING,
+      CombinerErrorCode.RESULTS_MISSING,
     );
   }
   if (!Array.isArray(results)) {
     throw new CombinerError(
       '"results" must be an array',
-      CombinerErrorCodes.RESULTS_TYPE,
+      CombinerErrorCode.RESULTS_TYPE,
     );
   }
   if (!results.length) {
     throw new CombinerError(
       '"results" must not be empty',
-      CombinerErrorCodes.RESULTS_EMPTY,
+      CombinerErrorCode.RESULTS_EMPTY,
     );
   }
   const sourceFilePaths = new Set();
@@ -73,19 +73,19 @@ function checkResults(results: AnalysisResult[]): void {
   if (sourceFilePaths.size !== 1) {
     throw new CombinerError(
       'All "results" must have the same "sourceFilePath"',
-      CombinerErrorCodes.SOURCE_FILE_PATH_DIFFERS,
+      CombinerErrorCode.SOURCE_FILE_PATH_DIFFERS,
     );
   }
   if (classNames.size !== 1) {
     throw new CombinerError(
       'All "results" must have a "testedFunction" that produces the same "className" when parsed',
-      CombinerErrorCodes.CLASS_NAME_DIFFERS,
+      CombinerErrorCode.CLASS_NAME_DIFFERS,
     );
   }
   if (packageNames.size !== 1) {
     throw new CombinerError(
       'All "results" must have a "testedFunction" that produces the same "packageName" when parsed',
-      CombinerErrorCodes.PACKAGE_NAME_DIFFERS,
+      CombinerErrorCode.PACKAGE_NAME_DIFFERS,
     );
   }
 }
@@ -95,13 +95,13 @@ function checkExistingClass(existingClass: string): void {
   if (!existingClass) {
     throw new CombinerError(
       'Missing required parameter "existingClass"',
-      CombinerErrorCodes.EXISTING_CLASS_MISSING,
+      CombinerErrorCode.EXISTING_CLASS_MISSING,
     );
   }
   if (!isString(existingClass)) {
     throw new CombinerError(
       '"existingClass" must be a string',
-      CombinerErrorCodes.EXISTING_CLASS_TYPE,
+      CombinerErrorCode.EXISTING_CLASS_TYPE,
     );
   }
 }
@@ -131,7 +131,7 @@ export function generateTestClass(results: AnalysisResult[]): string {
   try {
     return dependencies.genTestClass(testData, className, testName, packageName);
   } catch (error) {
-    throw new CombinerError(`Unexpected error generating test class:\n${error}`, CombinerErrorCodes.GENERATE_ERROR);
+    throw new CombinerError(`Unexpected error generating test class:\n${error}`, CombinerErrorCode.GENERATE_ERROR);
   }
 }
 
@@ -143,7 +143,7 @@ export async function mergeIntoTestClass(existingClass: string, results: Analysi
   try {
     return await dependencies.mergeTests(existingClass, testData);
   } catch (error) {
-    throw new CombinerError(`Unexpected error merging tests:\n${error}`, CombinerErrorCodes.MERGE_ERROR);
+    throw new CombinerError(`Unexpected error merging tests:\n${error}`, CombinerErrorCode.MERGE_ERROR);
   }
 }
 

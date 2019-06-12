@@ -1,7 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 /** Possible analysis statuses */
-export enum AnalysisStatuses {
+export enum AnalysisStatus {
   QUEUED = 'QUEUED',
   RUNNING = 'RUNNING',
   CANCELED = 'CANCELED',
@@ -88,7 +88,7 @@ export interface AnalysisSettings {
 
 /** Status object returned by the API */
 export interface AnalysisStatusApiResponse {
-  status: AnalysisStatuses;
+  status: AnalysisStatus;
   progress: AnalysisProgress;
   message?: ApiErrorResponse;
 }
