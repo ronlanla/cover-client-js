@@ -391,7 +391,7 @@ describe('analysis', () => {
 
     describe('cancel', () => {
       const startResponse = { id: analysisId, phases: {}};
-      const cancelStatus = { status: AnalysisStatus.CANCELED, progress: { completed: 10, total: 20 }};
+      const cancelStatus = { status: AnalysisStatus.STOPPING, progress: { completed: 10, total: 20 }};
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
 
@@ -736,6 +736,18 @@ describe('analysis', () => {
         const analysis = new Analysis(apiUrl);
         analysis.status = AnalysisStatus.COMPLETED;
         assert.strictEqual(analysis.isRunning(), false);
+      });
+
+      it('Knows if its status is stopping', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatus.STOPPING;
+        assert.strictEqual(analysis.isStopping(), true);
+      });
+
+      it('Knows if its status is not stopping', () => {
+        const analysis = new Analysis(apiUrl);
+        analysis.status = AnalysisStatus.COMPLETED;
+        assert.strictEqual(analysis.isStopping(), false);
       });
 
       it('Knows if its status is canceled', () => {

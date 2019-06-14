@@ -25,6 +25,8 @@ import {
   ApiErrorResponse,
   ApiVersionApiResponse,
   BindingsOptions,
+  endedStatuses,
+  inProgressStatuses,
   RunAnalysisOptions,
   WriteTestsOptions,
 } from './types/types';
@@ -240,6 +242,11 @@ export default class Analysis {
     return this.status === AnalysisStatus.RUNNING;
   }
 
+  /** Check if status is stopping */
+  public isStopping(): boolean {
+    return this.status === AnalysisStatus.STOPPING;
+  }
+
   /** Check if status is completed */
   public isCompleted(): boolean {
     return this.status === AnalysisStatus.COMPLETED;
@@ -265,16 +272,14 @@ export default class Analysis {
     if (!this.status) {
       return false;
     }
-    const endedStatuses = new Set([
-      AnalysisStatus.COMPLETED,
-      AnalysisStatus.ERRORED,
-      AnalysisStatus.CANCELED,
-    ]);
     return endedStatuses.has(this.status);
   }
 
   /** Check if status indicates that the analysis is in progress (started but not finished) */
   public isInProgress(): boolean {
-    return this.isQueued() || this.isRunning();
+    if (!this.status) {
+      return false;
+    }
+    return inProgressStatuses.has(this.status);
   }
 }
