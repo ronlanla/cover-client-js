@@ -69,7 +69,7 @@ describe('utils/request', () => {
         data: {
           message: 'Analysis successfully canceled',
           status: {
-            status: 'CANCELED',
+            status: 'STOPPING',
             progress: 50,
           },
         },
@@ -79,7 +79,7 @@ describe('utils/request', () => {
       const expectedResponse = {
         message: 'Analysis successfully canceled',
         status: {
-          status: 'CANCELED',
+          status: 'STOPPING',
           progress: 50,
         },
       };

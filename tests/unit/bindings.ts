@@ -226,7 +226,7 @@ describe('api/bindings', () => {
       post.withArgs(cancelUrl).resolves({
         message: 'Analysis successfully canceled',
         status: {
-          status: 'CANCELED',
+          status: 'STOPPING',
           progress: 50,
         },
       });
@@ -236,7 +236,7 @@ describe('api/bindings', () => {
       const expectedResponse = {
         message: 'Analysis successfully canceled',
         status: {
-          status: 'CANCELED',
+          status: 'STOPPING',
           progress: 50,
         },
       };
