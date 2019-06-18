@@ -23,18 +23,18 @@
   "scripts": {
     "audit-dependencies": "auditjs --prod --noNode",
     "build": "tsc --project tsconfig-build.json",
-    "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
-    "coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc mocha 'tests/unit/**/*.ts'",
-    "create-release": "ts-node src/scripts/createRelease.ts",
     "changelog": "ts-node src/scripts/changelog.ts",
+    "copyright-check": "ts-node src/scripts/copyrightChecker.ts",
     "create-post-release-pull-request": "ts-node src/scripts/createPostReleasePullRequest.ts",
+    "create-release": "ts-node src/scripts/createRelease.ts",
     "create-release-tag": "ts-node src/scripts/createReleaseTag.ts",
     "license-check": "ts-node src/scripts/licenseChecker.ts",
-    "lint-ts": "tslint --format verbose --project tsconfig.json",
     "lint-markdown": "markdownlint 'docs/**/*.md' '*.md'",
+    "lint-ts": "tslint --format verbose --project tsconfig.json",
     "publish-package": "ts-node src/scripts/publishPackage.ts",
-    "test": "mocha --require ts-node/register 'tests/unit/**/*.ts'",
-    "integration-test": "mocha --require ts-node/register 'tests/integration/**/*.ts'"
+    "test-coverage": "rm -rf coverage && NODE_DEBUG=nyc nyc mocha 'tests/unit/**/*.ts'",
+    "test-integration": "mocha --require ts-node/register 'tests/integration/**/*.ts'",
+    "test-unit": "mocha --require ts-node/register 'tests/unit/**/*.ts'"
   },
   "dependencies": {
     "@diffblue/java-combiner": "0.1.1",
