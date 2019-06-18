@@ -1,6 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-
 import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 import createPullRequest from '../utils/createPullRequest';
 import getPackageJson from '../utils/getPackageJson';
