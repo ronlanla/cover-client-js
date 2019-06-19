@@ -1,9 +1,9 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-
 import commandLineRunner, { ExpectedError } from '../utils/commandLineRunner';
 import createPullRequest from '../utils/createPullRequest';
 import getPackageJson from '../utils/getPackageJson';
+import multiline from '../utils/multiline';
 import spawn from '../utils/spawnProcess';
 
 export const dependencies = {
@@ -40,10 +40,10 @@ export default function createPostReleasePullRequest(env: NodeJS.ProcessEnv) {
 /* istanbul ignore next */
 if (require.main === module) {
   commandLineRunner(
-    [
-      'Creates a pull request from master to develop to be used after a release,',
-      'optionally provide a comma separated list of reviewers',
-    ].join('\n'),
+    multiline`
+      Creates a pull request from master to develop to be used after a release,
+      optionally provide a comma separated list of reviewers
+    `,
     '[<reviewers>]',
     process,
     createPostReleasePullRequest(process.env),

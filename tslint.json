@@ -53,7 +53,7 @@
     "linebreak-style": [true, "LF"],
     "max-file-line-count": [true, 1000],
     "max-line-length": [true, 120],
-    "max-union-size": [true, 4],
+    "max-union-size": false,
     "member-access": [
       true,
       "check-accessor",
@@ -165,7 +165,7 @@
     "ter-computed-property-spacing": true,
     "ter-func-call-spacing": [true, "never"],
     "ter-indent": [true, 2, { "SwitchCase": 1 }],
-    "trailing-comma": [true, { "multiline": "always", "singleline": "never" , "esSpecCompliant": true }],
+    "trailing-comma": [true, { "multiline": "always", "singleline": "never", "esSpecCompliant": true }],
     "triple-equals": true,
     "typedef": true,
     "typedef-whitespace": [

@@ -6,14 +6,14 @@ You can lint all Typescript code with `yarn lint-ts`. The linting rules are in [
 
 ## Unit tests
 
-You can run the unit tests with `yarn test` or run the unit tests with a coverage report with `yarn coverage`.
+You can run the unit tests with `yarn test-unit` or run the unit tests with a coverage report with `yarn test-coverage`.
 These tests use [Mocha](https://mochajs.org/) and [node Assert](https://nodejs.org/api/assert.html).
 
 You can run specific tests by using the `--grep/-g` [mocha option](https://mochajs.org/#-grep-regexp-g-regexp) with a regex
 targeting the tests you wish to run. For example:
 
 ```bash
-yarn test --grep api
+yarn test-unit --grep api
 ```
 
 You can run only a specific test suite or case by appending [`.only`](https://mochajs.org/#exclusive-tests) to `describe` or `it`.

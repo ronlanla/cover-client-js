@@ -1,6 +1,7 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
 import * as assert from 'assert';
+import { clone } from 'lodash';
 import * as sinon from 'sinon';
 
 /** Returns the error thrown by a callback */
@@ -105,10 +106,11 @@ const assertExtra = {
     changedObject: ObjectB,
     expectedChanges: Partial<ObjectA & ObjectB>,
   ) => {
+    const expectedObject = clone(originalObject);
     for (const [key, value] of Object.entries(expectedChanges)) {
-      originalObject[key as keyof ObjectA] = value;
+      expectedObject[key as keyof ObjectA] = value as ObjectA[keyof ObjectA];
     }
-    assert.deepStrictEqual(changedObject, originalObject);
+    assert.deepStrictEqual(changedObject, expectedObject);
   },
 };
 
