@@ -4,10 +4,14 @@
 export enum AnalysisStatus {
   QUEUED = 'QUEUED',
   RUNNING = 'RUNNING',
+  STOPPING = 'STOPPING',
   CANCELED = 'CANCELED',
   ERRORED = 'ERRORED',
   COMPLETED = 'COMPLETED',
 }
+
+export const inProgressStatuses = new Set([AnalysisStatus.QUEUED, AnalysisStatus.RUNNING, AnalysisStatus.STOPPING]);
+export const endedStatuses = new Set([AnalysisStatus.CANCELED, AnalysisStatus.ERRORED, AnalysisStatus.COMPLETED]);
 
 /**
  * An interface that contains all the possible files for

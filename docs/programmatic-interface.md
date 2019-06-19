@@ -249,7 +249,11 @@ const api = 'https://0.0.0.0/api';
 
 ### Get analysis status (Low level)
 
-Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, ERRORED, CANCELED and COMPLETED.
+Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, STOPPING, ERRORED, CANCELED and COMPLETED.
+
+A status of QUEUED, RUNNING or STOPPING indicates that the analysis is still in progress and that new results may still be returned.
+
+A status of ERRORED, CANCELED or COMPLETED indicates that the analysis has ended, and no further results are expected.
 
 The progress object returns the number of functions which have been analyzed compared to the total number to analyze.
 
@@ -323,13 +327,14 @@ import { delay } from 'bluebird';
 
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
+const inProgressStatuses = new Set(['RUNNING', 'QUEUED', 'STOPPING' ]);
 
 (async () => {
   let results = [];
   let response;
   let nextCursor?: number;
 
-  while (!response || response.status.status === 'RUNNING' || response.status.status === 'QUEUED') {
+  while (!response || inProgressStatuses.has(response.status.status)) {
     response = await CoverClient.getAnalysisResults(api, id, nextCursor);
     console.log(
       `Status: ${response.status.status}`,
