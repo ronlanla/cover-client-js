@@ -111,7 +111,7 @@ describe('combiner', () => {
 
     it('Fails if no results passed', () => {
       assert.throws(
-        () => generateTestClass(undefined as any),  // tslint:disable-line:no-any
+        () => generateTestClass(undefined as any),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_MISSING;
         },
@@ -120,7 +120,7 @@ describe('combiner', () => {
 
     it('Fails if non array results passed', () => {
       assert.throws(
-        () => generateTestClass(new Set([sampleResult]) as any),  // tslint:disable-line:no-any
+        () => generateTestClass(new Set([sampleResult]) as any),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_TYPE;
         },
@@ -129,7 +129,7 @@ describe('combiner', () => {
 
     it('Fails if empty results passed', () => {
       assert.throws(
-        () => generateTestClass([] as any),  // tslint:disable-line:no-any
+        () => generateTestClass([] as any),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_EMPTY;
         },
@@ -170,7 +170,7 @@ describe('combiner', () => {
 
     it('Fails for an existing test class of the wrong type', async () => {
       await assert.rejects(
-        async () => mergeIntoTestClass(Buffer.alloc(0) as any, [sampleResult]), // tslint:disable-line:no-any
+        async () => mergeIntoTestClass(Buffer.alloc(0) as any, [sampleResult]),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.EXISTING_CLASS_TYPE;
         },
@@ -192,7 +192,7 @@ describe('combiner', () => {
     it('Fails if no results passed', async () => {
       const existingTestClass = 'test-class';
       await assert.rejects(
-        async () => mergeIntoTestClass(existingTestClass, undefined as any),  // tslint:disable-line:no-any
+        async () => mergeIntoTestClass(existingTestClass, undefined as any),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_MISSING;
         },
@@ -204,7 +204,7 @@ describe('combiner', () => {
       await assert.rejects(
         async () => mergeIntoTestClass(
           existingTestClass,
-          new Set([sampleResult]) as any,  // tslint:disable-line:no-any
+          new Set([sampleResult]) as any,
         ),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_TYPE;
@@ -215,7 +215,7 @@ describe('combiner', () => {
     it('Fails if empty results passed', async () => {
       const existingTestClass = 'test-class';
       await assert.rejects(
-        async () => mergeIntoTestClass(existingTestClass, [] as any),  // tslint:disable-line:no-any
+        async () => mergeIntoTestClass(existingTestClass, [] as any),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.RESULTS_EMPTY;
         },
