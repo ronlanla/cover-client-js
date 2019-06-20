@@ -485,7 +485,7 @@ util.promisify(fs.readFile)('./FooBarTest.java').then((existingTestClass) => {
 });
 ```
 
-### Group results by tested function
+### Group results
 
 `generateTestClass` and `mergeIntoTestClass` expect the results they receive to all have the same `sourceFilePath` value.
 
