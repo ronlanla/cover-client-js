@@ -121,7 +121,6 @@ describe('api/bindings', () => {
 
     it('Throws an error when no build is supplied', sinonTest(async () => {
       await assert.rejectsWith(
-        // tslint:disable-next-line:no-any
         startAnalysis(api, { build: undefined } as any, settings),
         new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCode.BUILD_MISSING),
       );
@@ -135,7 +134,7 @@ describe('api/bindings', () => {
       const expectedError = new RegExp(BindingsErrorCode.SETTINGS_INVALID);
 
       await assert.rejectsWith(
-        startAnalysis(api, { build: build }, obj as any), expectedError, // tslint:disable-line:no-any
+        startAnalysis(api, { build: build }, obj as any), expectedError,
       );
     }));
 
