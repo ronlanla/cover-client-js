@@ -65,6 +65,13 @@ export interface AnalysisPhase {
   unwind?: number;
   stringPrintable?: boolean;
   maxNondetArrayLength?: number;
+  throwRuntimeExceptions?: boolean;
+  coverFunctionOnly?: boolean;
+  javaTestInputFactory?: string[];
+  javaTestInputFactoryBmcMaxMutators?: number;
+  javaTestInputFactoryBmcRecursionLimit?: number;
+  javaTestInputFactoryEntryPoint?: string[];
+  javaTestOutputEntryPoint?: string[];
   nextPhase?: {
     [event: string]: string;
   };
