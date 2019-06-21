@@ -1,10 +1,5 @@
 // Copyright 2017-2019 Diffblue Limited. All Rights Reserved.
 
-import assert from '../../../src/utils/assertExtra';
-import multiline from '../../../src/utils/multiline';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-import TestError from '../../../src/utils/TestError';
-
 import copyrightChecker, {
   buildFileList,
   catchMissingFile,
@@ -16,6 +11,10 @@ import copyrightChecker, {
   mapRootRelativeRules,
   parseGitignore,
 } from '../../../src/scripts/copyrightChecker';
+import assert from '../../../src/utils/assertExtra';
+import multiline from '../../../src/utils/multiline';
+import sinonTestFactory from '../../../src/utils/sinonTest';
+import TestError from '../../../src/utils/TestError';
 
 const sinonTest = sinonTestFactory();
 

@@ -4,7 +4,6 @@ import { Readable } from 'stream';
 
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import spawnProcess, { dependencies } from '../../../src/utils/spawnProcess';
 
 const sinonTest = sinonTestFactory({ useFakeTimers: false });

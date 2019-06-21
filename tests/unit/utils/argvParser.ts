@@ -1,8 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import assert from '../../../src/utils/assertExtra';
-
 import argvParser, { splitOnce } from '../../../src/utils/argvParser';
+import assert from '../../../src/utils/assertExtra';
 
 describe('utils/argvParser', () => {
   describe('splitOnce', () => {

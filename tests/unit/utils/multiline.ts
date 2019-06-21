@@ -1,7 +1,6 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
-
 import multiline from '../../../src/utils/multiline';
 
 describe('utils/multiline', () => {

@@ -2,12 +2,11 @@
 
 import { clone } from 'lodash';
 
-import assert from '../../src/utils/assertExtra';
-import sinonTestFactory from '../../src/utils/sinonTest';
-
 import Analysis, { components } from '../../src/analysis';
 import { AnalysisError, AnalysisErrorCode } from '../../src/errors';
 import { AnalysisStatus } from '../../src/types/types';
+import assert from '../../src/utils/assertExtra';
+import sinonTestFactory from '../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });

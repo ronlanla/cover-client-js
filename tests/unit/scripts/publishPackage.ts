@@ -1,10 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import assert from '../../../src/utils/assertExtra';
-import { ExpectedError } from '../../../src/utils/commandLineRunner';
-import multiline from '../../../src/utils/multiline';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import publishPackage, {
   AuthenticatedCallback,
   authenticateNpm,
@@ -13,6 +8,10 @@ import publishPackage, {
   extractNpmError,
   getAuthUser,
 } from '../../../src/scripts/publishPackage';
+import assert from '../../../src/utils/assertExtra';
+import { ExpectedError } from '../../../src/utils/commandLineRunner';
+import multiline from '../../../src/utils/multiline';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 
