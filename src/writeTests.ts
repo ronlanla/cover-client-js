@@ -4,7 +4,7 @@ import { map } from 'bluebird';
 import { readFile, writeFile } from 'fs';
 import { isEmpty } from 'lodash';
 import * as mkdirp from 'mkdirp';
-import { join } from 'path';
+import { join, parse } from 'path';
 import { promisify } from 'util';
 
 import {
@@ -55,8 +55,9 @@ export default async function writeTests(
   const errors: { [sourceFilePath: string]: Error } = {};
   await dependencies.map(Object.entries(groupedResults), async ([sourceFilePath, results]) => {
     try {
+      const packagePath = parse(sourceFilePath).dir;
       const fileName = components.getFileNameForResult(results[0]);
-      const filePath = join(directoryPath, fileName);
+      const filePath = join(directoryPath, packagePath, fileName);
       let existingClass: Buffer | undefined;
       let testClass: string;
       try {

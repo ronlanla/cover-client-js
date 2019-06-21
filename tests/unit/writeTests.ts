@@ -1,5 +1,6 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import { clone } from 'lodash';
 import { assert as sinonAssert } from 'sinon';
 
 import assert from '../../src/utils/assertExtra';
@@ -15,7 +16,7 @@ const sampleResult = {
   testId: 'id',
   testName: 'name',
   testedFunction: 'com.diffblue.javademo.TicTacToe.checkTicTacToePosition',
-  sourceFilePath: '/path',
+  sourceFilePath: '/com/diffblue/javademo/TicTacToe.java',
   testBody: 'body',
   imports: ['import'],
   staticImports: ['static import'],
@@ -26,11 +27,11 @@ const sampleResult = {
 };
 const otherResult = {
   ...sampleResult,
-  testedFunction: 'com.diffblue.javademo.OtherClass.otherFunction',
-  sourceFilePath: '/other/path',
+  testedFunction: 'com.diffblue.other.OtherClass.otherFunction',
+  sourceFilePath: '/com/diffblue/other/OtherClass.java',
 };
-const sampleResultFilePath = '/test/path/TicTacToeTest.java';
-const otherResultFilePath = '/test/path/OtherClassTest.java';
+const sampleResultFilePath = '/test/path/com/diffblue/javademo/TicTacToeTest.java';
+const otherResultFilePath = '/test/path/com/diffblue/other/OtherClassTest.java';
 const enoentError = new TestError('File not found', 'ENOENT');
 
 describe('writer', () => {
@@ -42,7 +43,7 @@ describe('writer', () => {
       const generateTestClass = sinon.stub(components, 'generateTestClass').returns('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').rejects(enoentError);
       const returnValue = await writeTests('/test/path', [sampleResult, otherResult]);
-      const expectedReturn = [otherResultFilePath, sampleResultFilePath];
+      const expectedReturn = [sampleResultFilePath, otherResultFilePath];
       assert.deepStrictEqual(returnValue, expectedReturn);
       sinonAssert.calledOnce(mkdirp);
       sinonAssert.calledWithExactly(mkdirp, '/test/path');
@@ -63,7 +64,7 @@ describe('writer', () => {
       const mergeIntoTestClass = sinon.stub(components, 'mergeIntoTestClass').resolves('test-class');
       const readFile = sinon.stub(dependencies, 'readFile').resolves('existing-test-class');
       const returnValue = await writeTests('/test/path', [sampleResult, otherResult]);
-      const expectedReturn = [otherResultFilePath, sampleResultFilePath];
+      const expectedReturn = [sampleResultFilePath, otherResultFilePath];
       assert.deepStrictEqual(returnValue, expectedReturn);
       sinonAssert.calledOnce(mkdirp);
       sinonAssert.calledWithExactly(mkdirp, '/test/path');
@@ -76,6 +77,30 @@ describe('writer', () => {
       sinonAssert.calledTwice(writeFile);
       sinonAssert.calledWithExactly(writeFile, sampleResultFilePath, 'test-class');
       sinonAssert.calledWithExactly(writeFile, otherResultFilePath, 'test-class');
+    }));
+
+    it('Can write tests with matching file names and differing package paths', sinonTest(async (sinon) => {
+      const mkdirp = sinon.stub(dependencies, 'mkdirp').resolves();
+      const writeFile = sinon.stub(dependencies, 'writeFile').resolves();
+      const generateTestClass = sinon.stub(components, 'generateTestClass').returns('test-class');
+      const readFile = sinon.stub(dependencies, 'readFile').rejects(enoentError);
+      const similarResult = clone(sampleResult);
+      similarResult.sourceFilePath = '/com/diffblue/other/TicTacToe.java';
+      const similarResultFilePath = '/test/path/com/diffblue/other/TicTacToeTest.java';
+      const returnValue = await writeTests('/test/path', [sampleResult, similarResult]);
+      const expectedReturn = [sampleResultFilePath, similarResultFilePath];
+      assert.deepStrictEqual(returnValue, expectedReturn);
+      sinonAssert.calledOnce(mkdirp);
+      sinonAssert.calledWithExactly(mkdirp, '/test/path');
+      sinonAssert.calledTwice(readFile);
+      sinonAssert.calledWithExactly(readFile, sampleResultFilePath);
+      sinonAssert.calledWithExactly(readFile, similarResultFilePath);
+      sinonAssert.calledTwice(generateTestClass);
+      sinonAssert.calledWithExactly(generateTestClass, [sampleResult]);
+      sinonAssert.calledWithExactly(generateTestClass, [similarResult]);
+      sinonAssert.calledTwice(writeFile);
+      sinonAssert.calledWithExactly(writeFile, sampleResultFilePath, 'test-class');
+      sinonAssert.calledWithExactly(writeFile, similarResultFilePath, 'test-class');
     }));
 
     it('Can accept options to set map concurrency', sinonTest(async (sinon) => {
