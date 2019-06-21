@@ -56,8 +56,10 @@ export default async function writeTests(
   await dependencies.map(Object.entries(groupedResults), async ([sourceFilePath, results]) => {
     try {
       const packagePath = parse(sourceFilePath).dir;
+      const testDirectoryPath = join(directoryPath, packagePath);
+      await dependencies.mkdirp(testDirectoryPath);
       const fileName = components.getFileNameForResult(results[0]);
-      const filePath = join(directoryPath, packagePath, fileName);
+      const filePath = join(testDirectoryPath, fileName);
       let existingClass: Buffer | undefined;
       let testClass: string;
       try {
