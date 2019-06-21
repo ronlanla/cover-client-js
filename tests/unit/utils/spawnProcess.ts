@@ -49,7 +49,6 @@ class MockChildProcess {
 describe('utils/spawnProcess', () => {
   it('Resolves with stdout if the command succeeds', sinonTest(async (sinon) => {
     const childProcess = new MockChildProcess(true, 'stdout message', 'stderr message');
-    // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
     assert.strictEqual(await spawnProcess('command', ['action'], { shell: true }), 'stdout message');
@@ -58,7 +57,6 @@ describe('utils/spawnProcess', () => {
 
   it('Resolves with stdout if the command succeeds without stdio', sinonTest(async (sinon) => {
     const childProcess = new MockChildProcess(true);
-    // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
     assert.strictEqual(await spawnProcess('command', ['action'], { shell: true }), '');
@@ -67,7 +65,6 @@ describe('utils/spawnProcess', () => {
 
   it('Resolves with stdout if the command succeeds with default arguments and options', sinonTest(async (sinon) => {
     const childProcess = new MockChildProcess(true, 'stdout message', 'stderr message');
-    // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
     assert.strictEqual(await spawnProcess('command'), 'stdout message');
@@ -76,7 +73,6 @@ describe('utils/spawnProcess', () => {
 
   it('Rejects with stderr if the command fails', sinonTest(async (sinon) => {
     const childProcess = new MockChildProcess(false, 'stdout message', 'stderr message');
-    // tslint:disable-next-line: no-any
     const spawn = sinon.stub(dependencies, 'spawn').returns(childProcess as any);
 
     await assert.rejectsWith(spawnProcess('command', ['action']), new Error('stderr message'));

@@ -399,7 +399,6 @@ describe('utils/assertExtra', () => {
       });
 
       assert.throws(
-        // tslint:disable-next-line: no-any
         () => assertExtra.changedProperties(originalObject, changedObject, expectedChanges as any),
         errorEquals(expectedError),
       );
