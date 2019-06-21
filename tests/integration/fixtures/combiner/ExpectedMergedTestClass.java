@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
 
 
 
-@org.junit.runner.RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
+@RunWith(PowerMockRunner.class)
 public class UserAccess {
 
   @Rule
