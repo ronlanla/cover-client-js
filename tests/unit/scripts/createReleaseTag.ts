@@ -1,9 +1,8 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
+import createReleaseTag, { dependencies } from '../../../src/scripts/createReleaseTag';
 import assert from '../../../src/utils/assertExtra';
 import sinonTestFactory from '../../../src/utils/sinonTest';
-
-import createReleaseTag, { dependencies } from '../../../src/scripts/createReleaseTag';
 
 const sinonTest = sinonTestFactory();
 

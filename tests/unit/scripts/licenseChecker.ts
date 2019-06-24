@@ -1,8 +1,5 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import licenseChecker, {
   checkLicenses,
   Command,
@@ -15,7 +12,9 @@ import licenseChecker, {
   loadAcceptableLicenses,
   parseLicenseInfo,
 } from '../../../src/scripts/licenseChecker';
+import assert from '../../../src/utils/assertExtra';
 import multiline from '../../../src/utils/multiline';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 

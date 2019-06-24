@@ -131,7 +131,12 @@
       {
         "import-sources-order": "case-insensitive",
         "module-source-path": "full",
-        "named-imports-order": "case-insensitive"
+        "named-imports-order": "case-insensitive",
+        "grouped-imports": true,
+        "groups": [
+          { "name": "local files", "match": "^\\.", "order": 20 },
+          { "name": "libraries", "match": ".*", "order": 10 }
+        ]
       }
     ],
     "prefer-const": true,

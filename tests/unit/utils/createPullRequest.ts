@@ -2,9 +2,8 @@
 
 import assert from '../../../src/utils/assertExtra';
 import { ExpectedError } from '../../../src/utils/commandLineRunner';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import createPullRequest, { dependencies } from '../../../src/utils/createPullRequest';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 

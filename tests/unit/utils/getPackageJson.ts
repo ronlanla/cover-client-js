@@ -1,9 +1,8 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import getPackageJson, { dependencies } from '../../../src/utils/getPackageJson';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 

@@ -1,9 +1,6 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import assert from '../../../src/utils/assertExtra';
-import multiline from '../../../src/utils/multiline';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import commandLineRunner, {
   components,
   dependencies,
@@ -12,6 +9,8 @@ import commandLineRunner, {
   getHelpMessage,
   indent,
 } from '../../../src/utils/commandLineRunner';
+import multiline from '../../../src/utils/multiline';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 

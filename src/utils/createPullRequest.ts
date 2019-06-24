@@ -1,7 +1,6 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import spawnProcess from '../utils/spawnProcess';
-
 import { ExpectedError } from './commandLineRunner';
 
 export const dependencies = {
