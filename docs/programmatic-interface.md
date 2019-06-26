@@ -6,7 +6,7 @@ The `Analysis` class can be used to run analyses.
 
 It provides a high level interface to run an analysis and write tests via the `run` method.
 
-It also makes the calling the low level api binding simpler, and keeps track of the state of the analysis.
+It also makes the calling the low level api bindings simpler, and keeps track of the state of the analysis.
 
 ### Instantiation
 
@@ -33,6 +33,57 @@ const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { a
 
 ### Usage
 
+### Run an analysis (object orientated)
+
+To run an analysis, call `Analysis.run`. This will start the analysis and wait for it to finish, periodically polling for new results and the current analysis status.
+When the analysis is has ended it can optionally write test files to a specified directory.
+
+The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
+
+This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
+
+Including `dependenciesBuild` will enable test verification.
+
+Including `baseBuild` will enable a differential analysis.
+
+The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover api.
+
+The third parameter is an optional options object, to configure the behavior of the `run` method. The available options are:
+
+1. `outputTests` (string). A directory path. If provided, test files will be written to this directory when the analysis ends.
+2. `writingConcurrency` (integer) The maximum number of test files to write concurrently, if `outputTests` is provided. (default: 20)
+3. `pollingInterval` (number) How often to poll for new results and the current analysis status, in seconds. (default: 60 seconds)
+4. `onResults` (function) Callback that will be called once for every group of new results per polling cycle. Receives two parameters:
+    1. `results` (array) An array of result objects, grouped by `sourceFilePath` (see [Group results](#-group-results) below).
+    2. `filename` (string) The computed destination test file name for the results e.g. for results for the class `Foo` the `filename` would be `FooTest.java`.
+5. `onError` (function) Callback that will be called once if the `run` method throws an error. If provided, the thrown error will be swallowed, and the promise returned by the `run` call will resolve rather than reject. Receives one parameter:
+    1. `error` (error) The thrown error object.
+
+```ts
+import Analysis from '@diffblue/cover-client';
+import * as fs from 'fs';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: fs.createReadStream('./build.jar'),
+  baseBuild:fs.createReadStream('./baseBuild.jar'),
+  dependenciesBuild: fs.createReadStream('./dependenciesBuild.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+const options = { outputTests: './tests', pollingInterval: 5 };
+
+(async () => {
+  const results = await analysis.run(files, settings, options);
+  console.log(`Analysis ended with the status: ${analysis.status}.`);
+  console.log(`Produced ${results.length} tests in total.`);
+  console.log(`Test files written to ${options.outputTests}.`);
+})();
+```
+
+The `forceStopPolling` method can be used to interrupt a `run` call and stop the polling cycle. This will cause the promise returned by `run` to resolve If a test file directory has been specified and any results have been received, test files will be written using the current set of fetched results.
+
+*N.B.* Calling `forceStopPolling` will _not_ stop the analysis from running on the Diffblue Cover server. To stop the analysis server side, call `Analysis.stop` (See [Cancel an analysis (Object orientated)](#-cancel-an-analysis-object-orientated)) below)
+
 #### Start an analysis (Object orientated)
 
 To start an analysis, call `Analysis.start`.
@@ -45,7 +96,7 @@ Including `dependenciesBuild` will enable test verification.
 
 Including `baseBuild` will enable a differential analysis.
 
-The second parameter is an optional settings object.
+The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover api.
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';

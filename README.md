@@ -27,8 +27,9 @@ const options = { outputTests: './tests' };
 
 analysis.run({ build: buildFile }, settings, options)
 .then((results) => {
-  console.log(`Produced ${results.length} tests`);
-  console.log(`Test files written to ${options.outputTests}`);
+  console.log(`Analysis ended with the status: ${analysis.status}.`);
+  console.log(`Produced ${results.length} tests in total.`);
+  console.log(`Test files written to ${options.outputTests}.`);
 });
 ```
 
@@ -45,8 +46,9 @@ const options = { outputTests: './tests' };
 
 (async () => {
   const results = await analysis.run({ build: buildFile }, settings, options);
-  console.log(`Produced ${results.length} tests`);
-  console.log(`Test files written to ${options.outputTests}`);
+  console.log(`Analysis ended with the status: ${analysis.status}.`);
+  console.log(`Produced ${results.length} tests in total.`);
+  console.log(`Test files written to ${options.outputTests}.`);
 })();
 ```
 
@@ -58,6 +60,7 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
   - [Object orientated interface](docs/programmatic-interface.md#object-orientated-interface)
     - [Instantiation](docs/programmatic-interface.md#instantiation)
     - [Usage](docs/programmatic-interface.md#usage)
+      - [Run an analysis (object orientated)](docs/programmatic-interface.md#run-an-analysis-object-orientated)
       - [Start an analysis (object orientated)](docs/programmatic-interface.md#start-an-analysis-object-orientated)
       - [Get analysis status (object orientated)](docs/programmatic-interface.md#get-analysis-status-object-orientated)
       - [Get analysis results (object orientated)](docs/programmatic-interface.md#get-analysis-results-object-orientated)
