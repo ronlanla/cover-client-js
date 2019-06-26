@@ -52,7 +52,7 @@ import { Analysis } from '@diffblue/cover-client';
 import { createReadStream } from 'fs';
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const settings = { ignoreDefaults: false, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start({ build: buildFile }, settings);
   console.log(`Analysis identifier: ${id}`);
@@ -67,7 +67,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = createReadStream('./build.jar');
 const baseBuildFile = createReadStream('./baseBuild.jar');
 const dependenciesBuildFile = createReadStream('./dependenciesBuild.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const settings = { ignoreDefaults: false, phases: {}};
 (async () => {
   const { id, phases } = await analysis.start(
     {
@@ -231,7 +231,7 @@ const api = 'https://0.0.0.0/api';
   const build = await promisify(readFile)('./build.jar');
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
-  const settings = { ignoreDefaults: true, phases: {}};
+  const settings = { ignoreDefaults: false, phases: {}};
   const files = {
     baseBuild: baseBuild,
     build: build,

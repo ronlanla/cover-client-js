@@ -22,7 +22,7 @@ const fs = require('fs');
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const settings = { ignoreDefaults: false, phases: {}};
 const options = { outputTests: './tests' };
 
 analysis.run({ build: buildFile }, settings, options)
@@ -40,7 +40,7 @@ import * as fs from 'fs';
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const settings = { ignoreDefaults: false, phases: {}};
 const options = { outputTests: './tests' };
 
 (async () => {
