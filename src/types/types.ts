@@ -95,7 +95,7 @@ export interface AnalysisSettings {
   };
   ignoreDefaults?: boolean;
   phases?: AnalysisPhases;
-  phaseDefaults?: AnalysisPhase;
+  phaseBase?: AnalysisPhase;
 }
 
 /** Status object returned by the API */
