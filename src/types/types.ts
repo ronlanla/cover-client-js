@@ -53,7 +53,7 @@ export interface AnalysisResult {
 /** Analysis phase returned and consumed by the API */
 export interface AnalysisPhase {
   initial?: boolean;
-  timeout?: number;
+  timeout: number;
   classpath?: string;
   depth?: number;
   javaExternalCodeAction?: 'mock' | 'mock-non-jdk' | 'ignore' | 'discard-testcase';
@@ -78,6 +78,12 @@ export interface AnalysisPhase {
 }
 
 /**
+ * Analysis phase returned and consumed by the API
+ * - Timeout is unnecessary pre phase verification
+ */
+export interface PartialAnalysisPhase extends Partial<AnalysisPhase> {}
+
+/**
  * Analysis phases returned and consumed by the API
  * A mapping of phase names to phases.
  */
@@ -95,7 +101,7 @@ export interface AnalysisSettings {
   };
   ignoreDefaults?: boolean;
   phases?: AnalysisPhases;
-  phaseBase?: AnalysisPhase;
+  phaseBase?: Partial<AnalysisPhase>;
 }
 
 /** Status object returned by the API */
