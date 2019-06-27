@@ -54,10 +54,10 @@ The third parameter is an optional options object, to configure the behavior of 
 2. `writingConcurrency` (integer) The maximum number of test files to write concurrently, if `outputTests` is provided. (default: 20)
 3. `pollingInterval` (number) How often to poll for new results and the current analysis status, in seconds. (default: 60 seconds)
 4. `onResults` (function) Callback that will be called once for every group of new results per polling cycle. Receives two parameters:
-    1. `results` (array) An array of result objects, grouped by `sourceFilePath` (see [Group results](#-group-results) below).
-    2. `filename` (string) The computed destination test file name for the results e.g. for results for the class `Foo` the `filename` would be `FooTest.java`.
+    * `results` (array) An array of result objects, grouped by `sourceFilePath` (see [Group results](#-group-results) below).
+    * `filename` (string) The computed destination test file name for the results e.g. for results for the class `Foo` the `filename` would be `FooTest.java`.
 5. `onError` (function) Callback that will be called once if the `run` method throws an error. If provided, the thrown error will be swallowed, and the promise returned by the `run` call will resolve rather than reject. Receives one parameter:
-    1. `error` (error) The thrown error object.
+    * `error` (error) The thrown error object.
 
 ```ts
 import Analysis from '@diffblue/cover-client';
@@ -181,6 +181,37 @@ To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
  const { version } = await analysis.getApiVersion();
  console.log(`Api version: ${version}`);
 }();
+```
+
+### Write tests
+
+To write test files to disk, call `Analysis.writeTests`.
+
+This will call the `writeTests` function using the current value of `Analysis.results`. See [Writing test files to disk](#-writing-test-files-to-disk) below for more details.
+
+This method accepts two parameters.
+
+1. `directoryPath` (string) The path of the directory that test files will be written to.
+2. `options` (object) [optional] Possible options:
+    1. `concurrency` (integer) The maximum number of test files to write concurrently. (default: 20)
+
+```ts
+import Analysis from '@diffblue/cover-client';
+import * as fs from 'fs';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: fs.createReadStream('./build.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+const directoryPath = './tests';
+
+(async () => {
+  await analysis.run(files, settings);
+  console.log(`Analysis has ended, with ${analysis.results.length} results.`);
+  await analysis.writeTests(directoryPath)
+  console.log(`Test files written to ${directoryPath}.`);
+})();
 ```
 
 ### Result pagination
@@ -499,13 +530,51 @@ const options = { allowUnauthorizedHttps: true };
 
 ## Combining results into test classes
 
-The `combiner` module provides methods to produce test classes from Diffblue Cover API results that can be written to a file and run.
+The `writeTests` function will produce test classes from Diffblue Cover API results and write them to disk at a specified location.
+
+The lower level `generateTestClass` and `mergeIntoTestClass` functions can be used to generate test classes as strings.
+
+### Writing test files to disk
+
+To write test files to disk, call `writeTests`.
+
+This function accepts three parameters.
+
+1. `directoryPath` (string) The path of the directory that test files will be written to.
+2. `results` (array) An array of `result` objects, relating to one or more class under test.
+3. `options` (object) [optional] Possible options:
+    1. `concurrency` (integer) The maximum number of test files to write concurrently. (default: 20)
+
+The return value is an array of strings denoting the paths of the test files written.
+
+When writing test files the provided results will be grouped by `sourceFilePath` so that each group relates to one class under test (See [Group results](#-group-results) below).
+
+For each group of results:
+
+If a test file with the expected name and path already exists in the target directory, the contents of the pre-existing file will be merged with the new tests generated from the results. The resulting test class containing both the new and pre-existing tests will be written back to the file, overwriting its original contents.
+
+If a test file with the expected name and path does not exist in the target directory then a new test class will be generated and written to disk at that location.
+
+For example, for a group of results that share a `sourceFilePath` of `/com/foo/bar/SomeClass.java`, when calling `writeTests` with a `directoryPath` of `/testDir`, the expected test file name and path will be `/testDir/com/foo/bar/SomeClassTest.java`.
+
+If errors occur during test writing, the function will continue to attempt to write test files for each group of results, and finally reject with an error containing details of any errors that occurred (listed with the related `sourceFilePath`).
+
+```ts
+const CoverClient = require('@diffblue/cover-client');
+const directoryPath = './tests';
+const options = { concurrency: 100 };
+
+(async () => {
+  const testFilePaths = await CoverClient.writeTests(directoryPath, results, options);
+  console.log(`Test files written: ${testFilePaths.join(', ')}.`);
+})();
+```
 
 ### Generate a new test class
 
 The `generateTestClass` function will produce a test class from an array of Diffblue Cover API results.
 
-All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values.
+All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
 
 Node.js example:
 
@@ -518,7 +587,7 @@ const testClass = CoverClient.generateTestClass(results);
 
 The `mergeIntoTestClass` function can be used to generate tests from an array of Diffblue Cover API results and merge them into an existing test class.
 
-All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values.
+All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
 
 The existing test class should relate to the same class under test as the results.
 
@@ -530,7 +599,7 @@ const CoverClient = require('@diffblue/cover-client');
 const util = require('util');
 
 util.promisify(fs.readFile)('./FooBarTest.java').then((existingTestClass) => {
-  return CoverClient.generateTestClass(existingTestClass, results).then((testClass) => {
+  return CoverClient.mergeIntoTestClass(existingTestClass, results).then((testClass) => {
     console.log(`Merged test class:\n${testClass}`);
   });
 });
