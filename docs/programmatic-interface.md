@@ -19,6 +19,7 @@ In Node.js:
 
 ```js
 const Analysis = require('@diffblue/cover-client').Analysis;
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
 ```
@@ -27,6 +28,7 @@ In Typescript:
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
 ```
@@ -61,13 +63,13 @@ The third parameter is an optional options object, to configure the behavior of 
 
 ```ts
 import Analysis from '@diffblue/cover-client';
-import * as fs from 'fs';
+import { createReadStream } from 'fs';
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
-  build: fs.createReadStream('./build.jar'),
-  baseBuild:fs.createReadStream('./baseBuild.jar'),
-  dependenciesBuild: fs.createReadStream('./dependenciesBuild.jar'),
+  build: createReadStream('./build.jar'),
+  baseBuild: createReadStream('./baseBuild.jar'),
+  dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
 const settings = { ignoreDefaults: false, phases: {}};
 const options = { outputTests: './tests', pollingInterval: 5 };
@@ -80,9 +82,31 @@ const options = { outputTests: './tests', pollingInterval: 5 };
 })();
 ```
 
+#### Stop polling for results
+
 The `forceStopPolling` method can be used to interrupt a `run` call and stop the polling cycle. This will cause the promise returned by `run` to resolve If a test file directory has been specified and any results have been received, test files will be written using the current set of fetched results.
 
 *N.B.* Calling `forceStopPolling` will _not_ stop the analysis from running on the Diffblue Cover server. To stop the analysis server side, call `Analysis.stop` (See [Cancel an analysis (Object orientated)](#-cancel-an-analysis-object-orientated)) below)
+
+```ts
+import Analysis from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+import { ok } from 'assert';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: createReadStream('./build.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+
+(async () => {
+  const runPromise = analysis.run(files, settings);
+  analysis.forceStopPolling();
+  ok(analysis.pollingStopped);
+  await analysis.getStatus()
+  ok(analysis.status === 'RUNNING')
+})();
+```
 
 #### Start an analysis (Object orientated)
 
@@ -101,11 +125,12 @@ The second parameter is an optional settings object, containing analysis setting
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 import { createReadStream } from 'fs';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = createReadStream('./build.jar');
-const settings = { ignoreDefaults: false, phases: {}};
+
 (async () => {
-  const { id, phases } = await analysis.start({ build: buildFile }, settings);
+  const { id, phases } = await analysis.start({ build: buildFile };
   console.log(`Analysis identifier: ${id}`);
   console.log(`Analysis computed phases: ${phases}`);
 }();
@@ -114,20 +139,17 @@ const settings = { ignoreDefaults: false, phases: {}};
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 import { createReadStream } from 'fs';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = createReadStream('./build.jar');
-const baseBuildFile = createReadStream('./baseBuild.jar');
-const dependenciesBuildFile = createReadStream('./dependenciesBuild.jar');
+const files = {
+  build: createReadStream('./build.jar'),
+  baseBuild: createReadStream('./baseBuild.jar'),
+  dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
+};
 const settings = { ignoreDefaults: false, phases: {}};
+
 (async () => {
-  const { id, phases } = await analysis.start(
-    {
-      build: buildFile,
-      baseBuild: baseBuildFile,
-      dependenciesBuild: dependenciesBuildFile,
-    },
-    settings,
-  );
+  const { id, phases } = await analysis.start(files settings);
   console.log(`Analysis identifier: ${id}`);
   console.log(`Analysis computed phases: ${phases}`);
 }();
@@ -183,11 +205,11 @@ To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
 }();
 ```
 
-### Write tests
+### Write test files to disk (object orientated)
 
 To write test files to disk, call `Analysis.writeTests`.
 
-This will call the `writeTests` function using the current value of `Analysis.results`. See [Writing test files to disk](#-writing-test-files-to-disk) below for more details.
+This will call the `writeTests` function using the current value of `Analysis.results`. See [Write test files to disk](#-write-test-files-to-disk) below for more details.
 
 This method accepts two parameters.
 
@@ -231,7 +253,9 @@ call to any method that changes or returns the current analysis status.
 import { Analysis } from '@diffblue/cover-client';
 import { ok } from 'assert';
 import { createReadStream } from 'fs';
+
 const buildFile = createReadStream('./build.jar');
+
 (async () => {
   const analysis = new Analysis('https://your-cover-api-domain.com');
   ok(analysis.isNotStarted());
@@ -247,7 +271,9 @@ if a method is called at an inappropriate time.
 import { Analysis } from '@diffblue/cover-client';
 import { ok } from 'assert';
 import { createReadStream } from 'fs';
+
 const buildFile = createReadStream('./build.jar');
+
 (async () => {
   const analysis = new Analysis('https://your-cover-api-domain.com');
   ok(analysis.isNotStarted());
@@ -534,7 +560,7 @@ The `writeTests` function will produce test classes from Diffblue Cover API resu
 
 The lower level `generateTestClass` and `mergeIntoTestClass` functions can be used to generate test classes as strings.
 
-### Writing test files to disk
+### Write test files to disk
 
 To write test files to disk, call `writeTests`.
 
@@ -560,7 +586,8 @@ For example, for a group of results that share a `sourceFilePath` of `/com/foo/b
 If errors occur during test writing, the function will continue to attempt to write test files for each group of results, and finally reject with an error containing details of any errors that occurred (listed with the related `sourceFilePath`).
 
 ```ts
-const CoverClient = require('@diffblue/cover-client');
+import CoverClient from '@diffblue/cover-client';
+
 const directoryPath = './tests';
 const options = { concurrency: 100 };
 
@@ -576,11 +603,11 @@ The `generateTestClass` function will produce a test class from an array of Diff
 
 All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
 
-Node.js example:
+ ```ts
+import CoverClient from '@diffblue/cover-client';
 
- ```js
-const CoverClient = require('@diffblue/cover-client');
 const testClass = CoverClient.generateTestClass(results);
+console.log(`New test class:\n${testClass}`);
 ```
 
 ### Merge results into an existing test class
@@ -591,18 +618,16 @@ All off these results should relate to the same class under test and so must all
 
 The existing test class should relate to the same class under test as the results.
 
-Node.js example:
+```ts
+import CoverClient from '@diffblue/cover-client';
+import { readFile } from 'fs';
+import { promisify } from 'util';
 
- ```js
-const fs = require('fs');
-const CoverClient = require('@diffblue/cover-client');
-const util = require('util');
-
-util.promisify(fs.readFile)('./FooBarTest.java').then((existingTestClass) => {
-  return CoverClient.mergeIntoTestClass(existingTestClass, results).then((testClass) => {
-    console.log(`Merged test class:\n${testClass}`);
-  });
-});
+(async () => {
+  const existingTestClass = await promisify(fs.readFile)('./FooBarTest.java');
+  const mergedTestClass = await CoverClient.mergeIntoTestClass(existingTestClass, results);
+  console.log(`Merged test class:\n${mergedTestClass}`);
+})();
 ```
 
 ### Group results
@@ -615,10 +640,9 @@ Each value in this object should be suitable to pass to `generateTestClass` or `
 
 It is assumed that all `testedFunctions` for a given `sourceFilePath` will produce the same `className` and `packageName` values when parsed.
 
-Node.js example:
+```ts
+import CoverClient from '@diffblue/cover-client';
 
- ```js
-const CoverClient = require('@diffblue/cover-client');
 const groupedResults = CoverClient.groupResults(results);
 ```
 

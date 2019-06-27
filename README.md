@@ -37,10 +37,10 @@ In Typescript (using async/await):
 
 ```ts
 import Analysis from '@diffblue/cover-client';
-import * as fs from 'fs';
+import { createReadStream } from 'fs';
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadStream('./build.jar');
+const buildFile = createReadStream('./build.jar');
 const settings = { ignoreDefaults: false, phases: {}};
 const options = { outputTests: './tests' };
 
@@ -66,6 +66,7 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
       - [Get analysis results (object orientated)](docs/programmatic-interface.md#get-analysis-results-object-orientated)
       - [Cancel an analysis (object orientated)](docs/programmatic-interface.md#cancel-an-analysis-object-orientated)
       - [Get API version (object orientated)](docs/programmatic-interface.md#get-api-version-object-orientated)
+      - [Write test files to disk (object orientated)](docs/programmatic-interface.md#write-test-files-to-disk-object-orientated)
     - [Result pagination](docs/programmatic-interface.md#result-pagination)
     - [Lifecycle](docs/programmatic-interface.md#lifecycle)
   - [Low level bindings](docs/programmatic-interface.md#low-level-bindings)
@@ -77,6 +78,7 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
     - [Low level options](docs/programmatic-interface.md#low-level-options)
       - [Ignore https rejection](docs/programmatic-interface.md#ignore-https-rejection)
   - [Combining results into test classes](docs/programmatic-interface.md#combining-results-into-test-classes)
+    - [Write test files to disk](docs/programmatic-interface.md#write-test-files-to-disk)
     - [Generate a new test class](docs/programmatic-interface.md#generate-a-new-test-class)
     - [Merge results into an existing test class](docs/programmatic-interface.md#merge-results-into-an-existing-test-class)
 - [Command line interface](docs/command-line-interface.md)
