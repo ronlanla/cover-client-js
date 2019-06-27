@@ -110,7 +110,7 @@ export interface AnalysisSettings {
     exclude?: string[];
   };
   ignoreDefaults?: boolean;
-  phases?: AnalysisPhases;
+  phases?: PartialAnalysisPhases;
   phaseBase?: PartialAnalysisPhase;
 }
 
