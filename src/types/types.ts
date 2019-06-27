@@ -91,6 +91,16 @@ export interface AnalysisPhases {
   [phaseName: string]: AnalysisPhase;
 }
 
+/**
+ * Analysis phases returned and consumed by the API
+ * A mapping of phase names to phases.
+ * - Timeout is unnecessary pre phase verification
+ */
+export interface PartialAnalysisPhases {
+  [phaseName: string]: PartialAnalysisPhase;
+}
+
+
 /** Settings parameter require to start an analysis */
 export interface AnalysisSettings {
   include?: string[];
@@ -101,7 +111,7 @@ export interface AnalysisSettings {
   };
   ignoreDefaults?: boolean;
   phases?: AnalysisPhases;
-  phaseBase?: Partial<AnalysisPhase>;
+  phaseBase?: PartialAnalysisPhase;
 }
 
 /** Status object returned by the API */
