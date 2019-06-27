@@ -61,6 +61,7 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
     - [Instantiation](docs/programmatic-interface.md#instantiation)
     - [Usage](docs/programmatic-interface.md#usage)
       - [Run an analysis (object orientated)](docs/programmatic-interface.md#run-an-analysis-object-orientated)
+        - [Stop polling for results](docs/programmatic-interface.md#stop-polling-for-results)
       - [Start an analysis (object orientated)](docs/programmatic-interface.md#start-an-analysis-object-orientated)
       - [Get analysis status (object orientated)](docs/programmatic-interface.md#get-analysis-status-object-orientated)
       - [Get analysis results (object orientated)](docs/programmatic-interface.md#get-analysis-results-object-orientated)
