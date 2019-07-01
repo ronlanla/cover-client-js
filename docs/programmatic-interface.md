@@ -85,11 +85,11 @@ const options = { outputTests: './tests', pollingInterval: 5 };
 
 #### Stop polling for results
 
-The `forceStopPolling` method can be used to interrupt a `run` call and stop the polling cycle. This will cause the promise returned by `run` to resolve.
+The `stopPolling` method can be used to interrupt a `run` call and stop the polling cycle. This will cause the promise returned by `run` to resolve.
 
 If a test file directory has been specified and any results have been received, test files will be written using the current set of fetched results.
 
-*N.B.* Calling `forceStopPolling` will _not_ stop the analysis from running on the Diffblue Cover server. To stop the analysis server side, call `Analysis.stop` (See [Cancel an analysis (Object orientated)](#-cancel-an-analysis-object-orientated)) below)
+**Please note:** calling `stopPolling` will _not_ stop the analysis from running on the Diffblue Cover server. To cancel the analysis server side, call `Analysis.cancel` (See [Cancel an analysis (Object orientated)](#-cancel-an-analysis-object-orientated) below).
 
 ```ts
 import Analysis from '@diffblue/cover-client';
@@ -104,7 +104,7 @@ const settings = { ignoreDefaults: false, phases: {}};
 
 (async () => {
   const runPromise = analysis.run(files, settings);
-  analysis.forceStopPolling();
+  analysis.stopPolling();
   ok(analysis.pollingStopped);
   await analysis.getStatus()
   ok(analysis.status === 'RUNNING')
@@ -204,7 +204,7 @@ To check the version of the Diffblue Cover API, call `Analysis.getApiVersion`.
 ```ts
 (async () => {
  const { version } = await analysis.getApiVersion();
- console.log(` API version: ${version}`);
+ console.log(`API version: ${version}`);
 }();
 ```
 
@@ -593,6 +593,7 @@ import CoverClient from '@diffblue/cover-client';
 
 const directoryPath = './tests';
 const options = { concurrency: 100 };
+const results = [] // This should be an array of analysis result objects
 
 (async () => {
   const testFilePaths = await CoverClient.writeTests(directoryPath, results, options);
@@ -608,6 +609,8 @@ All of these results should relate to the same class under test, and so must all
 
  ```ts
 import CoverClient from '@diffblue/cover-client';
+
+const results = [] // This should be an array of analysis result objects
 
 const testClass = CoverClient.generateTestClass(results);
 console.log(`New test class:\n${testClass}`);
@@ -625,6 +628,8 @@ The existing test class should relate to the same class under test as the result
 import CoverClient from '@diffblue/cover-client';
 import { readFile } from 'fs';
 import { promisify } from 'util';
+
+const results = [] // This should be an array of analysis result objects
 
 (async () => {
   const existingTestClass = await promisify(fs.readFile)('./FooBarTest.java');
@@ -646,6 +651,7 @@ It is assumed that all `testedFunctions` for a given `sourceFilePath` will produ
 ```ts
 import CoverClient from '@diffblue/cover-client';
 
+const results = [] // This should be an array of analysis result objects
 const groupedResults = CoverClient.groupResults(results);
 ```
 

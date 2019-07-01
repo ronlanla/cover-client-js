@@ -245,7 +245,7 @@ describe('analysis', () => {
         getAnalysisResults.onFirstCall().resolves(response);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
-        setTimeout(() => analysis.forceStopPolling(), 10);
+        setTimeout(() => analysis.stopPolling(), 10);
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
         assert.deepStrictEqual(returnValue, resultsResponse.results);
         assert.strictEqual(analysis.status, AnalysisStatus.RUNNING);
@@ -263,7 +263,7 @@ describe('analysis', () => {
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(response);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
-        setImmediate(() => analysis.forceStopPolling());
+        setImmediate(() => analysis.stopPolling());
         const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
         assert.deepStrictEqual(returnValue, []);
         assert.strictEqual(analysis.status, AnalysisStatus.QUEUED);
