@@ -5,9 +5,8 @@ import { groupBy, mapValues } from 'lodash';
 import { promisify } from 'util';
 
 import { generateTestClass, mergeIntoTestClass } from '../../src/combiner';
-import assert from '../../src/utils/assertExtra';
-
 import { AnalysisResult } from '../../src/types/types';
+import assert from '../../src/utils/assertExtra';
 
 const readFile = promisify(readFileCallback);
 

@@ -4,7 +4,6 @@ import { delay } from 'bluebird';
 import * as sinon from 'sinon';
 
 import assert from '../../../src/utils/assertExtra';
-
 import sinonTest from '../../../src/utils/sinonTest';
 
 // "You're very clever, young man, very clever, but it's turtles all the way down!"

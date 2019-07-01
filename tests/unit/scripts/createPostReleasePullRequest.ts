@@ -1,12 +1,11 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import assert from '../../../src/utils/assertExtra';
-import sinonTestFactory from '../../../src/utils/sinonTest';
-
 import createPostReleasePullRequest, {
   components,
   dependencies,
 } from '../../../src/scripts/createPostReleasePullRequest';
+import assert from '../../../src/utils/assertExtra';
+import sinonTestFactory from '../../../src/utils/sinonTest';
 
 const sinonTest = sinonTestFactory();
 

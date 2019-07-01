@@ -1,6 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
 import { StatusResult } from 'simple-git/promise';
+
 import createRelease, {
   checkPrerequisites,
   commitPackageJsonChange,

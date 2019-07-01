@@ -3,11 +3,10 @@
 import { clone } from 'lodash';
 import { assert as sinonAssert } from 'sinon';
 
+import { WriterError, WriterErrorCode } from '../../src/errors';
 import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 import TestError from '../../src/utils/TestError';
-
-import { WriterError, WriterErrorCode } from '../../src/errors';
 import writeTests, { components, dependencies } from '../../src/writeTests';
 
 const sinonTest = sinonTestFactory();
