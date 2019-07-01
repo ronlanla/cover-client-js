@@ -79,7 +79,7 @@ export interface AnalysisPhase {
 
 /**
  * Analysis phase returned and consumed by the API
- * - Timeout is unnecessary pre phase verification
+ * - Timeout is optional in the input phases, only required for the computed phases (merged with defaults)
  */
 export interface PartialAnalysisPhase extends Partial<AnalysisPhase> {}
 
@@ -94,7 +94,6 @@ export interface AnalysisPhases {
 /**
  * Analysis phases returned and consumed by the API
  * A mapping of phase names to phases.
- * - Timeout is unnecessary pre phase verification
  */
 export interface PartialAnalysisPhases {
   [phaseName: string]: PartialAnalysisPhase;
