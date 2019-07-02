@@ -2,7 +2,9 @@
 
 ## Linting
 
-You can lint all Typescript code with `yarn lint-ts`. The linting rules are in [tslint.json](./tslint.json)
+You can lint all Typescript code with `yarn lint-ts`.
+
+The main linting rules are in [tslint.json](./tslint.json), and the linting rules for tests are in [tests/tslint.json](./tests/tslint.json).
 
 ## Unit tests
 
@@ -103,6 +105,10 @@ The build will automatically fail if you introduce unapproved dependencies. If t
 
 ## Integration tests
 
+TODO
+
 ### Mock API
+
+TODO
 
 Copyright 2019 Diffblue Limited. All Rights Reserved.

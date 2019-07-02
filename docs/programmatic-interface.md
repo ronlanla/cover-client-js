@@ -6,11 +6,11 @@ The `Analysis` class can be used to run analyses.
 
 It provides a high level interface to run an analysis and write tests via the `run` method.
 
-It also makes the calling the low level api binding simpler, and keeps track of the state of the analysis.
+It also makes the calling the low level API bindings simpler, and keeps track of the state of the analysis.
 
 ### Instantiation
 
-The `Analysis` constructor has one required parameter, which is the url of the Diffblue Cover api.
+The `Analysis` constructor has one required parameter, which is the URL of the Diffblue Cover API.
 
 The constructor also accepts a second optional parameter of bindings options, which will be applied to all calls the object makes to the low level API bindings.
 (see [low level options](#-low-level-options))
@@ -19,6 +19,7 @@ In Node.js:
 
 ```js
 const Analysis = require('@diffblue/cover-client').Analysis;
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
 ```
@@ -27,17 +28,20 @@ In Typescript:
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
 ```
 
 ### Usage
 
-#### Start an analysis (Object orientated)
+### Run an analysis (object orientated)
 
-To start an analysis, call `Analysis.start`.
+To run an analysis, call `Analysis.run`. This will start the analysis and wait for it to finish, periodically polling for new results and the current analysis status.
 
-The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover api.
+If a directory is specified via the `outputTests` option (see below), tests files will be written to disk at this location when the analysis ends.
+
+The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover API.
 
 This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
 
@@ -45,16 +49,91 @@ Including `dependenciesBuild` will enable test verification.
 
 Including `baseBuild` will enable a differential analysis.
 
-The second parameter is an optional settings object.
+The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
+
+The third parameter is an optional options object, to configure the behavior of the `run` method. The available options are:
+
+1. `outputTests` (string). A directory path. If provided, test files will be written to this directory when the analysis ends. If the directory does not exist it will be created.
+2. `writingConcurrency` (integer) The maximum number of test files to write concurrently, if `outputTests` is provided. (default: 20)
+3. `pollingInterval` (number) How often to poll for new results and the current analysis status, in seconds. (default: 60 seconds)
+4. `onResults` (function) Callback that will be called once for every group of new results per polling cycle. Receives two parameters:
+    * `results` (array) An array of result objects, grouped by `sourceFilePath` (see [Group results](#-group-results) below).
+    * `filename` (string) The computed destination test file name for the results. For example, the `filename` for results for the class under test `Foo` would be `FooTest.java`.
+5. `onError` (function) Callback that will be called once if the `run` method throws an error. If provided, the thrown error will be swallowed, and the promise returned by the `run` call will resolve rather than reject. Receives one parameter:
+    * `error` (error) The thrown error object.
+
+```ts
+import Analysis from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: createReadStream('./build.jar'),
+  baseBuild: createReadStream('./baseBuild.jar'),
+  dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+const options = { outputTests: './tests', pollingInterval: 5 };
+
+(async () => {
+  const results = await analysis.run(files, settings, options);
+  console.log(`Analysis ended with the status: ${analysis.status}.`);
+  console.log(`Produced ${results.length} tests in total.`);
+  console.log(`Test files written to ${options.outputTests}.`);
+})();
+```
+
+#### Stop polling for results
+
+The `stopPolling` method can be used to interrupt a `run` call and stop the polling cycle. This will cause the promise returned by `run` to resolve.
+
+If a test file directory has been specified and any results have been received, test files will be written using the current set of fetched results.
+
+**Please note:** calling `stopPolling` will _not_ stop the analysis from running on the Diffblue Cover server. To cancel the analysis server side, call `Analysis.cancel` (See [Cancel an analysis (Object orientated)](#-cancel-an-analysis-object-orientated) below).
+
+```ts
+import Analysis from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+import { ok } from 'assert';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: createReadStream('./build.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+
+(async () => {
+  const runPromise = analysis.run(files, settings);
+  analysis.stopPolling();
+  ok(analysis.pollingStopped);
+  await analysis.getStatus()
+  ok(analysis.status === 'RUNNING')
+})();
+```
+
+#### Start an analysis (Object orientated)
+
+To start an analysis, call `Analysis.start`.
+
+The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover API.
+
+This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
+
+Including `dependenciesBuild` will enable test verification.
+
+Including `baseBuild` will enable a differential analysis.
+
+The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 import { createReadStream } from 'fs';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+
 (async () => {
-  const { id, phases } = await analysis.start({ build: buildFile }, settings);
+  const { id, phases } = await analysis.start({ build: buildFile };
   console.log(`Analysis identifier: ${id}`);
   console.log(`Analysis computed phases: ${phases}`);
 }();
@@ -63,20 +142,17 @@ const settings = { ignoreDefaults: true, phases: {}};
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 import { createReadStream } from 'fs';
+
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = createReadStream('./build.jar');
-const baseBuildFile = createReadStream('./baseBuild.jar');
-const dependenciesBuildFile = createReadStream('./dependenciesBuild.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const files = {
+  build: createReadStream('./build.jar'),
+  baseBuild: createReadStream('./baseBuild.jar'),
+  dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+
 (async () => {
-  const { id, phases } = await analysis.start(
-    {
-      build: buildFile,
-      baseBuild: baseBuildFile,
-      dependenciesBuild: dependenciesBuildFile,
-    },
-    settings,
-  );
+  const { id, phases } = await analysis.start(files, settings);
   console.log(`Analysis identifier: ${id}`);
   console.log(`Analysis computed phases: ${phases}`);
 }();
@@ -123,19 +199,50 @@ To cancel an analysis that has started, call `Analysis.cancel`.
 
 #### Get API version (Object orientated)
 
-To check the version of the Diffblue Cover api, call `Analysis.getApiVersion`.
+To check the version of the Diffblue Cover API, call `Analysis.getApiVersion`.
 
 ```ts
 (async () => {
  const { version } = await analysis.getApiVersion();
- console.log(`Api version: ${version}`);
+ console.log(`API version: ${version}`);
 }();
+```
+
+### Write test files to disk (object orientated)
+
+To write test files to disk, call `Analysis.writeTests`.
+
+This will call the `writeTests` function using the current value of `Analysis.results`. See [Write test files to disk](#-write-test-files-to-disk) below for more details.
+
+This method accepts two parameters.
+
+1. `directoryPath` (string) The path of the directory that test files will be written to.
+2. `options` (object) [optional] Possible options:
+    * `concurrency` (integer) The maximum number of test files to write concurrently. (default: 20)
+
+```ts
+import Analysis from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: createReadStream('./build.jar'),
+};
+const settings = { ignoreDefaults: false, phases: {}};
+const directoryPath = './tests';
+
+(async () => {
+  await analysis.run(files, settings);
+  console.log(`Analysis has ended with ${analysis.results.length} results.`);
+  await analysis.writeTests(directoryPath)
+  console.log(`Test files written to ${directoryPath}.`);
+})();
 ```
 
 ### Result pagination
 
 Calling `Analysis.getResults` will save the returned pagination cursor on the `Analysis` instance
-and a subsequent call to `Analysis.getResults` will, by default, pass that cursor to the Diffblue Cover api and only return
+and a subsequent call to `Analysis.getResults` will, by default, pass that cursor to the Diffblue Cover API and only return
 new results generated since that cursor.
 To disable the automatic pagination behavior and fetch the full set of results generated (so far),
 set the first parameter of `Analysis.getResults` to `false`.
@@ -149,7 +256,9 @@ call to any method that changes or returns the current analysis status.
 import { Analysis } from '@diffblue/cover-client';
 import { ok } from 'assert';
 import { createReadStream } from 'fs';
+
 const buildFile = createReadStream('./build.jar');
+
 (async () => {
   const analysis = new Analysis('https://your-cover-api-domain.com');
   ok(analysis.isNotStarted());
@@ -165,7 +274,9 @@ if a method is called at an inappropriate time.
 import { Analysis } from '@diffblue/cover-client';
 import { ok } from 'assert';
 import { createReadStream } from 'fs';
+
 const buildFile = createReadStream('./build.jar');
+
 (async () => {
   const analysis = new Analysis('https://your-cover-api-domain.com');
   ok(analysis.isNotStarted());
@@ -231,7 +342,7 @@ const api = 'https://0.0.0.0/api';
   const build = await promisify(readFile)('./build.jar');
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
-  const settings = { ignoreDefaults: true, phases: {}};
+  const settings = { ignoreDefaults: false, phases: {}};
   const files = {
     baseBuild: baseBuild,
     build: build,
@@ -448,41 +559,83 @@ const options = { allowUnauthorizedHttps: true };
 
 ## Combining results into test classes
 
-The `combiner` module provides methods to produce test classes from Diffblue Cover API results that can be written to a file and run.
+The `writeTests` function will produce test classes from Diffblue Cover API results and write them to disk at a specified location.
+
+The lower level `generateTestClass` and `mergeIntoTestClass` functions can be used to generate test classes as strings.
+
+### Write test files to disk
+
+To write test files to disk, call `writeTests`.
+
+This function accepts three parameters.
+
+1. `directoryPath` (string) The path of the directory that test files will be written to.
+2. `results` (array) An array of `result` objects, relating to one or more classes under test.
+3. `options` (object) [optional] Possible options:
+    * `concurrency` (integer) The maximum number of test files to write concurrently. (default: 20)
+
+The return value is an array of strings denoting the paths of the test files written.
+
+When writing test files, the provided results will be grouped by `sourceFilePath` so that each group relates to one class under test (See [Group results](#-group-results) below).
+
+For each group of results:
+
+If a test file with the expected name and path already exists in the target directory, the contents of the pre-existing file will be merged with the new tests generated from the results. The resulting test class containing both the new and pre-existing tests will be written back to the file, overwriting its original contents.
+
+If a test file with the expected name and path does not exist in the target directory then a new test class will be generated and written to disk at that location.
+
+For example, when calling `writeTests` with a `directoryPath` of `/testDir`, a group of results that share a `sourceFilePath` of `/com/foo/bar/SomeClass.java` will have an expected test file name and path of `/testDir/com/foo/bar/SomeClassTest.java`
+
+If errors occur during test writing, the function will continue to attempt to write test files for each group of results, and finally reject with an error containing details of any errors that occurred (listed with the related `sourceFilePath`).
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const directoryPath = './tests';
+const options = { concurrency: 100 };
+const results = [] // This should be an array of analysis result objects
+
+(async () => {
+  const testFilePaths = await CoverClient.writeTests(directoryPath, results, options);
+  console.log(`Test files written: ${testFilePaths.join(', ')}.`);
+})();
+```
 
 ### Generate a new test class
 
 The `generateTestClass` function will produce a test class from an array of Diffblue Cover API results.
 
-All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values.
+All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
 
-Node.js example:
+ ```ts
+import CoverClient from '@diffblue/cover-client';
 
- ```js
-const CoverClient = require('@diffblue/cover-client');
+const results = [] // This should be an array of analysis result objects
+
 const testClass = CoverClient.generateTestClass(results);
+console.log(`New test class:\n${testClass}`);
 ```
 
 ### Merge results into an existing test class
 
 The `mergeIntoTestClass` function can be used to generate tests from an array of Diffblue Cover API results and merge them into an existing test class.
 
-All off these results should relate to the same class under test and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values.
+All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
 
 The existing test class should relate to the same class under test as the results.
 
-Node.js example:
+```ts
+import CoverClient from '@diffblue/cover-client';
+import { readFile } from 'fs';
+import { promisify } from 'util';
 
- ```js
-const fs = require('fs');
-const CoverClient = require('@diffblue/cover-client');
-const util = require('util');
+const results = [] // This should be an array of analysis result objects
 
-util.promisify(fs.readFile)('./FooBarTest.java').then((existingTestClass) => {
-  return CoverClient.generateTestClass(existingTestClass, results).then((testClass) => {
-    console.log(`Merged test class:\n${testClass}`);
-  });
-});
+(async () => {
+  const existingTestClass = await promisify(fs.readFile)('./FooBarTest.java');
+  const mergedTestClass = await CoverClient.mergeIntoTestClass(existingTestClass, results);
+  console.log(`Merged test class:\n${mergedTestClass}`);
+})();
 ```
 
 ### Group results
@@ -495,10 +648,10 @@ Each value in this object should be suitable to pass to `generateTestClass` or `
 
 It is assumed that all `testedFunctions` for a given `sourceFilePath` will produce the same `className` and `packageName` values when parsed.
 
-Node.js example:
+```ts
+import CoverClient from '@diffblue/cover-client';
 
- ```js
-const CoverClient = require('@diffblue/cover-client');
+const results = [] // This should be an array of analysis result objects
 const groupedResults = CoverClient.groupResults(results);
 ```
 

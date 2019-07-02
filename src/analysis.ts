@@ -152,7 +152,7 @@ export default class Analysis {
         await this.writeTests(options.outputTests, writeOptions);
       }
     } catch (error) {
-      this.forceStop();
+      this.stopPolling();
       if (options.onError) {
         options.onError(error);
       } else {
@@ -163,7 +163,7 @@ export default class Analysis {
   }
 
   /** If an analysis is being run, stop polling for results */
-  public forceStop(): void {
+  public stopPolling(): void {
     if (this.pollDelay) {
       this.pollDelay.cancel();
     }
