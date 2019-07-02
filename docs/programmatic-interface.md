@@ -6,11 +6,11 @@ The `Analysis` class can be used to run analyses.
 
 It provides a high level interface to run an analysis and write tests via the `run` method.
 
-It also makes the calling the low level api bindings simpler, and keeps track of the state of the analysis.
+It also makes the calling the low level API bindings simpler, and keeps track of the state of the analysis.
 
 ### Instantiation
 
-The `Analysis` constructor has one required parameter, which is the url of the Diffblue Cover API.
+The `Analysis` constructor has one required parameter, which is the URL of the Diffblue Cover API.
 
 The constructor also accepts a second optional parameter of bindings options, which will be applied to all calls the object makes to the low level API bindings.
 (see [low level options](#-low-level-options))
@@ -115,7 +115,7 @@ const settings = { ignoreDefaults: false, phases: {}};
 
 To start an analysis, call `Analysis.start`.
 
-The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover  API.
+The first parameter is required, and is an object containing streams or buffers of JAR files to be uploaded to the Diffblue Cover API.
 
 This must include a `build` key, and may optionally include a `baseBuild` key and/or a `dependenciesBuild` key.
 

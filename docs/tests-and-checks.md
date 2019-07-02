@@ -4,7 +4,7 @@
 
 You can lint all Typescript code with `yarn lint-ts`.
 
-Th main linting rules are in [tslint.json](./tslint.json), and the linting rules for tests are in [tests/tslint.json](./tests/tslint.json).
+The main linting rules are in [tslint.json](./tslint.json), and the linting rules for tests are in [tests/tslint.json](./tests/tslint.json).
 
 ## Unit tests
 
