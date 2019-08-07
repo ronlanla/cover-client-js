@@ -46,7 +46,7 @@
     "url-join": "4.0.1"
   },
   "devDependencies": {
-    "@types/form-data": "2.2.1",
+    "@types/form-data": "2.5.0",
     "@types/inquirer": "^6.0.1",
     "@types/lodash": "4.14.136",
     "@types/mkdirp": "0.5.2",
