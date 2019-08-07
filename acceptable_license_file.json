@@ -1,0 +1,1643 @@
+{
+  "@babel/code-frame": [
+    "mit"
+  ],
+  "@babel/generator": [
+    "mit"
+  ],
+  "@babel/helper-function-name": [
+    "mit"
+  ],
+  "@babel/helper-get-function-arity": [
+    "mit"
+  ],
+  "@babel/helper-split-export-declaration": [
+    "mit"
+  ],
+  "@babel/highlight": [
+    "mit"
+  ],
+  "@babel/parser": [
+    "mit"
+  ],
+  "@babel/template": [
+    "mit"
+  ],
+  "@babel/traverse": [
+    "mit"
+  ],
+  "@babel/types": [
+    "mit"
+  ],
+  "@diffblue/java-combiner": [
+    "mit"
+  ],
+  "@sinonjs/commons": [
+    "bsd-3-clause"
+  ],
+  "@sinonjs/formatio": [
+    "bsd-3-clause"
+  ],
+  "@sinonjs/samsam": [
+    "bsd-3-clause"
+  ],
+  "@sinonjs/text-encoding": [
+    "(unlicense or apache-2.0)"
+  ],
+  "@types/form-data": [
+    "mit"
+  ],
+  "@types/inquirer": [
+    "mit"
+  ],
+  "@types/lodash": [
+    "mit"
+  ],
+  "@types/mkdirp": [
+    "mit"
+  ],
+  "@types/mocha": [
+    "mit"
+  ],
+  "@types/node": [
+    "mit"
+  ],
+  "@types/semver": [
+    "mit"
+  ],
+  "@types/sinon": [
+    "mit"
+  ],
+  "@types/through": [
+    "mit"
+  ],
+  "@yarnpkg/lockfile": [
+    "bsd-2-clause"
+  ],
+  "abbrev": [
+    "isc"
+  ],
+  "agent-base": [
+    "mit"
+  ],
+  "agentkeepalive": [
+    "mit"
+  ],
+  "ajv": [
+    "mit"
+  ],
+  "ansi-align": [
+    "isc"
+  ],
+  "ansi-colors": [
+    "mit"
+  ],
+  "ansi-escapes": [
+    "mit"
+  ],
+  "ansi-regex": [
+    "mit"
+  ],
+  "ansi-styles": [
+    "mit"
+  ],
+  "ansicolors": [
+    "mit"
+  ],
+  "ansistyles": [
+    "mit"
+  ],
+  "append-transform": [
+    "mit"
+  ],
+  "aproba": [
+    "isc"
+  ],
+  "archy": [
+    "mit"
+  ],
+  "are-we-there-yet": [
+    "isc"
+  ],
+  "arg": [
+    "mit"
+  ],
+  "argparse": [
+    "mit"
+  ],
+  "array-from": [
+    "mit"
+  ],
+  "asap": [
+    "mit"
+  ],
+  "asn1": [
+    "mit"
+  ],
+  "assert-plus": [
+    "mit"
+  ],
+  "async": [
+    "mit"
+  ],
+  "asynckit": [
+    "mit"
+  ],
+  "auditjs": [
+    "bsd-3-clause"
+  ],
+  "aws-sign2": [
+    "apache-2.0"
+  ],
+  "aws4": [
+    "mit"
+  ],
+  "axios": [
+    "mit"
+  ],
+  "balanced-match": [
+    "mit"
+  ],
+  "bcrypt-pbkdf": [
+    "bsd-3-clause"
+  ],
+  "bin-links": [
+    "artistic-2.0"
+  ],
+  "bluebird": [
+    "mit"
+  ],
+  "boxen": [
+    "mit"
+  ],
+  "brace-expansion": [
+    "mit"
+  ],
+  "browser-stdout": [
+    "isc"
+  ],
+  "buffer-from": [
+    "mit"
+  ],
+  "builtin-modules": [
+    "mit"
+  ],
+  "builtins": [
+    "mit"
+  ],
+  "byline": [
+    "mit"
+  ],
+  "byte-size": [
+    "mit"
+  ],
+  "cacache": [
+    "isc"
+  ],
+  "caching-transform": [
+    "mit"
+  ],
+  "call-limit": [
+    "isc"
+  ],
+  "camelcase": [
+    "mit"
+  ],
+  "capture-stack-trace": [
+    "mit"
+  ],
+  "caseless": [
+    "apache-2.0"
+  ],
+  "chalk": [
+    "mit"
+  ],
+  "chardet": [
+    "mit"
+  ],
+  "charenc": [
+    "bsd-3-clause"
+  ],
+  "chownr": [
+    "isc"
+  ],
+  "ci-info": [
+    "mit"
+  ],
+  "cidr-regex": [
+    "bsd-2-clause"
+  ],
+  "cli-boxes": [
+    "mit"
+  ],
+  "cli-columns": [
+    "mit"
+  ],
+  "cli-cursor": [
+    "mit"
+  ],
+  "cli-table3": [
+    "mit"
+  ],
+  "cli-width": [
+    "isc"
+  ],
+  "cliui": [
+    "isc"
+  ],
+  "clone": [
+    "mit"
+  ],
+  "cmd-shim": [
+    "bsd-2-clause"
+  ],
+  "code-point-at": [
+    "mit"
+  ],
+  "color-convert": [
+    "mit"
+  ],
+  "color-name": [
+    "mit"
+  ],
+  "colors": [
+    "mit"
+  ],
+  "columnify": [
+    "mit"
+  ],
+  "combined-stream": [
+    "mit"
+  ],
+  "commander": [
+    "mit"
+  ],
+  "commondir": [
+    "mit"
+  ],
+  "concat-map": [
+    "mit"
+  ],
+  "concat-stream": [
+    "mit"
+  ],
+  "config": [
+    "mit"
+  ],
+  "config-chain": [
+    "mit"
+  ],
+  "configstore": [
+    "bsd-2-clause"
+  ],
+  "console-control-strings": [
+    "isc"
+  ],
+  "convert-source-map": [
+    "mit"
+  ],
+  "copy-concurrently": [
+    "isc"
+  ],
+  "core-util-is": [
+    "mit"
+  ],
+  "cp-file": [
+    "mit"
+  ],
+  "create-error-class": [
+    "mit"
+  ],
+  "cross-spawn": [
+    "mit"
+  ],
+  "crypt": [
+    "bsd-3-clause"
+  ],
+  "crypto-random-string": [
+    "mit"
+  ],
+  "cycle": [
+    "unknown"
+  ],
+  "cyclist": [
+    "mit*"
+  ],
+  "dashdash": [
+    "mit"
+  ],
+  "debug": [
+    "mit"
+  ],
+  "debuglog": [
+    "mit"
+  ],
+  "decamelize": [
+    "mit"
+  ],
+  "decode-uri-component": [
+    "mit"
+  ],
+  "deep-extend": [
+    "mit"
+  ],
+  "default-require-extensions": [
+    "mit"
+  ],
+  "defaults": [
+    "mit"
+  ],
+  "define-properties": [
+    "mit"
+  ],
+  "delayed-stream": [
+    "mit"
+  ],
+  "delegates": [
+    "mit"
+  ],
+  "detect-indent": [
+    "mit"
+  ],
+  "detect-newline": [
+    "mit"
+  ],
+  "dezalgo": [
+    "isc"
+  ],
+  "diff": [
+    "bsd-3-clause"
+  ],
+  "doctrine": [
+    "bsd-2-clause"
+  ],
+  "dot-prop": [
+    "mit"
+  ],
+  "dotenv": [
+    "bsd-2-clause"
+  ],
+  "duplex-child-process": [
+    "mit"
+  ],
+  "duplexer3": [
+    "bsd-3-clause"
+  ],
+  "duplexify": [
+    "mit"
+  ],
+  "ecc-jsbn": [
+    "mit"
+  ],
+  "editor": [
+    "mit"
+  ],
+  "emoji-regex": [
+    "mit"
+  ],
+  "encoding": [
+    "mit"
+  ],
+  "end-of-stream": [
+    "mit"
+  ],
+  "entities": [
+    "bsd-2-clause"
+  ],
+  "env-paths": [
+    "mit"
+  ],
+  "err-code": [
+    "mit"
+  ],
+  "errno": [
+    "mit"
+  ],
+  "error-ex": [
+    "mit"
+  ],
+  "es-abstract": [
+    "mit"
+  ],
+  "es-to-primitive": [
+    "mit"
+  ],
+  "es6-error": [
+    "mit"
+  ],
+  "es6-promise": [
+    "mit"
+  ],
+  "es6-promisify": [
+    "mit"
+  ],
+  "escape-string-regexp": [
+    "mit"
+  ],
+  "esprima": [
+    "bsd-2-clause"
+  ],
+  "esutils": [
+    "bsd-2-clause"
+  ],
+  "execa": [
+    "mit"
+  ],
+  "extend": [
+    "mit"
+  ],
+  "external-editor": [
+    "mit"
+  ],
+  "extsprintf": [
+    "mit"
+  ],
+  "eyes": [
+    "mit"
+  ],
+  "fast-deep-equal": [
+    "mit"
+  ],
+  "fast-json-stable-stringify": [
+    "mit"
+  ],
+  "figgy-pudding": [
+    "isc"
+  ],
+  "figures": [
+    "mit"
+  ],
+  "find-cache-dir": [
+    "mit"
+  ],
+  "find-npm-prefix": [
+    "isc"
+  ],
+  "find-up": [
+    "mit"
+  ],
+  "flat": [
+    "bsd-3-clause"
+  ],
+  "flush-write-stream": [
+    "mit"
+  ],
+  "follow-redirects": [
+    "mit"
+  ],
+  "foreground-child": [
+    "isc"
+  ],
+  "forever-agent": [
+    "apache-2.0"
+  ],
+  "form-data": [
+    "mit"
+  ],
+  "from2": [
+    "mit"
+  ],
+  "fs-minipass": [
+    "isc"
+  ],
+  "fs-vacuum": [
+    "isc"
+  ],
+  "fs-write-stream-atomic": [
+    "isc"
+  ],
+  "fs.realpath": [
+    "isc"
+  ],
+  "function-bind": [
+    "mit"
+  ],
+  "gauge": [
+    "isc"
+  ],
+  "genfun": [
+    "mit"
+  ],
+  "gentle-fs": [
+    "artistic-2.0"
+  ],
+  "get-caller-file": [
+    "isc"
+  ],
+  "get-stdin": [
+    "mit"
+  ],
+  "get-stream": [
+    "mit"
+  ],
+  "getpass": [
+    "mit"
+  ],
+  "glob": [
+    "isc"
+  ],
+  "glob-gitignore": [
+    "mit"
+  ],
+  "global-dirs": [
+    "mit"
+  ],
+  "globals": [
+    "mit"
+  ],
+  "got": [
+    "mit"
+  ],
+  "graceful-fs": [
+    "isc"
+  ],
+  "graceful-readlink": [
+    "mit"
+  ],
+  "growl": [
+    "mit"
+  ],
+  "handlebars": [
+    "mit"
+  ],
+  "har-schema": [
+    "isc"
+  ],
+  "har-validator": [
+    "mit"
+  ],
+  "has": [
+    "mit"
+  ],
+  "has-flag": [
+    "mit"
+  ],
+  "has-symbols": [
+    "mit"
+  ],
+  "has-unicode": [
+    "isc"
+  ],
+  "hasha": [
+    "mit"
+  ],
+  "he": [
+    "mit"
+  ],
+  "hosted-git-info": [
+    "isc"
+  ],
+  "html-entities": [
+    "mit"
+  ],
+  "http-cache-semantics": [
+    "bsd-2-clause"
+  ],
+  "http-proxy-agent": [
+    "mit"
+  ],
+  "http-signature": [
+    "mit"
+  ],
+  "https-proxy-agent": [
+    "mit"
+  ],
+  "humanize-ms": [
+    "mit"
+  ],
+  "iconv-lite": [
+    "mit"
+  ],
+  "iferr": [
+    "mit"
+  ],
+  "ignore": [
+    "mit"
+  ],
+  "ignore-walk": [
+    "isc"
+  ],
+  "immutable": [
+    "mit"
+  ],
+  "import-lazy": [
+    "mit"
+  ],
+  "imurmurhash": [
+    "mit"
+  ],
+  "infer-owner": [
+    "isc"
+  ],
+  "inflight": [
+    "isc"
+  ],
+  "inherits": [
+    "isc"
+  ],
+  "ini": [
+    "isc"
+  ],
+  "init-package-json": [
+    "isc"
+  ],
+  "inquirer": [
+    "mit"
+  ],
+  "invert-kv": [
+    "mit"
+  ],
+  "ip": [
+    "mit"
+  ],
+  "ip-regex": [
+    "mit"
+  ],
+  "is": [
+    "mit"
+  ],
+  "is-arrayish": [
+    "mit"
+  ],
+  "is-buffer": [
+    "mit"
+  ],
+  "is-callable": [
+    "mit"
+  ],
+  "is-ci": [
+    "mit"
+  ],
+  "is-cidr": [
+    "bsd-2-clause"
+  ],
+  "is-date-object": [
+    "mit"
+  ],
+  "is-fullwidth-code-point": [
+    "mit"
+  ],
+  "is-installed-globally": [
+    "mit"
+  ],
+  "is-npm": [
+    "mit"
+  ],
+  "is-obj": [
+    "mit"
+  ],
+  "is-path-inside": [
+    "mit"
+  ],
+  "is-promise": [
+    "mit"
+  ],
+  "is-redirect": [
+    "mit"
+  ],
+  "is-regex": [
+    "mit"
+  ],
+  "is-retry-allowed": [
+    "mit"
+  ],
+  "is-stream": [
+    "mit"
+  ],
+  "is-symbol": [
+    "mit"
+  ],
+  "is-typedarray": [
+    "mit"
+  ],
+  "isarray": [
+    "mit"
+  ],
+  "isexe": [
+    "isc"
+  ],
+  "isstream": [
+    "mit"
+  ],
+  "istanbul-lib-coverage": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-hook": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-instrument": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-report": [
+    "bsd-3-clause"
+  ],
+  "istanbul-lib-source-maps": [
+    "bsd-3-clause"
+  ],
+  "istanbul-reports": [
+    "bsd-3-clause"
+  ],
+  "js-tokens": [
+    "mit"
+  ],
+  "js-yaml": [
+    "mit"
+  ],
+  "jsbn": [
+    "mit"
+  ],
+  "jsesc": [
+    "mit"
+  ],
+  "json-parse-better-errors": [
+    "mit"
+  ],
+  "json-schema": [
+    "bsd*"
+  ],
+  "json-schema-traverse": [
+    "mit"
+  ],
+  "json-stringify-safe": [
+    "isc"
+  ],
+  "json5": [
+    "mit"
+  ],
+  "jsonparse": [
+    "mit"
+  ],
+  "jsonstream": [
+    "(mit or apache-2.0)"
+  ],
+  "jsontoxml": [
+    "mit"
+  ],
+  "jsprim": [
+    "mit"
+  ],
+  "just-extend": [
+    "mit"
+  ],
+  "latest-version": [
+    "mit"
+  ],
+  "lazy-property": [
+    "mit"
+  ],
+  "lcid": [
+    "mit"
+  ],
+  "libcipm": [
+    "mit"
+  ],
+  "libnpm": [
+    "isc"
+  ],
+  "libnpmaccess": [
+    "isc"
+  ],
+  "libnpmconfig": [
+    "isc"
+  ],
+  "libnpmhook": [
+    "isc"
+  ],
+  "libnpmorg": [
+    "isc"
+  ],
+  "libnpmpublish": [
+    "isc"
+  ],
+  "libnpmsearch": [
+    "isc"
+  ],
+  "libnpmteam": [
+    "isc"
+  ],
+  "libnpx": [
+    "isc"
+  ],
+  "linkify-it": [
+    "mit"
+  ],
+  "load-json-file": [
+    "mit"
+  ],
+  "locate-path": [
+    "mit"
+  ],
+  "lock-verify": [
+    "isc"
+  ],
+  "lockfile": [
+    "isc"
+  ],
+  "lodash": [
+    "mit"
+  ],
+  "lodash._baseuniq": [
+    "mit"
+  ],
+  "lodash._createset": [
+    "mit"
+  ],
+  "lodash._root": [
+    "mit"
+  ],
+  "lodash.clonedeep": [
+    "mit"
+  ],
+  "lodash.difference": [
+    "mit"
+  ],
+  "lodash.differencewith": [
+    "mit"
+  ],
+  "lodash.flatten": [
+    "mit"
+  ],
+  "lodash.flattendeep": [
+    "mit"
+  ],
+  "lodash.union": [
+    "mit"
+  ],
+  "lodash.uniq": [
+    "mit"
+  ],
+  "lodash.without": [
+    "mit"
+  ],
+  "log-symbols": [
+    "mit"
+  ],
+  "lolex": [
+    "bsd-3-clause"
+  ],
+  "lowercase-keys": [
+    "mit"
+  ],
+  "lru-cache": [
+    "isc"
+  ],
+  "make-array": [
+    "mit"
+  ],
+  "make-dir": [
+    "mit"
+  ],
+  "make-error": [
+    "isc"
+  ],
+  "make-fetch-happen": [
+    "isc"
+  ],
+  "map-age-cleaner": [
+    "mit"
+  ],
+  "markdown-it": [
+    "mit"
+  ],
+  "markdownlint": [
+    "mit"
+  ],
+  "markdownlint-cli": [
+    "mit"
+  ],
+  "md5": [
+    "bsd-3-clause"
+  ],
+  "mdurl": [
+    "mit"
+  ],
+  "meant": [
+    "mit"
+  ],
+  "mem": [
+    "mit"
+  ],
+  "merge-source-map": [
+    "mit"
+  ],
+  "mime-db": [
+    "mit"
+  ],
+  "mime-types": [
+    "mit"
+  ],
+  "mimic-fn": [
+    "mit"
+  ],
+  "minimatch": [
+    "isc"
+  ],
+  "minimist": [
+    "mit"
+  ],
+  "minipass": [
+    "isc"
+  ],
+  "minizlib": [
+    "mit"
+  ],
+  "mississippi": [
+    "bsd-2-clause"
+  ],
+  "mkdirp": [
+    "mit"
+  ],
+  "mkdirp-no-bin": [
+    "mit"
+  ],
+  "mocha": [
+    "mit"
+  ],
+  "mocha-circleci-reporter": [
+    "mit"
+  ],
+  "mocha-junit-reporter": [
+    "mit"
+  ],
+  "mock-require": [
+    "mit"
+  ],
+  "move-concurrently": [
+    "isc"
+  ],
+  "ms": [
+    "mit"
+  ],
+  "mute-stream": [
+    "isc"
+  ],
+  "neo-async": [
+    "mit"
+  ],
+  "nested-error-stacks": [
+    "mit"
+  ],
+  "nice-try": [
+    "mit"
+  ],
+  "nise": [
+    "bsd-3-clause"
+  ],
+  "node-environment-flags": [
+    "apache-2.0"
+  ],
+  "node-fetch-npm": [
+    "mit"
+  ],
+  "node-gyp": [
+    "mit"
+  ],
+  "node.extend": [
+    "mit"
+  ],
+  "node.flow": [
+    "mit"
+  ],
+  "nopt": [
+    "isc"
+  ],
+  "normalize-package-data": [
+    "bsd-2-clause"
+  ],
+  "normalize-path": [
+    "mit"
+  ],
+  "npm": [
+    "artistic-2.0"
+  ],
+  "npm-audit-report": [
+    "isc"
+  ],
+  "npm-bundled": [
+    "isc"
+  ],
+  "npm-cache-filename": [
+    "isc"
+  ],
+  "npm-conf": [
+    "mit"
+  ],
+  "npm-install-checks": [
+    "bsd-2-clause"
+  ],
+  "npm-lifecycle": [
+    "artistic-2.0"
+  ],
+  "npm-logical-tree": [
+    "isc"
+  ],
+  "npm-package-arg": [
+    "isc"
+  ],
+  "npm-packlist": [
+    "isc"
+  ],
+  "npm-pick-manifest": [
+    "isc"
+  ],
+  "npm-profile": [
+    "isc"
+  ],
+  "npm-registry-fetch": [
+    "isc"
+  ],
+  "npm-run-path": [
+    "mit"
+  ],
+  "npm-user-validate": [
+    "bsd-2-clause"
+  ],
+  "npmlog": [
+    "isc"
+  ],
+  "number-is-nan": [
+    "mit"
+  ],
+  "nyc": [
+    "isc"
+  ],
+  "oauth-sign": [
+    "apache-2.0"
+  ],
+  "object-assign": [
+    "mit"
+  ],
+  "object-keys": [
+    "mit"
+  ],
+  "object.assign": [
+    "mit"
+  ],
+  "object.getownpropertydescriptors": [
+    "mit"
+  ],
+  "once": [
+    "isc"
+  ],
+  "onetime": [
+    "mit"
+  ],
+  "opener": [
+    "(wtfpl or mit)"
+  ],
+  "optimist": [
+    "mit"
+  ],
+  "os-homedir": [
+    "mit"
+  ],
+  "os-locale": [
+    "mit"
+  ],
+  "os-tmpdir": [
+    "mit"
+  ],
+  "osenv": [
+    "isc"
+  ],
+  "p-defer": [
+    "mit"
+  ],
+  "p-finally": [
+    "mit"
+  ],
+  "p-is-promise": [
+    "mit"
+  ],
+  "p-limit": [
+    "mit"
+  ],
+  "p-locate": [
+    "mit"
+  ],
+  "p-try": [
+    "mit"
+  ],
+  "package-hash": [
+    "isc"
+  ],
+  "package-json": [
+    "mit"
+  ],
+  "pacote": [
+    "mit"
+  ],
+  "parallel-transform": [
+    "mit"
+  ],
+  "parse-git": [
+    "bsd"
+  ],
+  "parse-json": [
+    "mit"
+  ],
+  "path-exists": [
+    "mit"
+  ],
+  "path-is-absolute": [
+    "mit"
+  ],
+  "path-is-inside": [
+    "(wtfpl or mit)"
+  ],
+  "path-key": [
+    "mit"
+  ],
+  "path-parse": [
+    "mit"
+  ],
+  "path-to-regexp": [
+    "mit"
+  ],
+  "path-type": [
+    "mit"
+  ],
+  "performance-now": [
+    "mit"
+  ],
+  "persistent-cache": [
+    "mit"
+  ],
+  "pify": [
+    "mit"
+  ],
+  "pkg-dir": [
+    "mit"
+  ],
+  "prepend-http": [
+    "mit"
+  ],
+  "process-nextick-args": [
+    "mit"
+  ],
+  "promise-inflight": [
+    "isc"
+  ],
+  "promise-retry": [
+    "mit"
+  ],
+  "promzard": [
+    "isc"
+  ],
+  "proto-list": [
+    "isc"
+  ],
+  "protoduck": [
+    "mit"
+  ],
+  "prr": [
+    "mit"
+  ],
+  "pseudomap": [
+    "isc"
+  ],
+  "psl": [
+    "mit"
+  ],
+  "pump": [
+    "mit"
+  ],
+  "pumpify": [
+    "mit"
+  ],
+  "punycode": [
+    "mit"
+  ],
+  "qrcode-terminal": [
+    "apache*"
+  ],
+  "qs": [
+    "bsd-3-clause"
+  ],
+  "query-string": [
+    "mit"
+  ],
+  "qw": [
+    "isc"
+  ],
+  "rc": [
+    "(bsd-2-clause or mit or apache-2.0)"
+  ],
+  "read": [
+    "isc"
+  ],
+  "read-cmd-shim": [
+    "isc"
+  ],
+  "read-installed": [
+    "isc"
+  ],
+  "read-package-json": [
+    "isc"
+  ],
+  "read-package-tree": [
+    "isc"
+  ],
+  "read-pkg": [
+    "mit"
+  ],
+  "read-pkg-up": [
+    "mit"
+  ],
+  "readable-stream": [
+    "mit"
+  ],
+  "readdir-scoped-modules": [
+    "isc"
+  ],
+  "registry-auth-token": [
+    "mit"
+  ],
+  "registry-url": [
+    "mit"
+  ],
+  "release-zalgo": [
+    "isc"
+  ],
+  "remove-trailing-separator": [
+    "isc"
+  ],
+  "request": [
+    "apache-2.0"
+  ],
+  "require-directory": [
+    "mit"
+  ],
+  "require-main-filename": [
+    "isc"
+  ],
+  "resolve": [
+    "mit"
+  ],
+  "resolve-from": [
+    "mit"
+  ],
+  "restore-cursor": [
+    "mit"
+  ],
+  "retry": [
+    "mit"
+  ],
+  "rimraf": [
+    "isc"
+  ],
+  "rmdir": [
+    "mit"
+  ],
+  "run-async": [
+    "mit"
+  ],
+  "run-queue": [
+    "isc"
+  ],
+  "rxjs": [
+    "apache-2.0"
+  ],
+  "safe-buffer": [
+    "mit"
+  ],
+  "safer-buffer": [
+    "mit"
+  ],
+  "semver": [
+    "isc"
+  ],
+  "semver-diff": [
+    "mit"
+  ],
+  "set-blocking": [
+    "isc"
+  ],
+  "sha": [
+    "(bsd-2-clause or mit)"
+  ],
+  "shebang-command": [
+    "mit"
+  ],
+  "shebang-regex": [
+    "mit"
+  ],
+  "signal-exit": [
+    "isc"
+  ],
+  "simple-git": [
+    "mit"
+  ],
+  "sinon": [
+    "bsd-3-clause"
+  ],
+  "slash": [
+    "mit"
+  ],
+  "slide": [
+    "isc"
+  ],
+  "smart-buffer": [
+    "mit"
+  ],
+  "socks": [
+    "mit"
+  ],
+  "socks-proxy-agent": [
+    "mit"
+  ],
+  "sorted-object": [
+    "(wtfpl or mit)"
+  ],
+  "sorted-union-stream": [
+    "mit"
+  ],
+  "source-map": [
+    "bsd-3-clause"
+  ],
+  "source-map-support": [
+    "mit"
+  ],
+  "spawn-wrap": [
+    "isc"
+  ],
+  "spdx-correct": [
+    "apache-2.0"
+  ],
+  "spdx-exceptions": [
+    "cc-by-3.0"
+  ],
+  "spdx-expression-parse": [
+    "mit"
+  ],
+  "spdx-license-ids": [
+    "cc0-1.0"
+  ],
+  "split-on-first": [
+    "mit"
+  ],
+  "sprintf-js": [
+    "bsd-3-clause"
+  ],
+  "sshpk": [
+    "mit"
+  ],
+  "ssri": [
+    "isc"
+  ],
+  "stack-trace": [
+    "mit"
+  ],
+  "stream-each": [
+    "mit"
+  ],
+  "stream-iterate": [
+    "mit"
+  ],
+  "stream-shift": [
+    "mit"
+  ],
+  "strict-uri-encode": [
+    "mit"
+  ],
+  "string-width": [
+    "mit"
+  ],
+  "string_decoder": [
+    "mit"
+  ],
+  "stringify-package": [
+    "isc"
+  ],
+  "strip-ansi": [
+    "mit"
+  ],
+  "strip-bom": [
+    "mit"
+  ],
+  "strip-eof": [
+    "mit"
+  ],
+  "strip-json-comments": [
+    "mit"
+  ],
+  "supports-color": [
+    "mit"
+  ],
+  "tar": [
+    "isc"
+  ],
+  "term-size": [
+    "mit"
+  ],
+  "test-exclude": [
+    "isc"
+  ],
+  "text-table": [
+    "mit"
+  ],
+  "through": [
+    "mit"
+  ],
+  "through2": [
+    "mit"
+  ],
+  "timed-out": [
+    "mit"
+  ],
+  "tiny-relative-date": [
+    "mit"
+  ],
+  "tmp": [
+    "mit"
+  ],
+  "to-fast-properties": [
+    "mit"
+  ],
+  "tough-cookie": [
+    "bsd-3-clause"
+  ],
+  "trim-right": [
+    "mit"
+  ],
+  "ts-node": [
+    "mit"
+  ],
+  "tslib": [
+    "apache-2.0"
+  ],
+  "tslint": [
+    "apache-2.0"
+  ],
+  "tslint-eslint-rules": [
+    "mit"
+  ],
+  "tslint-sonarts": [
+    "lgpl-3.0"
+  ],
+  "tsutils": [
+    "mit"
+  ],
+  "tunnel-agent": [
+    "apache-2.0"
+  ],
+  "tweetnacl": [
+    "unlicense"
+  ],
+  "type-detect": [
+    "mit"
+  ],
+  "typedarray": [
+    "mit"
+  ],
+  "typescript": [
+    "apache-2.0"
+  ],
+  "typescript-tslint-plugin": [
+    "mit"
+  ],
+  "uc.micro": [
+    "mit"
+  ],
+  "uglify-js": [
+    "bsd-2-clause"
+  ],
+  "uid-number": [
+    "isc"
+  ],
+  "umask": [
+    "mit"
+  ],
+  "underscore.string": [
+    "mit"
+  ],
+  "unique-filename": [
+    "isc"
+  ],
+  "unique-slug": [
+    "isc"
+  ],
+  "unique-string": [
+    "mit"
+  ],
+  "unpipe": [
+    "mit"
+  ],
+  "unzip-response": [
+    "mit"
+  ],
+  "update-notifier": [
+    "bsd-2-clause"
+  ],
+  "uri-js": [
+    "bsd-2-clause"
+  ],
+  "url-join": [
+    "mit"
+  ],
+  "url-parse-lax": [
+    "mit"
+  ],
+  "util-deprecate": [
+    "mit"
+  ],
+  "util-extend": [
+    "mit"
+  ],
+  "util-promisify": [
+    "mit"
+  ],
+  "util.inherits": [
+    "mit"
+  ],
+  "uuid": [
+    "mit"
+  ],
+  "validate-npm-package-license": [
+    "apache-2.0"
+  ],
+  "validate-npm-package-name": [
+    "isc"
+  ],
+  "verror": [
+    "mit"
+  ],
+  "vscode-jsonrpc": [
+    "mit"
+  ],
+  "vscode-languageserver": [
+    "mit"
+  ],
+  "vscode-languageserver-protocol": [
+    "mit"
+  ],
+  "vscode-languageserver-types": [
+    "mit"
+  ],
+  "vscode-uri": [
+    "mit"
+  ],
+  "wcwidth": [
+    "mit"
+  ],
+  "which": [
+    "isc"
+  ],
+  "which-module": [
+    "isc"
+  ],
+  "wide-align": [
+    "isc"
+  ],
+  "widest-line": [
+    "mit"
+  ],
+  "winston": [
+    "mit"
+  ],
+  "wordwrap": [
+    "mit"
+  ],
+  "worker-farm": [
+    "mit"
+  ],
+  "wrap-ansi": [
+    "mit"
+  ],
+  "wrappy": [
+    "isc"
+  ],
+  "write-file-atomic": [
+    "isc"
+  ],
+  "xdg-basedir": [
+    "mit"
+  ],
+  "xml": [
+    "mit"
+  ],
+  "xmldom": [
+    "mit*"
+  ],
+  "xtend": [
+    "mit"
+  ],
+  "y18n": [
+    "isc"
+  ],
+  "yallist": [
+    "isc"
+  ],
+  "yargs": [
+    "mit"
+  ],
+  "yargs-parser": [
+    "isc"
+  ],
+  "yargs-unparser": [
+    "mit"
+  ],
+  "yn": [
+    "mit"
+  ]
+}
