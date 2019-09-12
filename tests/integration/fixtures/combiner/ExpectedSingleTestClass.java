@@ -11,29 +11,15 @@ import org.junit.rules.Timeout;
 
 public class UserAccess {
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
-
-  @Rule
-  public final Timeout globalTimeout = new Timeout(10000);
-
-  /* testedClasses: UserAccessTest */
-  /*
-   * Test written by Diffblue Cover.
-   * This test case covers the entire method.
-   */
-
+  // Test written by Diffblue Cover.
   @Test
   public void getCurrentUserOutputNull() {
 
     // Arrange
-    final UserAccess objectUnderTest = new UserAccess();
+    final UserAccess userAccess = new UserAccess();
 
-    // Act
-    final String retval = objectUnderTest.getCurrentUser();
-
-    // Assert result
-    Assert.assertNull(retval);
+    // Act and Assert result
+    Assert.assertNull(userAccess.getCurrentUser());
 
   }
 }
