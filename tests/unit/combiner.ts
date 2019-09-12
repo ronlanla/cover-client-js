@@ -26,6 +26,7 @@ const sampleResult = {
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',
+  coveredLines: ['com.diffblue.javademo.TicTacToe.checkTicTacToePosition:1-2,4-5'],
 };
 
 const sampleTestData = {
@@ -35,6 +36,8 @@ const sampleTestData = {
   name: sampleResult.testName,
   body: sampleResult.testBody,
   id: sampleResult.testId,
+  sourceFilePath: sampleResult.sourceFilePath,
+  coveredLines: sampleResult.coveredLines,
 };
 
 describe('combiner', () => {

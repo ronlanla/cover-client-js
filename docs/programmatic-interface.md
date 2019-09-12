@@ -133,9 +133,9 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = createReadStream('./build.jar');
 
 (async () => {
-  const { id, phases } = await analysis.start({ build: buildFile };
+  const { id, settings } = await analysis.start({ build: buildFile };
   console.log(`Analysis identifier: ${id}`);
-  console.log(`Analysis computed phases: ${phases}`);
+  console.log(`Analysis computed settings: ${settings}`);
 }();
 ```
 
@@ -149,12 +149,12 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+const userSettings = { ignoreDefaults: false, phases: {}};
 
 (async () => {
-  const { id, phases } = await analysis.start(files, settings);
+  const { id, settings } = await analysis.start(files, userSettings);
   console.log(`Analysis identifier: ${id}`);
-  console.log(`Analysis computed phases: ${phases}`);
+  console.log(`Analysis computed settings: ${settings}`);
 }();
 ```
 
@@ -321,10 +321,10 @@ const fs = require('fs');
 const api = 'https://0.0.0.0/api';
 const build = fs.createReadStream('./build.jar');
 
-return CoverClient.startAnalysis(api, { build: build }).then(({ id, phases }) => {
+return CoverClient.startAnalysis(api, { build: build }).then(({ id, settings }) => {
   console.log([
     `Analysis identifier: ${id}`,
-    `Phases: ${phases}\n`
+    `Settings: ${settings}\n`
   ].join('\n'));
 });
 ```
@@ -342,18 +342,18 @@ const api = 'https://0.0.0.0/api';
   const build = await promisify(readFile)('./build.jar');
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
-  const settings = { ignoreDefaults: false, phases: {}};
+  const userSettings = { ignoreDefaults: false, phases: {}};
   const files = {
     baseBuild: baseBuild,
     build: build,
     dependenciesBuild: dependenciesBuild,
   };
 
-  const { id, phases } = await CoverClient.startAnalysis(api, files, settings);
+  const { id, settings } = await CoverClient.startAnalysis(api, files, userSettings);
 
   console.log([
     `Analysis identifier: ${id}`,
-    `Phases: ${phases}\n`
+    `Settings: ${settings}\n`
   ].join('\n'));
 })();
 ```

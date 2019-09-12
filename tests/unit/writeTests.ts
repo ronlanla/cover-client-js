@@ -23,6 +23,7 @@ const sampleResult = {
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',
+  coveredLines: ['com.diffblue.javademo.TicTacToe.checkTicTacToePosition:1-2,4-5'],
 };
 const otherResult = {
   ...sampleResult,
