@@ -23,6 +23,7 @@ const sampleResult = {
   imports: ['import'],
   staticImports: ['static import'],
   classAnnotations: ['class annotation'],
+  classRules: ['class rule'],
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',
@@ -31,6 +32,7 @@ const sampleResult = {
 
 const sampleTestData = {
   classAnnotations: sampleResult.classAnnotations,
+  classRules: sampleResult.classRules,
   imports: sampleResult.imports,
   staticImports: sampleResult.staticImports,
   name: sampleResult.testName,

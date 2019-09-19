@@ -20,6 +20,7 @@ const sampleResult = {
   imports: ['import'],
   staticImports: ['static import'],
   classAnnotations: ['class annotation'],
+  classRules: ['class rules'],
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',

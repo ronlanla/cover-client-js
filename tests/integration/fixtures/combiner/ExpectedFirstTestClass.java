@@ -32,6 +32,9 @@ import java.lang.reflect.Method;
 @RunWith(PowerMockRunner.class)
 public class UserAccess {
 
+  @Rule
+  public final Timeout globalTimeout = new Timeout(10000);
+
   // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test

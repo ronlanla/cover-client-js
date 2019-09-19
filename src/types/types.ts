@@ -38,6 +38,7 @@ export interface ApiErrorResponse {
 /** Analysis result returned by API */
 export interface AnalysisResult {
   classAnnotations: string[];
+  classRules: string[];
   coveredLines: string[];
   createdTime: string;
   imports: string[];

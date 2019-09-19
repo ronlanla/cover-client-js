@@ -32,6 +32,9 @@ import java.lang.reflect.Method;
 @RunWith(PowerMockRunner.class)
 public class UserAccess {
 
+  @Rule
+  public final Timeout globalTimeout = new Timeout(10000);
+
   // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test
@@ -72,115 +75,7 @@ public class UserAccess {
   // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test
-  public void loginUserInputNotNullNotNullOutputFalse1010() throws Exception {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-    Reflector.setField(userAccess, "currentUser", null);
-    final String username = "?";
-    final String password = "?";
-    final MongoClient mongoClient = PowerMockito.mock(MongoClient.class);
-    final MongoDatabase mongoDatabase = PowerMockito.mock(MongoDatabase.class);
-    final MongoCollection mongoCollection = PowerMockito.mock(MongoCollection.class);
-    final Method countMethod = DTUMemberMatcher.method(MongoCollection.class, "count", Bson.class);
-    PowerMockito.doReturn(0L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Bson.class), org.mockito.Matchers.isNull(Bson.class)));
-    final Method getCollectionMethod = DTUMemberMatcher.method(MongoDatabase.class, "getCollection", String.class);
-    PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
-    final Method getDatabaseMethod = DTUMemberMatcher.method(MongoClient.class, "getDatabase", String.class);
-    PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
-    PowerMockito.whenNew(MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);
-    final Document document = PowerMockito.mock(Document.class);
-    final Method appendMethod = DTUMemberMatcher.method(Document.class, "append", String.class, Object.class);
-    PowerMockito.doReturn(null).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
-    PowerMockito.whenNew(Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);
-
-    // Act
-    final boolean actual = userAccess.loginUser(username, password);
-
-    // Assert side effects
-    Assert.assertNotNull(Reflector.getInstanceField(DatabaseDao.class, null, "instance"));
-
-    // Assert result
-    Assert.assertFalse(actual);
-
-  }
-
-  // Test written by Diffblue Cover.
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse99() {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-    Reflector.setField(userAccess, "currentUser", null);
-
-    // Act and Assert result
-    Assert.assertFalse(userAccess.loginUser("?", ""));
-
-  }
-  // Test written by Diffblue Cover.
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse8003dfeaa8b9e2c344a4() {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-    Reflector.setField(userAccess, "currentUser", "");
-
-    // Act and Assert result
-    Assert.assertFalse(userAccess.loginUser("????????????????", ""));
-
-  }
-  // Test written by Diffblue Cover.
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse7002c69a479635c59106() {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-    Reflector.setField(userAccess, "currentUser", "");
-
-    // Act and Assert result
-    Assert.assertFalse(userAccess.loginUser("", "?"));
-
-  }
-  // Test written by Diffblue Cover.
-  @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse60009bd811bb64afa0a6() throws Exception {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-    Reflector.setField(userAccess, "currentUser", null);
-    final String username = "?";
-    final String password = "?";
-    final MongoClient mongoClient = PowerMockito.mock(MongoClient.class);
-    final MongoDatabase mongoDatabase = PowerMockito.mock(MongoDatabase.class);
-    final MongoCollection mongoCollection = PowerMockito.mock(MongoCollection.class);
-    final Method countMethod = DTUMemberMatcher.method(MongoCollection.class, "count", Bson.class);
-    PowerMockito.doReturn(0L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Bson.class), org.mockito.Matchers.isNull(Bson.class)));
-    final Method getCollectionMethod = DTUMemberMatcher.method(MongoDatabase.class, "getCollection", String.class);
-    PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
-    final Method getDatabaseMethod = DTUMemberMatcher.method(MongoClient.class, "getDatabase", String.class);
-    PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
-    PowerMockito.whenNew(MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);
-    final Document document = PowerMockito.mock(Document.class);
-    final Method appendMethod = DTUMemberMatcher.method(Document.class, "append", String.class, Object.class);
-    PowerMockito.doReturn(null).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
-    PowerMockito.whenNew(Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);
-
-    // Act
-    final boolean actual = userAccess.loginUser(username, password);
-
-    // Assert side effects
-    Assert.assertNotNull(Reflector.getInstanceField(DatabaseDao.class, null, "instance"));
-
-    // Assert result
-    Assert.assertFalse(actual);
-
-  }
-
-  // Test written by Diffblue Cover.
-  @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse55() throws Exception {
+  public void loginUserInputNotNullNotNullOutputFalse105() throws Exception {
 
     // Arrange
     final UserAccess userAccess = new UserAccess();
@@ -214,31 +109,9 @@ public class UserAccess {
   }
 
   // Test written by Diffblue Cover.
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse44() {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-
-    // Act and Assert result
-    Assert.assertFalse(userAccess.loginUser("", "??"));
-
-  }
-  // Test written by Diffblue Cover.
-  @Test
-  public void loginUserInputNotNullNotNullOutputFalse33() {
-
-    // Arrange
-    final UserAccess userAccess = new UserAccess();
-
-    // Act and Assert result
-    Assert.assertFalse(userAccess.loginUser("?", ""));
-
-  }
-  // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test
-  public void loginUserInputNotNullNotNullOutputFalse22() throws Exception, InvocationTargetException {
+  public void loginUserInputNotNullNotNullOutputFalse92() throws Exception, InvocationTargetException {
 
     // Arrange
     final UserAccess userAccess = new UserAccess();
@@ -275,7 +148,137 @@ public class UserAccess {
   // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test
-  public void loginUserInputNotNullNotNullOutputTrue55() throws Exception {
+  public void loginUserInputNotNullNotNullOutputFalse80009bd811bb64afa0a6() throws Exception {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+    Reflector.setField(userAccess, "currentUser", null);
+    final String username = "?";
+    final String password = "?";
+    final MongoClient mongoClient = PowerMockito.mock(MongoClient.class);
+    final MongoDatabase mongoDatabase = PowerMockito.mock(MongoDatabase.class);
+    final MongoCollection mongoCollection = PowerMockito.mock(MongoCollection.class);
+    final Method countMethod = DTUMemberMatcher.method(MongoCollection.class, "count", Bson.class);
+    PowerMockito.doReturn(0L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Bson.class), org.mockito.Matchers.isNull(Bson.class)));
+    final Method getCollectionMethod = DTUMemberMatcher.method(MongoDatabase.class, "getCollection", String.class);
+    PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
+    final Method getDatabaseMethod = DTUMemberMatcher.method(MongoClient.class, "getDatabase", String.class);
+    PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
+    PowerMockito.whenNew(MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);
+    final Document document = PowerMockito.mock(Document.class);
+    final Method appendMethod = DTUMemberMatcher.method(Document.class, "append", String.class, Object.class);
+    PowerMockito.doReturn(null).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
+    PowerMockito.whenNew(Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);
+
+    // Act
+    final boolean actual = userAccess.loginUser(username, password);
+
+    // Assert side effects
+    Assert.assertNotNull(Reflector.getInstanceField(DatabaseDao.class, null, "instance"));
+
+    // Assert result
+    Assert.assertFalse(actual);
+
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void loginUserInputNotNullNotNullOutputFalse79() {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+    Reflector.setField(userAccess, "currentUser", null);
+
+    // Act and Assert result
+    Assert.assertFalse(userAccess.loginUser("?", ""));
+
+  }
+  // Test written by Diffblue Cover.
+  @Test
+  public void loginUserInputNotNullNotNullOutputFalse63() {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+
+    // Act and Assert result
+    Assert.assertFalse(userAccess.loginUser("?", ""));
+
+  }
+  // Test written by Diffblue Cover.
+  @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
+  @Test
+  public void loginUserInputNotNullNotNullOutputFalse510() throws Exception {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+    Reflector.setField(userAccess, "currentUser", null);
+    final String username = "?";
+    final String password = "?";
+    final MongoClient mongoClient = PowerMockito.mock(MongoClient.class);
+    final MongoDatabase mongoDatabase = PowerMockito.mock(MongoDatabase.class);
+    final MongoCollection mongoCollection = PowerMockito.mock(MongoCollection.class);
+    final Method countMethod = DTUMemberMatcher.method(MongoCollection.class, "count", Bson.class);
+    PowerMockito.doReturn(0L).when(mongoCollection, countMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Bson.class), org.mockito.Matchers.isNull(Bson.class)));
+    final Method getCollectionMethod = DTUMemberMatcher.method(MongoDatabase.class, "getCollection", String.class);
+    PowerMockito.doReturn(mongoCollection).when(mongoDatabase, getCollectionMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
+    final Method getDatabaseMethod = DTUMemberMatcher.method(MongoClient.class, "getDatabase", String.class);
+    PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
+    PowerMockito.whenNew(MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);
+    final Document document = PowerMockito.mock(Document.class);
+    final Method appendMethod = DTUMemberMatcher.method(Document.class, "append", String.class, Object.class);
+    PowerMockito.doReturn(null).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
+    PowerMockito.whenNew(Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);
+
+    // Act
+    final boolean actual = userAccess.loginUser(username, password);
+
+    // Assert side effects
+    Assert.assertNotNull(Reflector.getInstanceField(DatabaseDao.class, null, "instance"));
+
+    // Assert result
+    Assert.assertFalse(actual);
+
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void loginUserInputNotNullNotNullOutputFalse4002c69a479635c59106() {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+    Reflector.setField(userAccess, "currentUser", "");
+
+    // Act and Assert result
+    Assert.assertFalse(userAccess.loginUser("", "?"));
+
+  }
+  // Test written by Diffblue Cover.
+  @Test
+  public void loginUserInputNotNullNotNullOutputFalse3003dfeaa8b9e2c344a4() {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+    Reflector.setField(userAccess, "currentUser", "");
+
+    // Act and Assert result
+    Assert.assertFalse(userAccess.loginUser("????????????????", ""));
+
+  }
+  // Test written by Diffblue Cover.
+  @Test
+  public void loginUserInputNotNullNotNullOutputFalse24() {
+
+    // Arrange
+    final UserAccess userAccess = new UserAccess();
+
+    // Act and Assert result
+    Assert.assertFalse(userAccess.loginUser("", "??"));
+
+  }
+  // Test written by Diffblue Cover.
+  @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
+  @Test
+  public void loginUserInputNotNullNotNullOutputTrue50011283edb7e0d812f2() throws Exception {
 
     // Arrange
     final UserAccess userAccess = new UserAccess();
@@ -311,13 +314,13 @@ public class UserAccess {
   // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test
-  public void loginUserInputNotNullNotNullOutputTrue40011283edb7e0d812f2() throws Exception {
+  public void loginUserInputNotNullNotNullOutputTrue40011fd6a71b0dfbd0fb() throws Exception, InvocationTargetException {
 
     // Arrange
     final UserAccess userAccess = new UserAccess();
     Reflector.setField(userAccess, "currentUser", null);
-    final String username = "?";
-    final String password = "?";
+    final String username = "foo";
+    final String password = "foo";
     final MongoClient mongoClient = PowerMockito.mock(MongoClient.class);
     final MongoDatabase mongoDatabase = PowerMockito.mock(MongoDatabase.class);
     final MongoCollection mongoCollection = PowerMockito.mock(MongoCollection.class);
@@ -329,8 +332,9 @@ public class UserAccess {
     PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
     PowerMockito.whenNew(MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);
     final Document document = PowerMockito.mock(Document.class);
+    final Document document1 = (Document) Reflector.getInstance("org.bson.Document");
     final Method appendMethod = DTUMemberMatcher.method(Document.class, "append", String.class, Object.class);
-    PowerMockito.doReturn(null).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
+    PowerMockito.doReturn(document1).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
     PowerMockito.whenNew(Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);
 
     // Act
@@ -420,13 +424,13 @@ public class UserAccess {
   // Test written by Diffblue Cover.
   @PrepareForTest({MongoDatabase.class, UserAccess.class, MongoCollection.class, Document.class, MongoClient.class, DatabaseDao.class})
   @Test
-  public void loginUserInputNotNullNotNullOutputTrue0011fd6a71b0dfbd0fb() throws Exception, InvocationTargetException {
+  public void loginUserInputNotNullNotNullOutputTrue5() throws Exception {
 
     // Arrange
     final UserAccess userAccess = new UserAccess();
     Reflector.setField(userAccess, "currentUser", null);
-    final String username = "foo";
-    final String password = "foo";
+    final String username = "?";
+    final String password = "?";
     final MongoClient mongoClient = PowerMockito.mock(MongoClient.class);
     final MongoDatabase mongoDatabase = PowerMockito.mock(MongoDatabase.class);
     final MongoCollection mongoCollection = PowerMockito.mock(MongoCollection.class);
@@ -438,9 +442,8 @@ public class UserAccess {
     PowerMockito.doReturn(mongoDatabase).when(mongoClient, getDatabaseMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)));
     PowerMockito.whenNew(MongoClient.class).withParameterTypes(String.class, int.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.Matchers.anyInt()).thenReturn(mongoClient);
     final Document document = PowerMockito.mock(Document.class);
-    final Document document1 = (Document) Reflector.getInstance("org.bson.Document");
     final Method appendMethod = DTUMemberMatcher.method(Document.class, "append", String.class, Object.class);
-    PowerMockito.doReturn(document1).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
+    PowerMockito.doReturn(null).when(document, appendMethod).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class)));
     PowerMockito.whenNew(Document.class).withParameterTypes(String.class, Object.class).withArguments(org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(String.class), org.mockito.Matchers.isNull(String.class)), org.mockito.AdditionalMatchers.or(org.mockito.Matchers.isA(Object.class), org.mockito.Matchers.isNull(Object.class))).thenReturn(document);
 
     // Act

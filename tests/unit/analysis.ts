@@ -27,6 +27,7 @@ const sampleResult = {
   imports: ['import'],
   staticImports: ['static import'],
   classAnnotations: ['class annotation'],
+  classRules: ['class rule'],
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',

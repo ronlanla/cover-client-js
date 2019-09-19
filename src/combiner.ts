@@ -110,6 +110,7 @@ function checkExistingClass(existingClass: string): void {
 export function prepareTestData(results: AnalysisResult[]): ITestData[] {
   return results.map(({
       classAnnotations,
+      classRules,
       coveredLines,
       imports,
       sourceFilePath,
@@ -121,6 +122,7 @@ export function prepareTestData(results: AnalysisResult[]): ITestData[] {
     return {
       body: testBody,
       classAnnotations: classAnnotations,
+      classRules: classRules,
       coveredLines: coveredLines,
       id: testId,
       imports: imports,
