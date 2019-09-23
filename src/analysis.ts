@@ -14,7 +14,6 @@ import { AnalysisError, AnalysisErrorCode } from './errors';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
-  AnalysisPhases,
   AnalysisProgress,
   AnalysisResult,
   AnalysisResultsApiResponse,
@@ -52,7 +51,7 @@ export default class Analysis {
   public status?: AnalysisStatus;
   public progress?: AnalysisProgress;
   public error?: ApiErrorResponse;
-  public phases?: AnalysisPhases;
+  public computedSettings?: AnalysisSettings;
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
@@ -152,7 +151,7 @@ export default class Analysis {
         await this.writeTests(options.outputTests, writeOptions);
       }
     } catch (error) {
-      this.forceStop();
+      this.stopPolling();
       if (options.onError) {
         options.onError(error);
       } else {
@@ -163,7 +162,7 @@ export default class Analysis {
   }
 
   /** If an analysis is being run, stop polling for results */
-  public forceStop(): void {
+  public stopPolling(): void {
     if (this.pollDelay) {
       this.pollDelay.cancel();
     }
@@ -184,7 +183,7 @@ export default class Analysis {
     const response = await components.startAnalysis(this.apiUrl, files, settings, this.bindingsOptions);
     this.settings = settings;
     this.analysisId = response.id;
-    this.phases = response.phases;
+    this.computedSettings = response.settings;
     this.status = AnalysisStatus.QUEUED;
     return response;
   }

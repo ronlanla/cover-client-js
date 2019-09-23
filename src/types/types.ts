@@ -37,44 +37,56 @@ export interface ApiErrorResponse {
 
 /** Analysis result returned by API */
 export interface AnalysisResult {
+  classAnnotations: string[];
+  classRules: string[];
+  coveredLines: string[];
+  createdTime: string;
+  imports: string[];
+  phaseGenerated: string;
+  sourceFilePath: string;
+  staticImports: string[];
+  tags: string[];
+  testBody: string;
+  testedFunction: string;
   testId: string;
   testName: string;
-  testedFunction: string;
-  sourceFilePath: string;
-  testBody: string;
-  imports: string[];
-  staticImports: string[];
-  classAnnotations: string[];
-  tags: string[];
-  phaseGenerated: string;
-  createdTime: string;
 }
 
 /** Analysis phase returned and consumed by the API */
 export interface AnalysisPhase {
-  initial?: boolean;
-  timeout: number;
   classpath?: string;
   depth?: number;
+  doNotTestMethodsWithAccess?: ['public' | 'protected' | 'default' | 'private'];
+  initial?: boolean;
+  inlineFunctionArguments?: boolean;
+  inlineIntoAssertion?: boolean;
+  javaAssumeInputsIntegral?: boolean;
+  javaAssumeInputsNonNull?: boolean;
   javaExternalCodeAction?: 'mock' | 'mock-non-jdk' | 'ignore' | 'discard-testcase';
+  javaGenerateNoComments?: boolean;
   javaLoadClass?: string[];
   javaMaxVlaLength?: number;
   javaMockClass?: string[];
-  javaUnwindEnumStatic?: boolean;
-  maxNondetStringLength?: number;
-  unwind?: number;
-  stringPrintable?: boolean;
-  maxNondetArrayLength?: number;
-  throwRuntimeExceptions?: boolean;
-  coverFunctionOnly?: boolean;
   javaTestInputFactory?: string[];
   javaTestInputFactoryBmcMaxMutators?: number;
   javaTestInputFactoryBmcRecursionLimit?: number;
   javaTestInputFactoryEntryPoint?: string[];
   javaTestOutputEntryPoint?: string[];
-  nextPhase?: {
-    [event: string]: string;
-  };
+  javaUnwindEnumStatic?: boolean;
+  loadContainingClassOnly?: boolean;
+  maxNondetArrayLength?: number;
+  maxNondetStringLength?: number;
+  nextPhase?: { [event: string]: string | null };
+  noReflectiveAsserts?: boolean;
+  paths?: 'fifo' | 'lifo';
+  preferDepsJar?: boolean;
+  singleFunctionOnly?: boolean;
+  smartHarness?: 'nondet' | 'simplest-constructor-and-nondet' | 'input-factory';
+  staticValuesJson?: boolean;
+  stringPrintable?: boolean;
+  throwRuntimeExceptions?: boolean;
+  timeout: number;
+  unwind?: number;
 }
 
 /**
@@ -102,15 +114,20 @@ export interface PartialAnalysisPhases {
 
 /** Settings parameter require to start an analysis */
 export interface AnalysisSettings {
-  include?: string[];
-  exclude?: string[];
-  context?: {
-    include?: string[];
-    exclude?: string[];
-  };
+  cover?: string[];
+  coverExcludeBytecode?: string[];
+  coverExcludeLines?: string[];
+  coverFunctionOnly?: boolean;
+  coverIncludeBytecode?: string[];
+  coverIncludeLines?: string[];
+  coverIncludePattern?: string;
+  coverOnly?: 'file' | 'function';
+  dependenciesOnClasspath?: Array<{classFile: string, source: string}>;
+  entryPointsExclude?: string[];
+  entryPointsInclude?: string[];
   ignoreDefaults?: boolean;
-  phases?: PartialAnalysisPhases;
   phaseBase?: PartialAnalysisPhase;
+  phases?: PartialAnalysisPhases;
 }
 
 /** Status object returned by the API */
@@ -123,7 +140,7 @@ export interface AnalysisStatusApiResponse {
 /** Object returned by the API on analysis start */
 export interface AnalysisStartApiResponse {
   id: string;
-  phases: AnalysisPhases;
+  settings: AnalysisSettings;
 }
 
 /** Object returned by the API on analysis cancellation */

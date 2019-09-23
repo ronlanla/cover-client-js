@@ -16,7 +16,7 @@ references:
   node-10: &node-10
     circleci/node:10.15.3
   node-12: &node-12
-    circleci/node:12.3.1
+    circleci/node:12.10.0
 
 commands:
   install-hub:

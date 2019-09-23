@@ -22,13 +22,14 @@ const fs = require('fs');
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const buildFile = fs.createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const settings = { ignoreDefaults: false, phases: {}};
 const options = { outputTests: './tests' };
 
 analysis.run({ build: buildFile }, settings, options)
 .then((results) => {
-  console.log(`Produced ${results.length} tests`);
-  console.log(`Test files written to ${options.outputTests}`);
+  console.log(`Analysis ended with the status: ${analysis.status}.`);
+  console.log(`Produced ${results.length} tests in total.`);
+  console.log(`Test files written to ${options.outputTests}.`);
 });
 ```
 
@@ -36,17 +37,18 @@ In Typescript (using async/await):
 
 ```ts
 import Analysis from '@diffblue/cover-client';
-import * as fs from 'fs';
+import { createReadStream } from 'fs';
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
-const buildFile = fs.createReadStream('./build.jar');
-const settings = { ignoreDefaults: true, phases: {}};
+const buildFile = createReadStream('./build.jar');
+const settings = { ignoreDefaults: false, phases: {}};
 const options = { outputTests: './tests' };
 
 (async () => {
   const results = await analysis.run({ build: buildFile }, settings, options);
-  console.log(`Produced ${results.length} tests`);
-  console.log(`Test files written to ${options.outputTests}`);
+  console.log(`Analysis ended with the status: ${analysis.status}.`);
+  console.log(`Produced ${results.length} tests in total.`);
+  console.log(`Test files written to ${options.outputTests}.`);
 })();
 ```
 
@@ -58,11 +60,14 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
   - [Object orientated interface](docs/programmatic-interface.md#object-orientated-interface)
     - [Instantiation](docs/programmatic-interface.md#instantiation)
     - [Usage](docs/programmatic-interface.md#usage)
+      - [Run an analysis (object orientated)](docs/programmatic-interface.md#run-an-analysis-object-orientated)
+        - [Stop polling for results](docs/programmatic-interface.md#stop-polling-for-results)
       - [Start an analysis (object orientated)](docs/programmatic-interface.md#start-an-analysis-object-orientated)
       - [Get analysis status (object orientated)](docs/programmatic-interface.md#get-analysis-status-object-orientated)
       - [Get analysis results (object orientated)](docs/programmatic-interface.md#get-analysis-results-object-orientated)
       - [Cancel an analysis (object orientated)](docs/programmatic-interface.md#cancel-an-analysis-object-orientated)
       - [Get API version (object orientated)](docs/programmatic-interface.md#get-api-version-object-orientated)
+      - [Write test files to disk (object orientated)](docs/programmatic-interface.md#write-test-files-to-disk-object-orientated)
     - [Result pagination](docs/programmatic-interface.md#result-pagination)
     - [Lifecycle](docs/programmatic-interface.md#lifecycle)
   - [Low level bindings](docs/programmatic-interface.md#low-level-bindings)
@@ -74,6 +79,7 @@ For more detailed usage, see the [programmatic interface documentation](docs/pro
     - [Low level options](docs/programmatic-interface.md#low-level-options)
       - [Ignore https rejection](docs/programmatic-interface.md#ignore-https-rejection)
   - [Combining results into test classes](docs/programmatic-interface.md#combining-results-into-test-classes)
+    - [Write test files to disk](docs/programmatic-interface.md#write-test-files-to-disk)
     - [Generate a new test class](docs/programmatic-interface.md#generate-a-new-test-class)
     - [Merge results into an existing test class](docs/programmatic-interface.md#merge-results-into-an-existing-test-class)
 - [Command line interface](docs/command-line-interface.md)
