@@ -46,7 +46,7 @@ export async function getApiVersion(api: string, options?: BindingsOptions): Pro
   return dependencies.request.get(dependencies.routes.version(api), convertOptions(options));
 }
 
-/** Starts an analysis and returns the analysis id */
+/** Starts an analysis and returns the analysis id and computed settings */
 export async function startAnalysis(
   api: string,
   { baseBuild, build, dependenciesBuild }: AnalysisFiles,

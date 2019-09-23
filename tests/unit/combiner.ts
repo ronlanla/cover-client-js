@@ -23,18 +23,23 @@ const sampleResult = {
   imports: ['import'],
   staticImports: ['static import'],
   classAnnotations: ['class annotation'],
+  classRules: ['class rule'],
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',
+  coveredLines: ['com.diffblue.javademo.TicTacToe.checkTicTacToePosition:1-2,4-5'],
 };
 
 const sampleTestData = {
   classAnnotations: sampleResult.classAnnotations,
+  classRules: sampleResult.classRules,
   imports: sampleResult.imports,
   staticImports: sampleResult.staticImports,
   name: sampleResult.testName,
   body: sampleResult.testBody,
   id: sampleResult.testId,
+  sourceFilePath: sampleResult.sourceFilePath,
+  coveredLines: sampleResult.coveredLines,
 };
 
 describe('combiner', () => {

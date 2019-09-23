@@ -51,17 +51,17 @@ describe('api/bindings', () => {
     const startUrl = `${api}/analysis`;
     const settings = {
       ignoreDefaults: true,
-      phases: {},
+      settings: {},
     };
 
-    it('Starts an analysis then returns the id and phases', sinonTest(async (sinon) => {
+    it('Starts an analysis then returns the id and settings', sinonTest(async (sinon) => {
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: {}});
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', settings: {}});
       assert.notOtherwiseCalled(post, 'post');
 
       const actualResponse = await startAnalysis(api, { build: build });
-      const expectedResponse = { id: '1234-ABCD', phases: {}};
+      const expectedResponse = { id: '1234-ABCD', settings: {}};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));
@@ -70,7 +70,7 @@ describe('api/bindings', () => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', settngs: settings });
       assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(api, { build: build, baseBuild: baseBuild }, settings);
@@ -85,7 +85,7 @@ describe('api/bindings', () => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', settings: settings });
       assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(api, { build: build, dependenciesBuild: dependenciesBuild }, settings);
@@ -100,7 +100,7 @@ describe('api/bindings', () => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', phases: settings.phases });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', settings: settings });
       assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(

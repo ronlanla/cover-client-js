@@ -20,9 +20,11 @@ const sampleResult = {
   imports: ['import'],
   staticImports: ['static import'],
   classAnnotations: ['class annotation'],
+  classRules: ['class rules'],
   tags: ['tag'],
   phaseGenerated: 'phase',
   createdTime: 'created',
+  coveredLines: ['com.diffblue.javademo.TicTacToe.checkTicTacToePosition:1-2,4-5'],
 };
 const otherResult = {
   ...sampleResult,
