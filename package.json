@@ -48,7 +48,7 @@
   "devDependencies": {
     "@types/form-data": "2.5.0",
     "@types/inquirer": "^6.0.1",
-    "@types/lodash": "4.14.136",
+    "@types/lodash": "4.14.139",
     "@types/mkdirp": "0.5.2",
     "@types/mocha": "5.2.7",
     "@types/node": "12.7.0",
