@@ -249,7 +249,7 @@
     "mit"
   ],
   "cmd-shim": [
-    "bsd-2-clause"
+    "isc"
   ],
   "code-point-at": [
     "mit"
@@ -321,7 +321,7 @@
     "unknown"
   ],
   "cyclist": [
-    "mit*"
+    "mit"
   ],
   "dashdash": [
     "mit"
@@ -1067,6 +1067,9 @@
   "object-assign": [
     "mit"
   ],
+  "object-inspect": [
+    "mit"
+  ],
   "object-keys": [
     "mit"
   ],
@@ -1403,6 +1406,12 @@
   "string-width": [
     "mit"
   ],
+  "string.prototype.trimleft": [
+    "mit"
+  ],
+  "string.prototype.trimright": [
+    "mit"
+  ],
   "string_decoder": [
     "mit"
   ],
@@ -1456,9 +1465,6 @@
   ],
   "tough-cookie": [
     "bsd-3-clause"
-  ],
-  "trim-right": [
-    "mit"
   ],
   "ts-node": [
     "mit"
