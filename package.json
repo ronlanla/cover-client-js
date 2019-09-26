@@ -57,7 +57,7 @@
     "auditjs": "3.2.4",
     "glob-gitignore": "1.0.14",
     "inquirer": "7.0.0",
-    "markdownlint-cli": "0.17.0",
+    "markdownlint-cli": "0.18.0",
     "mocha": "^6.1.4",
     "mocha-circleci-reporter": "^0.0.3",
     "nyc": "14.1.1",
