@@ -653,9 +653,6 @@
   "ip-regex": [
     "mit"
   ],
-  "is": [
-    "mit"
-  ],
   "is-arrayish": [
     "mit"
   ],
@@ -947,9 +944,6 @@
   "mkdirp": [
     "mit"
   ],
-  "mkdirp-no-bin": [
-    "mit"
-  ],
   "mocha": [
     "mit"
   ],
@@ -990,12 +984,6 @@
     "mit"
   ],
   "node-gyp": [
-    "mit"
-  ],
-  "node.extend": [
-    "mit"
-  ],
-  "node.flow": [
     "mit"
   ],
   "nopt": [
@@ -1163,9 +1151,6 @@
   "performance-now": [
     "mit"
   ],
-  "persistent-cache": [
-    "mit"
-  ],
   "pify": [
     "mit"
   ],
@@ -1288,9 +1273,6 @@
   ],
   "rimraf": [
     "isc"
-  ],
-  "rmdir": [
-    "mit"
   ],
   "run-async": [
     "mit"
