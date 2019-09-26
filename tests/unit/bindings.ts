@@ -161,10 +161,7 @@ describe('api/bindings', () => {
       get.withArgs(resultUrl).resolves({
         cursor: 1234,
         results: [{ testId: '12-34-56' }, { testId: '34-56-78' }],
-        status: {
-          status: 'COMPLETED',
-          progress: 100,
-        },
+        status: { status: 'COMPLETED' },
       });
       assert.notOtherwiseCalled(get, 'get');
 
@@ -172,10 +169,7 @@ describe('api/bindings', () => {
       const expectedResponse = {
         cursor: 1234,
         results: [{ testId: '12-34-56' }, { testId: '34-56-78' }],
-        status: {
-          status: 'COMPLETED',
-          progress: 100,
-        },
+        status: { status: 'COMPLETED' },
       };
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
@@ -188,10 +182,7 @@ describe('api/bindings', () => {
       get.withArgs(resultUrl).resolves({
         cursor: 5678,
         results: [{ testId: '34-56-78' }],
-        status: {
-          status: 'COMPLETED',
-          progress: 100,
-        },
+        status: { status: 'COMPLETED' },
       });
       assert.notOtherwiseCalled(get, 'get');
 
@@ -199,10 +190,7 @@ describe('api/bindings', () => {
       const expectedResults = {
         cursor: 5678,
         results: [{ testId: '34-56-78' }],
-        status: {
-          status: 'COMPLETED',
-          progress: 100,
-        },
+        status: { status: 'COMPLETED' },
       };
 
       assert.deepStrictEqual(actualResponse, expectedResults);
@@ -224,20 +212,14 @@ describe('api/bindings', () => {
 
       post.withArgs(cancelUrl).resolves({
         message: 'Analysis successfully canceled',
-        status: {
-          status: 'STOPPING',
-          progress: 50,
-        },
+        status: { status: 'STOPPING' },
       });
       assert.notOtherwiseCalled(post, 'post');
 
       const actualResponse = await cancelAnalysis(api, 'ABCD-1234');
       const expectedResponse = {
         message: 'Analysis successfully canceled',
-        status: {
-          status: 'STOPPING',
-          progress: 50,
-        },
+        status: { status: 'STOPPING' },
       };
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
@@ -256,11 +238,11 @@ describe('api/bindings', () => {
     it('Gets the target analysis status', sinonTest(async (sinon) => {
       const get = sinon.stub(dependencies.request, 'get');
 
-      get.withArgs(statusUrl).resolves({ status: { status: 'RUNNING', progress: 75 }});
+      get.withArgs(statusUrl).resolves({ status: { status: 'RUNNING' }});
       assert.notOtherwiseCalled(get, 'get');
 
       const actualResponse = await getAnalysisStatus(api, 'ABCD-1234');
-      const expectedResponse = { status: { status: 'RUNNING', progress: 75 }};
+      const expectedResponse = { status: { status: 'RUNNING' }};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));
