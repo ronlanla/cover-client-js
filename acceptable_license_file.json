@@ -1475,6 +1475,9 @@
   "type-detect": [
     "mit"
   ],
+  "type-fest": [
+    "(mit or cc0-1.0)"
+  ],
   "typedarray": [
     "mit"
   ],
