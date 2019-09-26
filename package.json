@@ -51,7 +51,7 @@
     "@types/lodash": "4.14.139",
     "@types/mkdirp": "0.5.2",
     "@types/mocha": "5.2.7",
-    "@types/node": "12.7.0",
+    "@types/node": "12.7.8",
     "@types/semver": "6.0.1",
     "@types/sinon": "7.0.13",
     "auditjs": "3.1.1",
