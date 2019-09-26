@@ -29,7 +29,6 @@ const sampleResult = {
   classAnnotations: ['class annotation'],
   classRules: ['class rule'],
   tags: ['tag'],
-  phaseGenerated: 'phase',
   createdTime: 'created',
   coveredLines: ['com.diffblue.javademo.TicTacToe.checkTicTacToePosition:1-2,4-5'],
 };
@@ -76,7 +75,7 @@ describe('analysis', () => {
 
     describe('run', () => {
       const startResponse = { id: analysisId, settings: {}};
-      const responseStatus = { status: AnalysisStatus.CANCELED, progress: { completed: 10, total: 20 }};
+      const responseStatus = { status: AnalysisStatus.CANCELED };
       const resultsResponse = {
         status: responseStatus,
         cursor: 12345,
@@ -96,7 +95,6 @@ describe('analysis', () => {
           computedSettings: {},
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
-          progress: resultsResponse.status.progress,
           results: resultsResponse.results,
           pollingStopped: false,
           error: undefined,
@@ -121,7 +119,6 @@ describe('analysis', () => {
           computedSettings: {},
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
-          progress: resultsResponse.status.progress,
           results: resultsResponse.results,
           pollingStopped: false,
           error: undefined,
@@ -215,7 +212,7 @@ describe('analysis', () => {
 
       it('Rejects if analysis errors, and does not write test files', sinonTestWithTimers(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
-        const responseStatus = { status: AnalysisStatus.ERRORED, progress: { completed: 10, total: 20 }};
+        const responseStatus = { status: AnalysisStatus.ERRORED };
         const response = {
           ...resultsResponse,
           status: responseStatus,
@@ -238,7 +235,7 @@ describe('analysis', () => {
       it('Calling forceStop stops polling (after polling occurs)', sinonTestWithTimers(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults');
-        const responseStatus = { status: AnalysisStatus.RUNNING, progress: { completed: 10, total: 20 }};
+        const responseStatus = { status: AnalysisStatus.RUNNING };
         const response = {
           ...resultsResponse,
           status: responseStatus,
@@ -257,7 +254,7 @@ describe('analysis', () => {
 
       it('Calling forceStop stops polling (before polling occurs)', sinonTestWithTimers(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
-        const responseStatus = { status: AnalysisStatus.RUNNING, progress: { completed: 10, total: 20 }};
+        const responseStatus = { status: AnalysisStatus.RUNNING };
         const response = {
           ...resultsResponse,
           status: responseStatus,
@@ -373,7 +370,7 @@ describe('analysis', () => {
       it('Fails to start an analysis, if already canceled', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const cancelAnalysis = sinon.stub(components, 'cancelAnalysis');
-        const cancelStatus = { status: AnalysisStatus.CANCELED, progress: { completed: 10, total: 20 }};
+        const cancelStatus = { status: AnalysisStatus.CANCELED };
         const cancelMessage = 'Analysis cancelled successfully';
         const cancelResponse = { message: cancelMessage, status: cancelStatus };
         cancelAnalysis.resolves(cancelResponse);
@@ -392,7 +389,7 @@ describe('analysis', () => {
 
     describe('cancel', () => {
       const startResponse = { id: analysisId, settings: {}};
-      const cancelStatus = { status: AnalysisStatus.STOPPING, progress: { completed: 10, total: 20 }};
+      const cancelStatus = { status: AnalysisStatus.STOPPING };
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
 
@@ -405,7 +402,6 @@ describe('analysis', () => {
         const returnValue = await canceledAnalysis.cancel();
         const changes = {
           status: returnValue.status.status,
-          progress: returnValue.status.progress,
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, cancelResponse);
@@ -471,7 +467,7 @@ describe('analysis', () => {
 
     describe('getStatus', () => {
       const startResponse = { id: analysisId, settings: {}};
-      const statusResponse = { status: AnalysisStatus.COMPLETED, progress: { completed: 100, total: 100 }};
+      const statusResponse = { status: AnalysisStatus.COMPLETED };
 
       it('Can get the status of an analysis', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
@@ -482,7 +478,6 @@ describe('analysis', () => {
         const returnValue = await analysis.getStatus();
         const changes = {
           status: returnValue.status,
-          progress: returnValue.progress,
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, statusResponse);
@@ -504,7 +499,6 @@ describe('analysis', () => {
         const returnValue = await analysis.getStatus();
         const changes = {
           status: returnValue.status,
-          progress: returnValue.progress,
           error: returnValue.message,
         };
         assert.deepStrictEqual(returnValue, response);
@@ -571,7 +565,7 @@ describe('analysis', () => {
 
     describe('getResults', () => {
       const startResponse = { id: analysisId, settings: {}};
-      const responseStatus = { status: AnalysisStatus.RUNNING, progress: { completed: 10, total: 20 }};
+      const responseStatus = { status: AnalysisStatus.RUNNING };
       const resultsResponse = {
         status: responseStatus,
         cursor: 12345,
@@ -592,7 +586,6 @@ describe('analysis', () => {
         const returnValue = await analysis.getResults();
         const changes = {
           status: returnValue.status.status,
-          progress: returnValue.status.progress,
           error: undefined,
           results: [...startedAnalysis.results, ...returnValue.results],
           cursor: returnValue.cursor,
@@ -614,7 +607,6 @@ describe('analysis', () => {
         const returnValue = await analysis.getResults(false);
         const changes = {
           status: returnValue.status.status,
-          progress: returnValue.status.progress,
           error: undefined,
           results: returnValue.results,
           cursor: returnValue.cursor,
@@ -645,7 +637,6 @@ describe('analysis', () => {
         const returnValue = await analysis.getResults(false);
         const changes = {
           status: returnValue.status.status,
-          progress: returnValue.status.progress,
           error: undefined,
           results: returnValue.results,
           cursor: returnValue.cursor,
