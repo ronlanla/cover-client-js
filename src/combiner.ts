@@ -139,10 +139,10 @@ export function generateTestClass(results: AnalysisResult[]): string {
   const { testedFunction } = results[0];
   const className = parseClassNameFromFunctionName(testedFunction);
   const packageName = parsePackageNameFromFunctionName(testedFunction);
-  const testName = `${className}Test`;
+  const testClassName = `${className}Test`;
   const testData = prepareTestData(results);
   try {
-    return dependencies.genTestClass(testData, className, testName, packageName);
+    return dependencies.genTestClass(testData, testClassName, packageName);
   } catch (error) {
     throw new CombinerError(`Unexpected error generating test class:\n${error}`, CombinerErrorCode.GENERATE_ERROR);
   }
