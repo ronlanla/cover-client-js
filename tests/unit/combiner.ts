@@ -48,7 +48,7 @@ describe('combiner', () => {
       const genTestClass = sinon.stub(dependencies, 'genTestClass');
       genTestClass.returns(expectedTestClass);
       const testClass = generateTestClass([sampleResult]);
-      assert.calledOnceWith(genTestClass, [[sampleTestData], 'TicTacToe', 'TicTacToeTest', 'com.diffblue.javademo']);
+      assert.calledOnceWith(genTestClass, [[sampleTestData], 'TicTacToeTest', 'com.diffblue.javademo']);
       assert.strictEqual(testClass, expectedTestClass);
     }));
 
@@ -59,7 +59,7 @@ describe('combiner', () => {
       const testClass = generateTestClass([sampleResult, sampleResult]);
       assert.calledOnceWith(
         genTestClass,
-        [[sampleTestData, sampleTestData], 'TicTacToe', 'TicTacToeTest', 'com.diffblue.javademo'],
+        [[sampleTestData, sampleTestData], 'TicTacToeTest', 'com.diffblue.javademo'],
       );
       assert.strictEqual(testClass, expectedTestClass);
     }));

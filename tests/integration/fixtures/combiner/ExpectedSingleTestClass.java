@@ -9,7 +9,7 @@ import org.junit.rules.Timeout;
 
 
 
-public class UserAccess {
+public class UserAccessTest {
 
   @Rule
   public final Timeout globalTimeout = new Timeout(10000);
