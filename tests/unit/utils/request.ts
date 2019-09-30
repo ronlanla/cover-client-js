@@ -68,20 +68,14 @@ describe('utils/request', () => {
         ...templateResponse,
         data: {
           message: 'Analysis successfully canceled',
-          status: {
-            status: 'STOPPING',
-            progress: 50,
-          },
+          status: { status: 'STOPPING' },
         },
       });
 
       const actualResponse = await request.post(testUrl);
       const expectedResponse = {
         message: 'Analysis successfully canceled',
-        status: {
-          status: 'STOPPING',
-          progress: 50,
-        },
+        status: { status: 'STOPPING' },
       };
       assert.deepStrictEqual(actualResponse, expectedResponse);
     }));

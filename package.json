@@ -1,6 +1,6 @@
 {
   "name": "@diffblue/cover-client",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Diffblue Cover client library - Node.js API for Diffblue Cover",
   "main": "build/index.js",
   "engines": {
@@ -39,37 +39,37 @@
   "dependencies": {
     "@diffblue/java-combiner": "0.1.8",
     "axios": "0.19.0",
-    "bluebird": "^3.5.5",
-    "form-data": "2.3.3",
-    "lodash": "4.17.14",
+    "bluebird": "3.5.5",
+    "form-data": "2.5.1",
+    "lodash": "4.17.15",
     "mkdirp": "0.5.1",
-    "url-join": "4.0.0"
+    "url-join": "4.0.1"
   },
   "devDependencies": {
-    "@types/form-data": "2.2.1",
+    "@types/form-data": "2.5.0",
     "@types/inquirer": "^6.0.1",
-    "@types/lodash": "4.14.136",
+    "@types/lodash": "4.14.139",
     "@types/mkdirp": "0.5.2",
-    "@types/mocha": "5.2.6",
-    "@types/node": "11.13.4",
-    "@types/semver": "6.0.0",
-    "@types/sinon": "7.0.11",
-    "auditjs": "3.1.1",
+    "@types/mocha": "5.2.7",
+    "@types/node": "12.7.8",
+    "@types/semver": "6.0.2",
+    "@types/sinon": "7.0.13",
+    "auditjs": "3.2.4",
     "glob-gitignore": "1.0.14",
-    "inquirer": "6.3.1",
-    "markdownlint-cli": "0.15.0",
+    "inquirer": "7.0.0",
+    "markdownlint-cli": "0.18.0",
     "mocha": "^6.1.4",
     "mocha-circleci-reporter": "^0.0.3",
-    "nyc": "14.1.0",
+    "nyc": "14.1.1",
     "parse-git": "^1.1.2",
     "semver": "^6.0.0",
     "simple-git": "^1.110.0",
-    "sinon": "7.3.1",
-    "ts-node": "8.0.3",
-    "tslint": "5.15.0",
+    "sinon": "7.5.0",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
     "tslint-eslint-rules": "5.4.0",
     "tslint-sonarts": "^1.9.0",
     "typescript": "3.5.2",
-    "typescript-tslint-plugin": "0.3.1"
+    "typescript-tslint-plugin": "0.5.4"
   }
 }

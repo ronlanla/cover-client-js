@@ -14,7 +14,6 @@ import { AnalysisError, AnalysisErrorCode } from './errors';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
-  AnalysisProgress,
   AnalysisResult,
   AnalysisResultsApiResponse,
   AnalysisSettings,
@@ -49,7 +48,6 @@ export default class Analysis {
   public analysisId?: string;
   public settings?: AnalysisSettings;
   public status?: AnalysisStatus;
-  public progress?: AnalysisProgress;
   public error?: ApiErrorResponse;
   public computedSettings?: AnalysisSettings;
   public results: AnalysisResult[] = [];
@@ -89,7 +87,6 @@ export default class Analysis {
   /** Update status related properties */
   private updateStatus(status: AnalysisStatusApiResponse): void {
     this.status = AnalysisStatus[status.status];
-    this.progress = status.progress;
     this.error = status.message;
   }
 

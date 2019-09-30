@@ -23,12 +23,6 @@ export interface AnalysisFiles {
   baseBuild?: Buffer | NodeJS.ReadableStream;
 }
 
-/** Analysis progress returned by the API */
-export interface AnalysisProgress {
-  total: number;
-  completed: number;
-}
-
 /** Error object returned by the API */
 export interface ApiErrorResponse {
   code: string;
@@ -42,7 +36,6 @@ export interface AnalysisResult {
   coveredLines: string[];
   createdTime: string;
   imports: string[];
-  phaseGenerated: string;
   sourceFilePath: string;
   staticImports: string[];
   tags: string[];
@@ -133,7 +126,6 @@ export interface AnalysisSettings {
 /** Status object returned by the API */
 export interface AnalysisStatusApiResponse {
   status: AnalysisStatus;
-  progress: AnalysisProgress;
   message?: ApiErrorResponse;
 }
 

@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
 
 
 @RunWith(PowerMockRunner.class)
-public class UserAccess {
+public class UserAccessTest {
 
   @Rule
   public final Timeout globalTimeout = new Timeout(10000);

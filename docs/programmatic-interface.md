@@ -164,9 +164,8 @@ To get the status of an analysis that has started, call `Analysis.getStatus`.
 
 ```ts
 (async () => {
-  const { status, progress } = await analysis.getStatus();
+  const { status } = await analysis.getStatus();
   console.log(`Analysis status: ${status}`);
-  console.log(`Analysis progress: ${progress.completed}/${progress.total}`);
 }();
 ```
 
@@ -178,7 +177,6 @@ To get the results (so far) of an analysis that has started, call `Analysis.getR
 (async () => {
   const { results, status, cursor } =  await analysis.getResults();
   console.log(`Analysis status: ${status.status}`);
-  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
   console.log(`Number of new tests: ${results.length}`);
   console.log(`Next cursor: ${cursor}`);
 }();
@@ -192,7 +190,6 @@ To cancel an analysis that has started, call `Analysis.cancel`.
 (async () => {
   const { status, message } = await analysis.cancel();
   console.log(`Analysis status: ${status.status}`);
-  console.log(`Analysis progress: ${status.progress.completed}/${status.progress.total}`);
   console.log(`Cancellation message: ${message}`);
 }();
 ```
@@ -360,13 +357,11 @@ const api = 'https://0.0.0.0/api';
 
 ### Get analysis status (Low level)
 
-Given an analysis identifier, returns the current analysis status, and progress. The possible statuses are: QUEUED, RUNNING, STOPPING, ERRORED, CANCELED and COMPLETED.
+Given an analysis identifier, returns the current analysis status. The possible statuses are: QUEUED, RUNNING, STOPPING, ERRORED, CANCELED and COMPLETED.
 
 A status of QUEUED, RUNNING or STOPPING indicates that the analysis is still in progress and that new results may still be returned.
 
 A status of ERRORED, CANCELED or COMPLETED indicates that the analysis has ended, and no further results are expected.
-
-The progress object returns the number of functions which have been analyzed compared to the total number to analyze.
 
 In the case of an ERRORED status, an error message object with further information will also be returned.
 
@@ -378,12 +373,8 @@ const CoverClient = require('@diffblue/cover-client');
 const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
-return CoverClient.getAnalysisStatus(api, id).then(({ status, progress }) => {
-  console.log([
-    `Status: ${status}`,
-    `Total functions: ${progress.total}`,
-    `Total completed functions: ${progress.completed}\n`,
-  ].join('\n'));
+return CoverClient.getAnalysisStatus(api, id).then(({ status }) => {
+  console.log(`Status: ${status}`);
 });
 ```
 
@@ -396,12 +387,8 @@ const api = 'https://0.0.0.0/api';
 const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 
 (async () => {
-  const { status, progress } = await CoverClient.getAnalysisStatus(api, id);
-  console.log([
-    `Status: ${status}`,
-    `Total functions: ${progress.total}`,
-    `Total completed functions: ${progress.completed}\n`,
-  ].join('\n'));
+  const { status } = await CoverClient.getAnalysisStatus(api, id);
+  console.log(`Status: ${status}`);
 })();
 ```
 
@@ -422,8 +409,6 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
 CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
   console.log([
     `Status: ${status.status}`,
-    `Total functions: ${status.progress.total}`,
-    `Total completed functions: ${status.progress.completed}`,
     `Analysis results: ${results}`,
     `Next cursor: ${cursor}\n`
   ].join('\n'));
@@ -449,8 +434,6 @@ const inProgressStatuses = new Set(['RUNNING', 'QUEUED', 'STOPPING' ]);
     response = await CoverClient.getAnalysisResults(api, id, nextCursor);
     console.log(
       `Status: ${response.status.status}`,
-      `Total functions: ${response.status.progress.total}`,
-      `Total completed functions: ${response.status.progress.completed}`,
       `Number of new tests: ${response.results.length}`,
       `Next cursor: ${response.cursor}`,
     );
@@ -481,8 +464,6 @@ return CoverClient.cancelAnalysis(api, id).then(({ message, status }) => {
   console.log(
     `Message: ${message}`,
     `Status: ${status.status}`,
-    `Total functions: ${status.progress.total}`,
-    `Total completed functions: ${status.progress.completed}`,
   );
 });
 ```
@@ -500,8 +481,6 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
   console.log([
     `Message: ${message}`,
     `Status: ${status.status}`,
-    `Total functions: ${status.progress.total}`,
-    `Total completed functions: ${status.progress.completed}\n`
   ].join('\n'));
 })();
 ```
