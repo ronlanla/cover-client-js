@@ -2,6 +2,7 @@
 
 import { genTestClass, ITestData, mergeTests } from '@diffblue/java-combiner';
 import { groupBy, isString } from 'lodash';
+import { parse } from 'path';
 
 import { CombinerError, CombinerErrorCode } from './errors';
 import { AnalysisResult } from './types/types';
@@ -27,19 +28,14 @@ function parsePackageNameFromFunctionName(functionName: string): string {
 }
 
 /**
- * Parses class name from function full name.
+ * Parses class name from source file path.
  *
- * Function name should be the fully qualified name of a Java function
- * e.g. java::com.diffblue.javademo.TicTacToe.checkTicTacToePosition
+ * e.g. com/diffblue/javademo/TicTacToe.java
  * => 'TicTacToe'
  */
-function parseClassNameFromFunctionName(functionName: string): string {
-  const classNameRegexp = /([^.:]+)[.][^.]*$/;
-  const classNameMatch = functionName.match(classNameRegexp);
-  if (!classNameMatch) {
-    throw new CombinerError(`Can't find classname in ${functionName}`, CombinerErrorCode.NO_CLASS_NAME);
-  }
-  return classNameMatch[1].replace(/\$/g, '_');
+function parseClassNameFromSourceFilePath(sourceFilePath: string): string {
+  const { name } = parse(sourceFilePath);
+  return name;
 }
 
 /** Validate the results parameter */
@@ -63,28 +59,21 @@ function checkResults(results: AnalysisResult[]): void {
     );
   }
   const sourceFilePaths = new Set();
-  const classNames = new Set();
   const packageNames = new Set();
   results.forEach(({ testedFunction, sourceFilePath }) => {
     sourceFilePaths.add(sourceFilePath);
-    classNames.add(parseClassNameFromFunctionName(testedFunction));
     packageNames.add(parsePackageNameFromFunctionName(testedFunction));
   });
   if (sourceFilePaths.size !== 1) {
     throw new CombinerError(
-      'All "results" must have the same "sourceFilePath"',
+      `All "results" must have the same "sourceFilePath". Found: ${[...sourceFilePaths].join(', ')}`,
       CombinerErrorCode.SOURCE_FILE_PATH_DIFFERS,
-    );
-  }
-  if (classNames.size !== 1) {
-    throw new CombinerError(
-      'All "results" must have a "testedFunction" that produces the same "className" when parsed',
-      CombinerErrorCode.CLASS_NAME_DIFFERS,
     );
   }
   if (packageNames.size !== 1) {
     throw new CombinerError(
-      'All "results" must have a "testedFunction" that produces the same "packageName" when parsed',
+      `All "results" must have a "testedFunction" that produces the same "packageName" when parsed.
+      Found: ${[...packageNames].join(', ')}`,
       CombinerErrorCode.PACKAGE_NAME_DIFFERS,
     );
   }
@@ -136,8 +125,8 @@ export function prepareTestData(results: AnalysisResult[]): ITestData[] {
 /** Create a test class from an array of analysis results */
 export function generateTestClass(results: AnalysisResult[]): string {
   checkResults(results);
-  const { testedFunction } = results[0];
-  const className = parseClassNameFromFunctionName(testedFunction);
+  const { sourceFilePath, testedFunction } = results[0];
+  const className = parseClassNameFromSourceFilePath(sourceFilePath);
   const packageName = parsePackageNameFromFunctionName(testedFunction);
   const testClassName = `${className}Test`;
   const testData = prepareTestData(results);
@@ -172,6 +161,6 @@ export function groupResults(results: AnalysisResult[]): GroupedResults {
 
 /** Produce a file name from a class name */
 export function getFileNameForResult(result: AnalysisResult): string {
-  const className = parseClassNameFromFunctionName(result.testedFunction);
+  const className = parseClassNameFromSourceFilePath(result.sourceFilePath);
   return `${className}Test.java`;
 }

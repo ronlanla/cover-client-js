@@ -22,7 +22,7 @@ const sampleResult = {
   testId: 'id',
   testName: 'name',
   testedFunction: 'com.diffblue.javademo.TicTacToe.checkTicTacToePosition',
-  sourceFilePath: '/path',
+  sourceFilePath: 'com/diffblue/javademo/TicTacToe.java',
   testBody: 'body',
   imports: ['import'],
   staticImports: ['static import'],
@@ -158,7 +158,7 @@ describe('analysis', () => {
         const otherResult = {
           ...sampleResult,
           testedFunction: 'com.diffblue.javademo.OtherClass.otherFunction',
-          sourceFilePath: '/other/path',
+          sourceFilePath: 'com/diffblue/javademo/OtherClass.java',
         };
         const response = {
           ...resultsResponse,
