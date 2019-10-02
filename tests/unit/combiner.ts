@@ -18,7 +18,7 @@ const sampleResult = {
   testId: 'id',
   testName: 'name',
   testedFunction: 'com.diffblue.javademo.TicTacToe.checkTicTacToePosition',
-  sourceFilePath: './path',
+  sourceFilePath: 'com/diffblue/javademo/TicTacToe.java',
   testBody: 'body',
   imports: ['import'],
   staticImports: ['static import'],
@@ -74,19 +74,6 @@ describe('combiner', () => {
       );
     });
 
-    it('Fails if passed results with tested functions that produce different class names', () => {
-      const otherResult = {
-        ...sampleResult,
-        testedFunction: 'com.diffblue.javademo.SomeOtherClass.checkTicTacToePosition',
-      };
-      assert.throws(
-        () => generateTestClass([sampleResult, otherResult]),
-        (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCode.CLASS_NAME_DIFFERS;
-        },
-      );
-    });
-
     it('Fails if passed results with tested functions that produce different package names', () => {
       const otherResult = {
         ...sampleResult,
@@ -96,19 +83,6 @@ describe('combiner', () => {
         () => generateTestClass([sampleResult, otherResult]),
         (err: Error) => {
           return (err instanceof CombinerError) && err.code === CombinerErrorCode.PACKAGE_NAME_DIFFERS;
-        },
-      );
-    });
-
-    it('Fails if passed a tested function with no extractable classname', () => {
-      const badResult = {
-        ...sampleResult,
-        testedFunction: 'not-a-valid-function-name',
-      };
-      assert.throws(
-        () => generateTestClass([badResult]),
-        (err: Error) => {
-          return (err instanceof CombinerError) && err.code === CombinerErrorCode.NO_CLASS_NAME;
         },
       );
     });
