@@ -4,4 +4,3 @@
 /**/fixtures/**/*.*
 /yarn.lock
 /.github
-/src/types/external/bluebird
