@@ -16,7 +16,7 @@ import {
   BindingsOptions,
 } from './types/types';
 import request from './utils/request';
-import routes from './utils/routes';
+import routes from './routes';
 
 export const dependencies = {
   FormData: FormData,

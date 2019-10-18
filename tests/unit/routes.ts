@@ -1,7 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import assert, { errorEquals } from '../../../src/utils/assertExtra';
-import routes, { generateApiUrl, urlJoin } from '../../../src/utils/routes';
+import assert, { errorEquals } from '../../src/utils/assertExtra';
+import routes, { generateApiUrl, urlJoin } from '../../src/routes';
 
 describe('utils/routes', () => {
   const defaultApiUrl = 'http://localhost/api';
