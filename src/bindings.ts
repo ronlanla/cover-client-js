@@ -46,6 +46,11 @@ export async function getApiVersion(api: string, options?: BindingsOptions): Pro
   return dependencies.request.get(dependencies.routes.version(api), convertOptions(options));
 }
 
+/** Gets default analysis settings */
+export async function getDefaultSettings(api: string, options?: BindingsOptions): Promise<AnalysisSettings> {
+  return dependencies.request.get(dependencies.routes.defaultSettings(api), convertOptions(options));
+}
+
 /** Starts an analysis and returns the analysis id and computed settings */
 export async function startAnalysis(
   api: string,

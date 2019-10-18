@@ -7,6 +7,7 @@ import {
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
+  getDefaultSettings,
   startAnalysis,
 } from './bindings';
 import { getFileNameForResult, groupResults } from './combiner';
@@ -37,6 +38,7 @@ export const components = {
   getAnalysisResults: getAnalysisResults,
   getAnalysisStatus: getAnalysisStatus,
   getApiVersion: getApiVersion,
+  getDefaultSettings: getDefaultSettings,
   startAnalysis: startAnalysis,
 };
 
@@ -47,9 +49,10 @@ export default class Analysis {
   public bindingsOptions: BindingsOptions;
   public analysisId?: string;
   public settings?: AnalysisSettings;
+  public computedSettings?: AnalysisSettings;
+  public defaultSettings?: AnalysisSettings;
   public status?: AnalysisStatus;
   public error?: ApiErrorResponse;
-  public computedSettings?: AnalysisSettings;
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
@@ -215,6 +218,13 @@ export default class Analysis {
     this.updateStatus(response.status);
     return response;
   }
+
+    /** Get default analysis settings */
+    public async getDefaultSettings(): Promise<AnalysisSettings> {
+      const response = await components.getDefaultSettings(this.apiUrl, this.bindingsOptions);
+      this.defaultSettings = response;
+      return response;
+    }
 
   /** Get api version */
   public async getApiVersion(): Promise<ApiVersionApiResponse> {

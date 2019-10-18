@@ -46,6 +46,12 @@ describe('utils/routes', () => {
       assert.deepStrictEqual(actualString, expectedString);
     });
 
+    it('Correctly generates a string for the get default settings route', () => {
+      const actualString = routes.defaultSettings(defaultApiUrl);
+      const expectedString = 'http://localhost/api/default-settings';
+      assert.deepStrictEqual(actualString, expectedString);
+    });
+
     it('Correctly generates a string for the API start analysis route', () => {
       const actualString = routes.start(defaultApiUrl);
       const expectedString = 'http://localhost/api/analysis';

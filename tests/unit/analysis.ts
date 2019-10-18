@@ -73,6 +73,28 @@ describe('analysis', () => {
       }));
     });
 
+    describe('getDefaultSettings', () => {
+      const defaultSettingsResponse = { phases: {}};
+
+      it('Can get default analysis settings', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettingsResponse);
+        const baseAnalysis = new Analysis(apiUrl);
+        const analysis = clone(baseAnalysis);
+        const returnValue = await analysis.getDefaultSettings();
+        const changes = { defaultSettings: returnValue };
+        assert.deepStrictEqual(returnValue, defaultSettingsResponse);
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, {}]);
+        assert.changedProperties(baseAnalysis, analysis, changes);
+      }));
+
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettingsResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.getDefaultSettings();
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, sampleBindingOptions]);
+      }));
+    });
+
     describe('run', () => {
       const startResponse = { id: analysisId, settings: {}};
       const responseStatus = { status: AnalysisStatus.CANCELED };

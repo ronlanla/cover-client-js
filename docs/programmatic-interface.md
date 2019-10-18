@@ -125,6 +125,10 @@ Including `baseBuild` will enable a differential analysis.
 
 The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
 
+After calling `Analysis.start` the `settings`, `analysisId`, `computedSettings` and `status` properties of the analysis object will be updated
+The `settings` property will contain the settings provided when calling `Analysis.start`, the `computedSettings` property will contain the settings
+used to start the analysis as returned from the server in the start analysis response.
+
 ```ts
 import { Analysis } from '@diffblue/cover-client';
 import { createReadStream } from 'fs';
@@ -162,6 +166,8 @@ const userSettings = { ignoreDefaults: false, phases: {}};
 
 To get the status of an analysis that has started, call `Analysis.getStatus`.
 
+The `status` property (and `error` property if applicable) of the analysis object will be updated.
+
 ```ts
 (async () => {
   const { status } = await analysis.getStatus();
@@ -172,6 +178,8 @@ To get the status of an analysis that has started, call `Analysis.getStatus`.
 #### Get analysis results (Object orientated)
 
 To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
+
+The `results`, `cursor` and `status` properties (and `error` property if applicable) of the analysis object will be updated.
 
 ```ts
 (async () => {
@@ -186,6 +194,8 @@ To get the results (so far) of an analysis that has started, call `Analysis.getR
 
 To cancel an analysis that has started, call `Analysis.cancel`.
 
+The `status` property (and `error` property if applicable) of the analysis object will be updated.
+
 ```ts
 (async () => {
   const { status, message } = await analysis.cancel();
@@ -194,9 +204,25 @@ To cancel an analysis that has started, call `Analysis.cancel`.
 }();
 ```
 
+#### Get default analysis settings (Object orientated)
+
+To get a set of default recommended analysis settings from the Diffblue Cover API, call `Analysis.getDefaultSettings`.
+
+The returned settings will be stored in the `defaultSettings` property of the analysis object.
+
+```ts
+(async () => {
+ const defaultSettings = await analysis.getDefaultSettings();
+ console.log('Default analysis settings:');
+ console.dir(defaultSettings)
+}();
+```
+
 #### Get API version (Object orientated)
 
 To check the version of the Diffblue Cover API, call `Analysis.getApiVersion`.
+
+The returned version number will be stored in the `version` property of the analysis object.
 
 ```ts
 (async () => {
@@ -482,6 +508,37 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
     `Message: ${message}`,
     `Status: ${status.status}`,
   ].join('\n'));
+})();
+```
+
+### Get default analysis settings (Low level)
+
+Gets a set of default recommended analysis settings from the Diffblue Cover API.
+
+Node.js example using promises:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+
+const api = 'https://0.0.0.0/api';
+
+return CoverClient.getDefaultSettings(api).then((defaultSettings) => {
+  console.log('Default analysis settings:');
+  console.dir(defaultSettings);
+});
+```
+
+Typescript/ES6 modules example using async/await:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const api = 'https://0.0.0.0/api';
+
+(async () => {
+  const defaultSettings = await CoverClient.getDefaultSettings(api);
+  console.log('Default analysis settings:');
+  console.dir(defaultSettings);
 })();
 ```
 
