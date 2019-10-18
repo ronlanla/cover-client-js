@@ -2,6 +2,9 @@
   "@diffblue/java-combiner": [
     "mit"
   ],
+  "@types/bluebird": [
+    "mit"
+  ],
   "asynckit": [
     "mit"
   ],
