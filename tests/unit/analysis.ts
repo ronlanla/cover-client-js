@@ -13,7 +13,7 @@ const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });
 
 const apiUrl = 'https://dummy-url.com';
 const analysisId = 'analysis-id-12345';
-const settings = {};
+const settings = {phases: {}};
 const build = Buffer.alloc(0);
 const dependenciesBuild = Buffer.alloc(0);
 const baseBuild = Buffer.alloc(0);
@@ -96,7 +96,7 @@ describe('analysis', () => {
     });
 
     describe('run', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: settings};
       const responseStatus = { status: AnalysisStatus.CANCELED };
       const resultsResponse = {
         status: responseStatus,
@@ -114,7 +114,7 @@ describe('analysis', () => {
           analysisId: analysisId,
           settings: settings,
           status: AnalysisStatus.CANCELED,
-          computedSettings: {},
+          computedSettings: settings,
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
           results: resultsResponse.results,
@@ -122,7 +122,7 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
@@ -138,7 +138,7 @@ describe('analysis', () => {
           analysisId: analysisId,
           settings: settings,
           status: AnalysisStatus.CANCELED,
-          computedSettings: {},
+          computedSettings: settings,
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
           results: resultsResponse.results,
@@ -146,7 +146,8 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        // AKTODO default param applied
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
@@ -158,7 +159,7 @@ describe('analysis', () => {
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path' };
         await analysis.run(files, settings, options);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledOnceWith(writeTests, ['/test/path', undefined]);
       }));
@@ -170,7 +171,7 @@ describe('analysis', () => {
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path', writingConcurrency: 1 };
         await analysis.run(files, settings, options);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1 }]);
       }));
@@ -190,7 +191,7 @@ describe('analysis', () => {
         const onResults = sinon.spy();
         const analysis = new Analysis(apiUrl);
         await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledWith(
           onResults,
@@ -211,7 +212,7 @@ describe('analysis', () => {
         const onResults = sinon.spy();
         const analysis = new Analysis(apiUrl);
         await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.notCalled(onResults);
       }));
@@ -226,7 +227,7 @@ describe('analysis', () => {
         const options = { pollingInterval: 0.0001, outputTests: '/test/path', onError: onError };
         const returnValue = await analysis.run(files, settings, options);
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledOnceWith(writeTests, ['/test/path', undefined]);
         assert.calledOnceWith(onError, [writeTestsError]);
@@ -249,7 +250,7 @@ describe('analysis', () => {
             return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.RUN_ERRORED;
           },
         );
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.notCalled(writeTests);
       }));
@@ -270,7 +271,7 @@ describe('analysis', () => {
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
         assert.deepStrictEqual(returnValue, resultsResponse.results);
         assert.strictEqual(analysis.status, AnalysisStatus.RUNNING);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         sinon.assert.calledWith(getAnalysisResults, apiUrl, analysisId, undefined, {});
       }));
 
@@ -288,7 +289,7 @@ describe('analysis', () => {
         const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
         assert.deepStrictEqual(returnValue, []);
         assert.strictEqual(analysis.status, AnalysisStatus.QUEUED);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.notCalled(getAnalysisResults);
       }));
     });
@@ -326,7 +327,7 @@ describe('analysis', () => {
     });
 
     describe('start', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: settings };
 
       it('Can start an analysis', sinonTest(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
@@ -340,7 +341,8 @@ describe('analysis', () => {
           computedSettings: returnValue.settings,
         };
         assert.deepStrictEqual(returnValue, startResponse);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        // AKTODO default param applied
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
@@ -364,7 +366,8 @@ describe('analysis', () => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl, sampleBindingOptions);
         await analysis.start(files);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, sampleBindingOptions]);
+        // AKTODO default param applied
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, sampleBindingOptions]);
       }));
 
       it('Fails to start an analysis, if api method throws', sinonTest(async (sinon) => {
@@ -410,7 +413,7 @@ describe('analysis', () => {
     });
 
     describe('cancel', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: settings };
       const cancelStatus = { status: AnalysisStatus.STOPPING };
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
@@ -488,7 +491,7 @@ describe('analysis', () => {
     });
 
     describe('getStatus', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: settings };
       const statusResponse = { status: AnalysisStatus.COMPLETED };
 
       it('Can get the status of an analysis', sinonTest(async (sinon) => {
@@ -573,7 +576,7 @@ describe('analysis', () => {
       it('Fails to get the status an analysis, if id not set', sinonTest(async (sinon) => {
         const analysis = new Analysis(apiUrl);
         const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, settings: {}});
+        startAnalysis.resolves({ id: analysisId, settings: settings});
         await analysis.start(files, settings);
         analysis.analysisId = '';
         await assert.rejects(
@@ -586,7 +589,7 @@ describe('analysis', () => {
     });
 
     describe('getResults', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: settings };
       const responseStatus = { status: AnalysisStatus.RUNNING };
       const resultsResponse = {
         status: responseStatus,

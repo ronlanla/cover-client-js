@@ -72,7 +72,7 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+const settings = { phases: { firstPhase: { timeout: 10 }}};
 const options = { outputTests: './tests', pollingInterval: 5 };
 
 (async () => {
@@ -100,7 +100,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
   build: createReadStream('./build.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+const settings = { phases: { firstPhase: { timeout: 10 }}};
 
 (async () => {
   const runPromise = analysis.run(files, settings);
@@ -153,7 +153,7 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
-const userSettings = { ignoreDefaults: false, phases: {}};
+const userSettings = { phases: { firstPhase: { timeout: 10 }}};
 
 (async () => {
   const { id, settings } = await analysis.start(files, userSettings);
@@ -251,7 +251,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
   build: createReadStream('./build.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+const settings = { phases: { firstPhase: { timeout: 10 }}};
 const directoryPath = './tests';
 
 (async () => {
@@ -365,7 +365,7 @@ const api = 'https://0.0.0.0/api';
   const build = await promisify(readFile)('./build.jar');
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
-  const userSettings = { ignoreDefaults: false, phases: {}};
+  const userSettings = { phases: { firstPhase: { timeout: 10 }}};
   const files = {
     baseBuild: baseBuild,
     build: build,

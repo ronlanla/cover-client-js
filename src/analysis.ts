@@ -24,6 +24,7 @@ import {
   ApiErrorResponse,
   ApiVersionApiResponse,
   BindingsOptions,
+  ComputedAnalysisSettings,
   endedStatuses,
   inProgressStatuses,
   RunAnalysisOptions,
@@ -49,8 +50,8 @@ export default class Analysis {
   public bindingsOptions: BindingsOptions;
   public analysisId?: string;
   public settings?: AnalysisSettings;
-  public computedSettings?: AnalysisSettings;
-  public defaultSettings?: AnalysisSettings;
+  public computedSettings?: ComputedAnalysisSettings;
+  public defaultSettings?: ComputedAnalysisSettings;
   public status?: AnalysisStatus;
   public error?: ApiErrorResponse;
   public results: AnalysisResult[] = [];
@@ -114,7 +115,7 @@ export default class Analysis {
    */
   public async run(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {},
+    settings?: AnalysisSettings,
     options: RunAnalysisOptions = {},
   ): Promise<AnalysisResult[]> {
     try {
@@ -177,8 +178,9 @@ export default class Analysis {
   /** Start the analysis */
   public async start(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {},
+    settings: AnalysisSettings = {phases: {}},//AKTODO TEMP
   ): Promise<AnalysisStartApiResponse> {
+    // AKTODO get default settings
     this.checkNotStarted();
     const response = await components.startAnalysis(this.apiUrl, files, settings, this.bindingsOptions);
     this.settings = settings;
@@ -220,7 +222,7 @@ export default class Analysis {
   }
 
     /** Get default analysis settings */
-    public async getDefaultSettings(): Promise<AnalysisSettings> {
+    public async getDefaultSettings(): Promise<ComputedAnalysisSettings> {
       const response = await components.getDefaultSettings(this.apiUrl, this.bindingsOptions);
       this.defaultSettings = response;
       return response;
