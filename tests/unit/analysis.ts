@@ -4,7 +4,7 @@ import { clone } from 'lodash';
 
 import Analysis, { components } from '../../src/analysis';
 import { AnalysisError, AnalysisErrorCode } from '../../src/errors';
-import { AnalysisStatus } from '../../src/types/types';
+import { AnalysisStatus, AnalysisSettings, ComputedAnalysisSettings } from '../../src/types/types';
 import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 
@@ -13,7 +13,8 @@ const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });
 
 const apiUrl = 'https://dummy-url.com';
 const analysisId = 'analysis-id-12345';
-const settings = {phases: {}};
+const settings: AnalysisSettings = { phases: {}};
+const defaultSettings: ComputedAnalysisSettings = { coverFunctionOnly: true, phases: {}};
 const build = Buffer.alloc(0);
 const dependenciesBuild = Buffer.alloc(0);
 const baseBuild = Buffer.alloc(0);
@@ -96,7 +97,7 @@ describe('analysis', () => {
     });
 
     describe('run', () => {
-      const startResponse = { id: analysisId, settings: settings};
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const responseStatus = { status: AnalysisStatus.CANCELED };
       const resultsResponse = {
         status: responseStatus,
@@ -114,7 +115,7 @@ describe('analysis', () => {
           analysisId: analysisId,
           settings: settings,
           status: AnalysisStatus.CANCELED,
-          computedSettings: settings,
+          computedSettings: defaultSettings,
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
           results: resultsResponse.results,
@@ -128,6 +129,7 @@ describe('analysis', () => {
       }));
 
       it('Can run an analysis without options or settings', sinonTestWithTimers(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const baseAnalysis = new Analysis(apiUrl);
@@ -136,9 +138,10 @@ describe('analysis', () => {
         const returnValue = await analysis.run(files);
         const changes = {
           analysisId: analysisId,
-          settings: settings,
           status: AnalysisStatus.CANCELED,
-          computedSettings: settings,
+          settings: undefined,
+          computedSettings: defaultSettings,
+          defaultSettings: defaultSettings,
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
           results: resultsResponse.results,
@@ -146,8 +149,8 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        // AKTODO default param applied
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, defaultSettings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
@@ -327,26 +330,50 @@ describe('analysis', () => {
     });
 
     describe('start', () => {
-      const startResponse = { id: analysisId, settings: settings };
+      const startResponse = { id: analysisId, settings: defaultSettings };
 
-      it('Can start an analysis', sinonTest(async (sinon) => {
+      it('Can start an analysis without settings and fetch default settings', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         const returnValue = await analysis.start(files);
         const changes = {
           analysisId: returnValue.id,
-          settings: settings,
+          settings: undefined,
+          status: AnalysisStatus.QUEUED,
+          computedSettings: returnValue.settings,
+          defaultSettings: defaultSettings,
+        };
+        assert.deepStrictEqual(returnValue, startResponse);
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, defaultSettings, {}]);
+        assert.changedProperties(baseAnalysis, analysis, changes);
+      }));
+
+      it('Can start an analysis without settings and use defaults already set on the object', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
+        const baseAnalysis = new Analysis(apiUrl);
+        const otherDefaultSettings = clone(defaultSettings);
+        otherDefaultSettings.useFuzzer = true; // add a new key to make settings distinguishable
+        baseAnalysis.defaultSettings = otherDefaultSettings;
+        const startResponse = { id: analysisId, settings: otherDefaultSettings };
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const analysis = clone(baseAnalysis);
+        const returnValue = await analysis.start(files);
+        const changes = {
+          analysisId: returnValue.id,
+          settings: undefined,
           status: AnalysisStatus.QUEUED,
           computedSettings: returnValue.settings,
         };
         assert.deepStrictEqual(returnValue, startResponse);
-        // AKTODO default param applied
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
+        assert.notCalled(getDefaultSettings);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, otherDefaultSettings, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
-      it('Can start an analysis with all arguments', sinonTest(async (sinon) => {
+      it('Can start an analysis with settings', sinonTest(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
@@ -365,8 +392,7 @@ describe('analysis', () => {
       it('Can pass through bindings options', sinonTest(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl, sampleBindingOptions);
-        await analysis.start(files);
-        // AKTODO default param applied
+        await analysis.start(files, settings);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, sampleBindingOptions]);
       }));
 
@@ -376,6 +402,19 @@ describe('analysis', () => {
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         await assert.rejects(async () => analysis.start(files, settings), startError);
+        assert.changedProperties(baseAnalysis, analysis, {});
+      }));
+
+      it('Fails to start an analysis without settings if the get default settings binding rejects', sinonTest(async (sinon) => {
+        sinon.stub(components, 'getDefaultSettings').rejects(new Error('get settings api call failed'));
+        const baseAnalysis = new Analysis(apiUrl);
+        const analysis = clone(baseAnalysis);
+        await assert.rejects(
+          async () => analysis.start(files),
+          (err: Error) => {
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.START_DEFAULTS_FAILED;
+          },
+        );
         assert.changedProperties(baseAnalysis, analysis, {});
       }));
 
@@ -413,7 +452,7 @@ describe('analysis', () => {
     });
 
     describe('cancel', () => {
-      const startResponse = { id: analysisId, settings: settings };
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const cancelStatus = { status: AnalysisStatus.STOPPING };
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
@@ -491,7 +530,7 @@ describe('analysis', () => {
     });
 
     describe('getStatus', () => {
-      const startResponse = { id: analysisId, settings: settings };
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const statusResponse = { status: AnalysisStatus.COMPLETED };
 
       it('Can get the status of an analysis', sinonTest(async (sinon) => {
@@ -535,7 +574,7 @@ describe('analysis', () => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
         const analysis = new Analysis(apiUrl, sampleBindingOptions);
-        await analysis.start(files);
+        await analysis.start(files, settings);
         await analysis.getStatus();
         assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, sampleBindingOptions]);
       }));
@@ -576,7 +615,7 @@ describe('analysis', () => {
       it('Fails to get the status an analysis, if id not set', sinonTest(async (sinon) => {
         const analysis = new Analysis(apiUrl);
         const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, settings: settings});
+        startAnalysis.resolves({ id: analysisId, settings: defaultSettings });
         await analysis.start(files, settings);
         analysis.analysisId = '';
         await assert.rejects(
@@ -589,7 +628,7 @@ describe('analysis', () => {
     });
 
     describe('getResults', () => {
-      const startResponse = { id: analysisId, settings: settings };
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const responseStatus = { status: AnalysisStatus.RUNNING };
       const resultsResponse = {
         status: responseStatus,
@@ -645,7 +684,7 @@ describe('analysis', () => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const analysis = new Analysis(apiUrl, sampleBindingOptions);
-        await analysis.start(files);
+        await analysis.start(files, settings);
         await analysis.getResults();
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, sampleBindingOptions]);
       }));

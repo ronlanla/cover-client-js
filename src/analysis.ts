@@ -99,6 +99,9 @@ export default class Analysis {
    *
    * Starts the analysis and waits until it is complete before resolving.
    *
+   * If settings are omitted, the analysis will be started with default settings.
+   * Default settings will be fetched from the server if not already set on the object.
+   *
    * Will poll for latest results and analysis status every 60 seconds,
    * configurable via the `pollingInterval` option.
    *
@@ -175,14 +178,27 @@ export default class Analysis {
     return components.writeTests(directoryPath, this.results, options);
   }
 
-  /** Start the analysis */
+  /** Start the analysis
+   *
+   * If settings are omitted, the analysis will be started with default settings.
+   * Default settings will be fetched from the server if not already set on the object.
+   */
   public async start(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {phases: {}},//AKTODO TEMP
+    settings?: AnalysisSettings,
   ): Promise<AnalysisStartApiResponse> {
-    // AKTODO get default settings
+    if (!settings && !this.defaultSettings) {
+      try {
+        await this.getDefaultSettings();
+      } catch (error) {
+        throw new AnalysisError(
+          `Could not fetch default settings when starting analysis:\n${error}`,
+          AnalysisErrorCode.START_DEFAULTS_FAILED,
+        );
+      }
+    }
     this.checkNotStarted();
-    const response = await components.startAnalysis(this.apiUrl, files, settings, this.bindingsOptions);
+    const response = await components.startAnalysis(this.apiUrl, files, settings || this.defaultSettings!, this.bindingsOptions);
     this.settings = settings;
     this.analysisId = response.id;
     this.computedSettings = response.settings;
@@ -221,12 +237,12 @@ export default class Analysis {
     return response;
   }
 
-    /** Get default analysis settings */
-    public async getDefaultSettings(): Promise<ComputedAnalysisSettings> {
-      const response = await components.getDefaultSettings(this.apiUrl, this.bindingsOptions);
-      this.defaultSettings = response;
-      return response;
-    }
+  /** Get default analysis settings */
+  public async getDefaultSettings(): Promise<ComputedAnalysisSettings> {
+    const response = await components.getDefaultSettings(this.apiUrl, this.bindingsOptions);
+    this.defaultSettings = response;
+    return response;
+  }
 
   /** Get api version */
   public async getApiVersion(): Promise<ApiVersionApiResponse> {

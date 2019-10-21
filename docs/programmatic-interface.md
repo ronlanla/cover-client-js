@@ -51,6 +51,8 @@ Including `baseBuild` will enable a differential analysis.
 
 The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
 
+If the settings parameter is omitted, default settings will be fetched from the Diffblue Cover API (if they have not already been set on the `Analysis` object) and used to run the analysis.
+
 The third parameter is an optional options object, to configure the behavior of the `run` method. The available options are:
 
 1. `outputTests` (string). A directory path. If provided, test files will be written to this directory when the analysis ends. If the directory does not exist it will be created.
@@ -72,6 +74,8 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
+// This is a sample settings object that will not run a useful analysis.
+// You can omit the settings parameter when calling `run` to start an analysis with default settings.
 const settings = { phases: { firstPhase: { timeout: 10 }}};
 const options = { outputTests: './tests', pollingInterval: 5 };
 
@@ -100,6 +104,8 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
   build: createReadStream('./build.jar'),
 };
+// This is a sample settings object that will not run a useful analysis.
+// You can omit the settings parameter when calling `run` to start an analysis with default settings.
 const settings = { phases: { firstPhase: { timeout: 10 }}};
 
 (async () => {
@@ -124,6 +130,8 @@ Including `dependenciesBuild` will enable test verification.
 Including `baseBuild` will enable a differential analysis.
 
 The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
+
+If the settings parameter is omitted, default settings will be fetched from the Diffblue Cover API (if they have not already been set on the `Analysis` object) and used to run the analysis.
 
 After calling `Analysis.start` the `settings`, `analysisId`, `computedSettings` and `status` properties of the analysis object will be updated
 The `settings` property will contain the settings provided when calling `Analysis.start`, the `computedSettings` property will contain the settings
@@ -153,6 +161,8 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
+// This is a sample settings object that will not run a useful analysis.
+// You can omit the settings parameter when calling `start` to start an analysis with default settings.
 const userSettings = { phases: { firstPhase: { timeout: 10 }}};
 
 (async () => {
@@ -208,7 +218,7 @@ The `status` property (and `error` property if applicable) of the analysis objec
 
 To get a set of default recommended analysis settings from the Diffblue Cover API, call `Analysis.getDefaultSettings`.
 
-The returned settings will be stored in the `defaultSettings` property of the analysis object.
+The returned default settings will be stored in the `defaultSettings` property of the analysis object.
 
 ```ts
 (async () => {
@@ -251,6 +261,7 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
   build: createReadStream('./build.jar'),
 };
+// This is a sample settings object that will not run a useful analysis.
 const settings = { phases: { firstPhase: { timeout: 10 }}};
 const directoryPath = './tests';
 
@@ -325,10 +336,9 @@ You can use the low level bindings to submit requests to a Diffblue Cover API by
 ### Start an analysis (Low level)
 
 Starts an analysis and returns the unique identifier for that analysis.
-To start an analysis the minimum you need is a build JAR file of your source code.
+To start an analysis the minimum you need is a build JAR file of your source code and a settings object.
 
-You can optionally provide a settings object in order to customize the analysis.
-TODO: Describe settings format
+If you need a settings object, you can fetch the default analysis settings from the Diffblue Cover API using the `getDefaultSettings` low level binding.
 
 You can optionally provide a build with dependencies JAR file, which allows Diffblue Cover to verify the tests it creates.
 The dependencies JAR (often known as a "fat" or "uber" JAR) can be created with the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) or the [Maven Assembly Plugin](http://maven.apache.org/plugins/maven-assembly-plugin/).
@@ -343,11 +353,13 @@ const fs = require('fs');
 
 const api = 'https://0.0.0.0/api';
 const build = fs.createReadStream('./build.jar');
+// This is a sample settings object that will not run a useful analysis.
+const userSettings = { phases: { firstPhase: { timeout: 10 }}};
 
-return CoverClient.startAnalysis(api, { build: build }).then(({ id, settings }) => {
+return CoverClient.startAnalysis(api, { build: build }, userSettings).then(({ id, settings }) => {
   console.log([
     `Analysis identifier: ${id}`,
-    `Settings: ${settings}\n`
+    `Computed analysis settings: ${settings}`
   ].join('\n'));
 });
 ```
@@ -365,6 +377,7 @@ const api = 'https://0.0.0.0/api';
   const build = await promisify(readFile)('./build.jar');
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
+  // This is a sample settings object that will not run a useful analysis.
   const userSettings = { phases: { firstPhase: { timeout: 10 }}};
   const files = {
     baseBuild: baseBuild,
@@ -376,7 +389,7 @@ const api = 'https://0.0.0.0/api';
 
   console.log([
     `Analysis identifier: ${id}`,
-    `Settings: ${settings}\n`
+    `Computed analysis settings: ${settings}`
   ].join('\n'));
 })();
 ```
@@ -436,7 +449,7 @@ CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
   console.log([
     `Status: ${status.status}`,
     `Analysis results: ${results}`,
-    `Next cursor: ${cursor}\n`
+    `Next cursor: ${cursor}`
   ].join('\n'));
 });
 ```

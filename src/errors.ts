@@ -107,6 +107,7 @@ export enum AnalysisErrorCode {
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
   RUN_ERRORED = 'RUN_ERRORED',
+  START_DEFAULTS_FAILED = 'START_DEFAULTS_FAILED',
 }
 
 /** Error thrown by Analysis object, with additional error code */
