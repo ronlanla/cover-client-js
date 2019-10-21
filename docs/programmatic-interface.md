@@ -654,7 +654,7 @@ const results = [] // This should be an array of analysis result objects
 
 The `generateTestClass` function will produce a test class from an array of Diffblue Cover API results.
 
-All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
+All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `packageName` value (See [Group results](#-group-results) below).
 
  ```ts
 import CoverClient from '@diffblue/cover-client';
@@ -669,7 +669,7 @@ console.log(`New test class:\n${testClass}`);
 
 The `mergeIntoTestClass` function can be used to generate tests from an array of Diffblue Cover API results and merge them into an existing test class.
 
-All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
+All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `packageName` value (See [Group results](#-group-results) below).
 
 The existing test class should relate to the same class under test as the results.
 
@@ -695,7 +695,9 @@ const results = [] // This should be an array of analysis result objects
 
 Each value in this object should be suitable to pass to `generateTestClass` or `mergeIntoTestClass`.
 
-It is assumed that all `testedFunctions` for a given `sourceFilePath` will produce the same `className` and `packageName` values when parsed.
+It is assumed that all `testedFunction`s in a given `sourceFilePath` grouping will produce the same `packageName` value when parsed.
+
+For example, the function names `com.diffblue.javademo.TicTacToe.checkTicTacToePosition` and `com.diffblue.javademo.TicTacToe.otherFunction` would both produce the `packageName` `com.diffblue.javademo` when parsed.
 
 ```ts
 import CoverClient from '@diffblue/cover-client';
