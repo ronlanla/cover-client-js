@@ -133,9 +133,9 @@ The second parameter is an optional settings object, containing analysis setting
 
 If the settings parameter is omitted, default settings will be fetched from the Diffblue Cover API (if they have not already been set on the `Analysis` object) and used to run the analysis.
 
-After calling `Analysis.start` the `settings`, `analysisId`, `computedSettings` and `status` properties of the analysis object will be updated
-The `settings` property will contain the settings provided when calling `Analysis.start`, the `computedSettings` property will contain the settings
-used to start the analysis as returned from the server in the start analysis response.
+After calling `Analysis.start` the `settings`, `analysisId`, `computedSettings` and `status` properties of the analysis object will be updated.
+The `settings` property will contain the settings provided when calling `Analysis.start`, the `computedSettings` property will contain the settings used to start the analysis as returned from the server in the start analysis response.
+If no settings are passed to `Analysis.start` and default settings are used, the `settings` property will not be populated, but the `defaultSettings` property will.
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
@@ -224,7 +224,7 @@ The returned default settings will be stored in the `defaultSettings` property o
 (async () => {
  const defaultSettings = await analysis.getDefaultSettings();
  console.log('Default analysis settings:');
- console.dir(defaultSettings)
+ console.dir(defaultSettings);
 }();
 ```
 

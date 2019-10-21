@@ -4,7 +4,7 @@ import { clone } from 'lodash';
 
 import Analysis, { components } from '../../src/analysis';
 import { AnalysisError, AnalysisErrorCode } from '../../src/errors';
-import { AnalysisStatus, AnalysisSettings, ComputedAnalysisSettings } from '../../src/types/types';
+import { AnalysisSettings, AnalysisStatus, ComputedAnalysisSettings } from '../../src/types/types';
 import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 
@@ -351,27 +351,30 @@ describe('analysis', () => {
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
-      it('Can start an analysis without settings and use defaults already set on the object', sinonTest(async (sinon) => {
-        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
-        const baseAnalysis = new Analysis(apiUrl);
-        const otherDefaultSettings = clone(defaultSettings);
-        otherDefaultSettings.useFuzzer = true; // add a new key to make settings distinguishable
-        baseAnalysis.defaultSettings = otherDefaultSettings;
-        const startResponse = { id: analysisId, settings: otherDefaultSettings };
-        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
-        const analysis = clone(baseAnalysis);
-        const returnValue = await analysis.start(files);
-        const changes = {
-          analysisId: returnValue.id,
-          settings: undefined,
-          status: AnalysisStatus.QUEUED,
-          computedSettings: returnValue.settings,
-        };
-        assert.deepStrictEqual(returnValue, startResponse);
-        assert.notCalled(getDefaultSettings);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, otherDefaultSettings, {}]);
-        assert.changedProperties(baseAnalysis, analysis, changes);
-      }));
+      it(
+        'Can start an analysis without settings and use defaults already set on the object',
+        sinonTest(async (sinon) => {
+          const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
+          const baseAnalysis = new Analysis(apiUrl);
+          const otherDefaultSettings = clone(defaultSettings);
+          otherDefaultSettings.useFuzzer = true; // add a new key to make settings distinguishable
+          baseAnalysis.defaultSettings = otherDefaultSettings;
+          const startResponse = { id: analysisId, settings: otherDefaultSettings };
+          const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+          const analysis = clone(baseAnalysis);
+          const returnValue = await analysis.start(files);
+          const changes = {
+            analysisId: returnValue.id,
+            settings: undefined,
+            status: AnalysisStatus.QUEUED,
+            computedSettings: returnValue.settings,
+          };
+          assert.deepStrictEqual(returnValue, startResponse);
+          assert.notCalled(getDefaultSettings);
+          assert.calledOnceWith(startAnalysis, [apiUrl, files, otherDefaultSettings, {}]);
+          assert.changedProperties(baseAnalysis, analysis, changes);
+        },
+      ));
 
       it('Can start an analysis with settings', sinonTest(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
@@ -405,18 +408,21 @@ describe('analysis', () => {
         assert.changedProperties(baseAnalysis, analysis, {});
       }));
 
-      it('Fails to start an analysis without settings if the get default settings binding rejects', sinonTest(async (sinon) => {
-        sinon.stub(components, 'getDefaultSettings').rejects(new Error('get settings api call failed'));
-        const baseAnalysis = new Analysis(apiUrl);
-        const analysis = clone(baseAnalysis);
-        await assert.rejects(
-          async () => analysis.start(files),
-          (err: Error) => {
-            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.START_DEFAULTS_FAILED;
-          },
-        );
-        assert.changedProperties(baseAnalysis, analysis, {});
-      }));
+      it(
+        'Fails to start an analysis without settings if the get default settings binding rejects',
+        sinonTest(async (sinon) => {
+          sinon.stub(components, 'getDefaultSettings').rejects(new Error('get settings api call failed'));
+          const baseAnalysis = new Analysis(apiUrl);
+          const analysis = clone(baseAnalysis);
+          await assert.rejects(
+            async () => analysis.start(files),
+            (err: Error) => {
+              return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.START_DEFAULTS_FAILED;
+            },
+          );
+          assert.changedProperties(baseAnalysis, analysis, {});
+        },
+      ));
 
       it('Fails to start an analysis, if already started', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);

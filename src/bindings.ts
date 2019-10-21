@@ -5,6 +5,7 @@ import * as FormData from 'form-data';
 import { Agent } from 'https';
 
 import { BindingsError, BindingsErrorCode } from './errors';
+import routes from './routes';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
@@ -17,7 +18,6 @@ import {
   ComputedAnalysisSettings,
 } from './types/types';
 import request from './utils/request';
-import routes from './routes';
 
 export const dependencies = {
   FormData: FormData,

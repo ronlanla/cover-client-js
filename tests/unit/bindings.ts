@@ -50,7 +50,7 @@ describe('api/bindings', () => {
 
     it('Returns default analysis settings', sinonTest(async (sinon) => {
       const get = sinon.stub(dependencies.request, 'get');
-      const settings = {phases: {}};
+      const settings = { phases: {}};
 
       get.withArgs(defaultSettingsUrl).resolves(settings);
       assert.notOtherwiseCalled(get, 'get');

@@ -178,7 +178,8 @@ export default class Analysis {
     return components.writeTests(directoryPath, this.results, options);
   }
 
-  /** Start the analysis
+  /**
+   * Start the analysis
    *
    * If settings are omitted, the analysis will be started with default settings.
    * Default settings will be fetched from the server if not already set on the object.
@@ -198,7 +199,12 @@ export default class Analysis {
       }
     }
     this.checkNotStarted();
-    const response = await components.startAnalysis(this.apiUrl, files, settings || this.defaultSettings!, this.bindingsOptions);
+    const response = await components.startAnalysis(
+      this.apiUrl,
+      files,
+      settings || this.defaultSettings!,
+      this.bindingsOptions,
+    );
     this.settings = settings;
     this.analysisId = response.id;
     this.computedSettings = response.settings;

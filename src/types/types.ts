@@ -124,7 +124,8 @@ export interface AnalysisSettings {
   phases: { [name: string]: PartialAnalysisPhases };
 }
 
-/** Fully computed analysis settings
+/**
+ * Fully computed analysis settings
  * - phaseBase is not returned in computed settings (any supplied phaseBase has been merged into phases)
  * - phases must now contain all required properties
  */
