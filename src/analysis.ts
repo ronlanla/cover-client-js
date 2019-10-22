@@ -7,6 +7,7 @@ import {
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
+  getDefaultSettings,
   startAnalysis,
 } from './bindings';
 import { getFileNameForResult, groupResults } from './combiner';
@@ -23,6 +24,7 @@ import {
   ApiErrorResponse,
   ApiVersionApiResponse,
   BindingsOptions,
+  ComputedAnalysisSettings,
   endedStatuses,
   inProgressStatuses,
   RunAnalysisOptions,
@@ -37,6 +39,7 @@ export const components = {
   getAnalysisResults: getAnalysisResults,
   getAnalysisStatus: getAnalysisStatus,
   getApiVersion: getApiVersion,
+  getDefaultSettings: getDefaultSettings,
   startAnalysis: startAnalysis,
 };
 
@@ -47,9 +50,10 @@ export default class Analysis {
   public bindingsOptions: BindingsOptions;
   public analysisId?: string;
   public settings?: AnalysisSettings;
+  public computedSettings?: ComputedAnalysisSettings;
+  public defaultSettings?: ComputedAnalysisSettings;
   public status?: AnalysisStatus;
   public error?: ApiErrorResponse;
-  public computedSettings?: AnalysisSettings;
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
@@ -95,6 +99,9 @@ export default class Analysis {
    *
    * Starts the analysis and waits until it is complete before resolving.
    *
+   * If settings are omitted, the analysis will be started with default settings.
+   * Default settings will be fetched from the server if not already set on the object.
+   *
    * Will poll for latest results and analysis status every 60 seconds,
    * configurable via the `pollingInterval` option.
    *
@@ -111,7 +118,7 @@ export default class Analysis {
    */
   public async run(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {},
+    settings?: AnalysisSettings,
     options: RunAnalysisOptions = {},
   ): Promise<AnalysisResult[]> {
     try {
@@ -171,13 +178,33 @@ export default class Analysis {
     return components.writeTests(directoryPath, this.results, options);
   }
 
-  /** Start the analysis */
+  /**
+   * Start the analysis
+   *
+   * If settings are omitted, the analysis will be started with default settings.
+   * Default settings will be fetched from the server if not already set on the object.
+   */
   public async start(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {},
+    settings?: AnalysisSettings,
   ): Promise<AnalysisStartApiResponse> {
+    if (!settings && !this.defaultSettings) {
+      try {
+        await this.getDefaultSettings();
+      } catch (error) {
+        throw new AnalysisError(
+          `Could not fetch default settings when starting analysis:\n${error}`,
+          AnalysisErrorCode.START_DEFAULTS_FAILED,
+        );
+      }
+    }
     this.checkNotStarted();
-    const response = await components.startAnalysis(this.apiUrl, files, settings, this.bindingsOptions);
+    const response = await components.startAnalysis(
+      this.apiUrl,
+      files,
+      settings || this.defaultSettings!,
+      this.bindingsOptions,
+    );
     this.settings = settings;
     this.analysisId = response.id;
     this.computedSettings = response.settings;
@@ -213,6 +240,13 @@ export default class Analysis {
     this.cursor = response.cursor;
     this.results = useCursor ? [...this.results, ...response.results] : response.results;
     this.updateStatus(response.status);
+    return response;
+  }
+
+  /** Get default analysis settings */
+  public async getDefaultSettings(): Promise<ComputedAnalysisSettings> {
+    const response = await components.getDefaultSettings(this.apiUrl, this.bindingsOptions);
+    this.defaultSettings = response;
     return response;
   }
 

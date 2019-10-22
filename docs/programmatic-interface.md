@@ -51,6 +51,8 @@ Including `baseBuild` will enable a differential analysis.
 
 The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
 
+If the settings parameter is omitted, default settings will be fetched from the Diffblue Cover API (if they have not already been set on the `Analysis` object) and used to run the analysis.
+
 The third parameter is an optional options object, to configure the behavior of the `run` method. The available options are:
 
 1. `outputTests` (string). A directory path. If provided, test files will be written to this directory when the analysis ends. If the directory does not exist it will be created.
@@ -72,7 +74,9 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+// This is a sample settings object that will not run a useful analysis.
+// You can omit the settings parameter when calling `run` to start an analysis with default settings.
+const settings = { phases: { firstPhase: { timeout: 10 }}};
 const options = { outputTests: './tests', pollingInterval: 5 };
 
 (async () => {
@@ -100,7 +104,9 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
   build: createReadStream('./build.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+// This is a sample settings object that will not run a useful analysis.
+// You can omit the settings parameter when calling `run` to start an analysis with default settings.
+const settings = { phases: { firstPhase: { timeout: 10 }}};
 
 (async () => {
   const runPromise = analysis.run(files, settings);
@@ -124,6 +130,12 @@ Including `dependenciesBuild` will enable test verification.
 Including `baseBuild` will enable a differential analysis.
 
 The second parameter is an optional settings object, containing analysis settings to be uploaded to the Diffblue Cover API.
+
+If the settings parameter is omitted, default settings will be fetched from the Diffblue Cover API (if they have not already been set on the `Analysis` object) and used to run the analysis.
+
+After calling `Analysis.start` the `settings`, `analysisId`, `computedSettings` and `status` properties of the analysis object will be updated.
+The `settings` property will contain the settings provided when calling `Analysis.start`, the `computedSettings` property will contain the settings used to start the analysis as returned from the server in the start analysis response.
+If no settings are passed to `Analysis.start` and default settings are used, the `settings` property will not be populated, but the `defaultSettings` property will.
 
 ```ts
 import { Analysis } from '@diffblue/cover-client';
@@ -149,7 +161,9 @@ const files = {
   baseBuild: createReadStream('./baseBuild.jar'),
   dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
 };
-const userSettings = { ignoreDefaults: false, phases: {}};
+// This is a sample settings object that will not run a useful analysis.
+// You can omit the settings parameter when calling `start` to start an analysis with default settings.
+const userSettings = { phases: { firstPhase: { timeout: 10 }}};
 
 (async () => {
   const { id, settings } = await analysis.start(files, userSettings);
@@ -162,6 +176,8 @@ const userSettings = { ignoreDefaults: false, phases: {}};
 
 To get the status of an analysis that has started, call `Analysis.getStatus`.
 
+The `status` property (and `error` property if applicable) of the analysis object will be updated.
+
 ```ts
 (async () => {
   const { status } = await analysis.getStatus();
@@ -172,6 +188,8 @@ To get the status of an analysis that has started, call `Analysis.getStatus`.
 #### Get analysis results (Object orientated)
 
 To get the results (so far) of an analysis that has started, call `Analysis.getResults`.
+
+The `results`, `cursor` and `status` properties (and `error` property if applicable) of the analysis object will be updated.
 
 ```ts
 (async () => {
@@ -186,6 +204,8 @@ To get the results (so far) of an analysis that has started, call `Analysis.getR
 
 To cancel an analysis that has started, call `Analysis.cancel`.
 
+The `status` property (and `error` property if applicable) of the analysis object will be updated.
+
 ```ts
 (async () => {
   const { status, message } = await analysis.cancel();
@@ -194,9 +214,25 @@ To cancel an analysis that has started, call `Analysis.cancel`.
 }();
 ```
 
+#### Get default analysis settings (Object orientated)
+
+To get a set of default recommended analysis settings from the Diffblue Cover API, call `Analysis.getDefaultSettings`.
+
+The returned default settings will be stored in the `defaultSettings` property of the analysis object.
+
+```ts
+(async () => {
+ const defaultSettings = await analysis.getDefaultSettings();
+ console.log('Default analysis settings:');
+ console.dir(defaultSettings);
+}();
+```
+
 #### Get API version (Object orientated)
 
 To check the version of the Diffblue Cover API, call `Analysis.getApiVersion`.
+
+The returned version number will be stored in the `version` property of the analysis object.
 
 ```ts
 (async () => {
@@ -225,7 +261,8 @@ const analysis = new Analysis('https://your-cover-api-domain.com');
 const files = {
   build: createReadStream('./build.jar'),
 };
-const settings = { ignoreDefaults: false, phases: {}};
+// This is a sample settings object that will not run a useful analysis.
+const settings = { phases: { firstPhase: { timeout: 10 }}};
 const directoryPath = './tests';
 
 (async () => {
@@ -299,10 +336,9 @@ You can use the low level bindings to submit requests to a Diffblue Cover API by
 ### Start an analysis (Low level)
 
 Starts an analysis and returns the unique identifier for that analysis.
-To start an analysis the minimum you need is a build JAR file of your source code.
+To start an analysis the minimum you need is a build JAR file of your source code and a settings object.
 
-You can optionally provide a settings object in order to customize the analysis.
-TODO: Describe settings format
+If you need a settings object, you can fetch the default analysis settings from the Diffblue Cover API using the `getDefaultSettings` low level binding.
 
 You can optionally provide a build with dependencies JAR file, which allows Diffblue Cover to verify the tests it creates.
 The dependencies JAR (often known as a "fat" or "uber" JAR) can be created with the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) or the [Maven Assembly Plugin](http://maven.apache.org/plugins/maven-assembly-plugin/).
@@ -317,11 +353,13 @@ const fs = require('fs');
 
 const api = 'https://0.0.0.0/api';
 const build = fs.createReadStream('./build.jar');
+// This is a sample settings object that will not run a useful analysis.
+const userSettings = { phases: { firstPhase: { timeout: 10 }}};
 
-return CoverClient.startAnalysis(api, { build: build }).then(({ id, settings }) => {
+return CoverClient.startAnalysis(api, { build: build }, userSettings).then(({ id, settings }) => {
   console.log([
     `Analysis identifier: ${id}`,
-    `Settings: ${settings}\n`
+    `Computed analysis settings: ${settings}`
   ].join('\n'));
 });
 ```
@@ -339,7 +377,8 @@ const api = 'https://0.0.0.0/api';
   const build = await promisify(readFile)('./build.jar');
   const baseBuild = await promisify(readFile)('./baseBuild.jar');
   const dependenciesBuild = await promisify(readFile)('./dependenciesBuild.jar');
-  const userSettings = { ignoreDefaults: false, phases: {}};
+  // This is a sample settings object that will not run a useful analysis.
+  const userSettings = { phases: { firstPhase: { timeout: 10 }}};
   const files = {
     baseBuild: baseBuild,
     build: build,
@@ -350,7 +389,7 @@ const api = 'https://0.0.0.0/api';
 
   console.log([
     `Analysis identifier: ${id}`,
-    `Settings: ${settings}\n`
+    `Computed analysis settings: ${settings}`
   ].join('\n'));
 })();
 ```
@@ -410,7 +449,7 @@ CoverClient.getAnalysisResults(api, id).then(({ cursor, results, status }) => {
   console.log([
     `Status: ${status.status}`,
     `Analysis results: ${results}`,
-    `Next cursor: ${cursor}\n`
+    `Next cursor: ${cursor}`
   ].join('\n'));
 });
 ```
@@ -482,6 +521,37 @@ const id = 'abcd1234-ab12-ab12-ab12-abcd12abcd12';
     `Message: ${message}`,
     `Status: ${status.status}`,
   ].join('\n'));
+})();
+```
+
+### Get default analysis settings (Low level)
+
+Gets a set of default recommended analysis settings from the Diffblue Cover API.
+
+Node.js example using promises:
+
+```js
+const CoverClient = require('@diffblue/cover-client');
+
+const api = 'https://0.0.0.0/api';
+
+return CoverClient.getDefaultSettings(api).then((defaultSettings) => {
+  console.log('Default analysis settings:');
+  console.dir(defaultSettings);
+});
+```
+
+Typescript/ES6 modules example using async/await:
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const api = 'https://0.0.0.0/api';
+
+(async () => {
+  const defaultSettings = await CoverClient.getDefaultSettings(api);
+  console.log('Default analysis settings:');
+  console.dir(defaultSettings);
 })();
 ```
 
@@ -584,7 +654,7 @@ const results = [] // This should be an array of analysis result objects
 
 The `generateTestClass` function will produce a test class from an array of Diffblue Cover API results.
 
-All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
+All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `packageName` value (See [Group results](#-group-results) below).
 
  ```ts
 import CoverClient from '@diffblue/cover-client';
@@ -599,7 +669,7 @@ console.log(`New test class:\n${testClass}`);
 
 The `mergeIntoTestClass` function can be used to generate tests from an array of Diffblue Cover API results and merge them into an existing test class.
 
-All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `className` and `packageName` values (See [Group results](#-group-results) below).
+All of these results should relate to the same class under test, and so must all have the same `sourceFilePath` value, and must all have `testedFunction` values that when parsed produce the same `packageName` value (See [Group results](#-group-results) below).
 
 The existing test class should relate to the same class under test as the results.
 
@@ -625,7 +695,9 @@ const results = [] // This should be an array of analysis result objects
 
 Each value in this object should be suitable to pass to `generateTestClass` or `mergeIntoTestClass`.
 
-It is assumed that all `testedFunctions` for a given `sourceFilePath` will produce the same `className` and `packageName` values when parsed.
+It is assumed that all `testedFunction`s in a given `sourceFilePath` grouping will produce the same `packageName` value when parsed.
+
+For example, the function names `com.diffblue.javademo.TicTacToe.checkTicTacToePosition` and `com.diffblue.javademo.TicTacToe.otherFunction` would both produce the `packageName` `com.diffblue.javademo` when parsed.
 
 ```ts
 import CoverClient from '@diffblue/cover-client';

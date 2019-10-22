@@ -5,6 +5,7 @@ import * as FormData from 'form-data';
 import { Agent } from 'https';
 
 import { BindingsError, BindingsErrorCode } from './errors';
+import routes from './routes';
 import {
   AnalysisCancelApiResponse,
   AnalysisFiles,
@@ -14,9 +15,9 @@ import {
   AnalysisStatusApiResponse,
   ApiVersionApiResponse,
   BindingsOptions,
+  ComputedAnalysisSettings,
 } from './types/types';
 import request from './utils/request';
-import routes from './utils/routes';
 
 export const dependencies = {
   FormData: FormData,
@@ -46,13 +47,21 @@ export async function getApiVersion(api: string, options?: BindingsOptions): Pro
   return dependencies.request.get(dependencies.routes.version(api), convertOptions(options));
 }
 
+/** Gets default analysis settings */
+export async function getDefaultSettings(api: string, options?: BindingsOptions): Promise<ComputedAnalysisSettings> {
+  return dependencies.request.get(dependencies.routes.defaultSettings(api), convertOptions(options));
+}
+
 /** Starts an analysis and returns the analysis id and computed settings */
 export async function startAnalysis(
   api: string,
   { baseBuild, build, dependenciesBuild }: AnalysisFiles,
-  settings: AnalysisSettings = {},
+  settings: AnalysisSettings,
   options?: BindingsOptions,
 ): Promise<AnalysisStartApiResponse> {
+  if (!settings) {
+    throw new BindingsError('The required `settings` object was not supplied', BindingsErrorCode.SETTINGS_MISSING);
+  }
   if (!build) {
     throw new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCode.BUILD_MISSING);
   }

@@ -37,6 +37,7 @@ export class ApiError extends CoverClientError {
 export enum BindingsErrorCode {
   BUILD_MISSING = 'BUILD_MISSING',
   SETTINGS_INVALID = 'SETTINGS_INVALID',
+  SETTINGS_MISSING = 'SETTINGS_MISSING',
 }
 
 /** Error thrown by bindings functions, with additional error code */
@@ -106,6 +107,7 @@ export enum AnalysisErrorCode {
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
   RUN_ERRORED = 'RUN_ERRORED',
+  START_DEFAULTS_FAILED = 'START_DEFAULTS_FAILED',
 }
 
 /** Error thrown by Analysis object, with additional error code */

@@ -66,7 +66,8 @@ function checkResults(results: AnalysisResult[]): void {
   });
   if (sourceFilePaths.size !== 1) {
     throw new CombinerError(
-      `All "results" must have the same "sourceFilePath". Found: ${[...sourceFilePaths].join(', ')}`,
+      `All "results" must have the same "sourceFilePath".
+      Found: ${[...sourceFilePaths].join(', ')}`,
       CombinerErrorCode.SOURCE_FILE_PATH_DIFFERS,
     );
   }
@@ -151,7 +152,7 @@ export async function mergeIntoTestClass(existingClass: string, results: Analysi
 
 /** AnalysisResults grouped by sourceFilePath */
 export interface GroupedResults {
-  [testedFunction: string]: AnalysisResult[];
+  [sourceFilePath: string]: AnalysisResult[];
 }
 
 /** Group AnalysisResults by sourceFilePath */

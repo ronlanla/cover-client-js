@@ -15,6 +15,7 @@ export function generateApiUrl(params: string[]) {
 
 const routes = {
   version: (api: string) => generateApiUrl([api, 'version']),
+  defaultSettings: (api: string) => generateApiUrl([api, 'default-settings']),
   start: (api: string) => generateApiUrl([api, 'analysis']),
   results: (api: string, identifier: string) => generateApiUrl([api, 'analysis', identifier]),
   status: (api: string, identifier: string) => generateApiUrl([api, 'analysis', identifier, 'status']),

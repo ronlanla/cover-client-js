@@ -7,6 +7,7 @@ import {
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
+  getDefaultSettings,
   startAnalysis,
 } from '../../src/bindings';
 import { BindingsError, BindingsErrorCode } from '../../src/errors';
@@ -44,15 +45,34 @@ describe('api/bindings', () => {
     }));
   });
 
+  describe('getDefaultSettings', () => {
+    const defaultSettingsUrl = `${api}/default-settings`;
+
+    it('Returns default analysis settings', sinonTest(async (sinon) => {
+      const get = sinon.stub(dependencies.request, 'get');
+      const settings = { phases: {}};
+
+      get.withArgs(defaultSettingsUrl).resolves(settings);
+      assert.notOtherwiseCalled(get, 'get');
+
+      const response = await getDefaultSettings(api);
+
+      assert.deepStrictEqual(response, settings);
+    }));
+
+    it('Handles the allowUnauthorizedHttps option correctly', sinonTest(async (sinon) => {
+      const get = sinon.stub(dependencies.request, 'get').resolves();
+      await getDefaultSettings(api, { allowUnauthorizedHttps: true });
+      assert.calledOnceWith(get, [defaultSettingsUrl, sampleConfig]);
+    }));
+  });
+
   describe('startAnalysis', () => {
     const build = Buffer.from('foo');
     const baseBuild = Buffer.from('bar');
     const dependenciesBuild = Buffer.from('roh');
     const startUrl = `${api}/analysis`;
-    const settings = {
-      ignoreDefaults: true,
-      settings: {},
-    };
+    const settings = { phases: {}};
 
     it('Starts an analysis then returns the id and settings', sinonTest(async (sinon) => {
       const post = sinon.stub(dependencies.request, 'post');
@@ -60,7 +80,7 @@ describe('api/bindings', () => {
       post.withArgs(startUrl).resolves({ id: '1234-ABCD', settings: {}});
       assert.notOtherwiseCalled(post, 'post');
 
-      const actualResponse = await startAnalysis(api, { build: build });
+      const actualResponse = await startAnalysis(api, { build: build }, settings);
       const expectedResponse = { id: '1234-ABCD', settings: {}};
 
       assert.deepStrictEqual(actualResponse, expectedResponse);
@@ -70,7 +90,7 @@ describe('api/bindings', () => {
       const append = sinon.stub(dependencies.FormData.prototype, 'append');
       const post = sinon.stub(dependencies.request, 'post');
 
-      post.withArgs(startUrl).resolves({ id: '1234-ABCD', settngs: settings });
+      post.withArgs(startUrl).resolves({ id: '1234-ABCD', settings: settings });
       assert.notOtherwiseCalled(post, 'post');
 
       await startAnalysis(api, { build: build, baseBuild: baseBuild }, settings);
@@ -123,6 +143,13 @@ describe('api/bindings', () => {
       await assert.rejectsWith(
         startAnalysis(api, { build: undefined } as any, settings),
         new BindingsError('The required `build` JAR file was not supplied', BindingsErrorCode.BUILD_MISSING),
+      );
+    }));
+
+    it('Throws an error when no settings are supplied', sinonTest(async () => {
+      await assert.rejectsWith(
+        startAnalysis(api, { build: build }, undefined as any),
+        new BindingsError('The required `settings` object was not supplied', BindingsErrorCode.SETTINGS_MISSING),
       );
     }));
 
