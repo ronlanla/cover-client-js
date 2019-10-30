@@ -2,7 +2,7 @@
 
 ## Coding style
 
-Our code style is largely enforced by [tslint and eslint rules](./tslint.json), however there are some additional guidelines:
+Our code style is largely enforced by [tslint and eslint rules](../tslint.json), however there are some additional guidelines:
 
 ### Avoid side effects
 
