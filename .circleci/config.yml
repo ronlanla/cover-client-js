@@ -12,11 +12,11 @@ references:
   yarn-backup-cache-key-no-branch: &yarn-backup-cache-key-no-branch
     v1-dependency-yarn-
   node-8: &node-8
-    circleci/node:8.16.0
+    circleci/node:8.16.2
   node-10: &node-10
-    circleci/node:10.15.3
+    circleci/node:10.17.0
   node-12: &node-12
-    circleci/node:12.10.0
+    circleci/node:12.13.0
 
 commands:
   install-hub:
