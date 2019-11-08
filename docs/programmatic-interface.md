@@ -66,7 +66,7 @@ ok(analysis.status === 'UNKNOWN');
 
 ### Usage
 
-### Run an analysis (object orientated)
+#### Run an analysis (object orientated)
 
 To run an analysis, call `Analysis.run`. This will start the analysis and wait for it to finish, periodically polling for new results and the current analysis status.
 
@@ -88,11 +88,15 @@ The third parameter is an optional options object, to configure the behavior of 
 
 1. `outputTests` (string). A directory path. If provided, test files will be written to this directory when the analysis ends. If the directory does not exist it will be created.
 2. `writingConcurrency` (integer) The maximum number of test files to write concurrently, if `outputTests` is provided. (default: 20)
-3. `pollingInterval` (number) How often to poll for new results and the current analysis status, in seconds. (default: 60 seconds)
-4. `onResults` (function) Callback that will be called once for every group of new results per polling cycle. Receives two parameters:
+3. `writingFilter` (array | object | function) Filter to apply to results before writing test files. One of:
+    * An array of tag strings
+    * A object with optional `include` and `exclude` properties, containing arrays of tag strings
+    * A callback function the accepts a single result as a parameter and returns a boolean
+4. `pollingInterval` (number) How often to poll for new results and the current analysis status, in seconds. (default: 60 seconds)
+5. `onResults` (function) Callback that will be called once for every group of new results per polling cycle. Receives two parameters:
     * `results` (array) An array of result objects, grouped by `sourceFilePath` (see [Group results](#-group-results) below).
     * `filename` (string) The computed destination test file name for the results. For example, the `filename` for results for the class under test `Foo` would be `FooTest.java`.
-5. `onError` (function) Callback that will be called once if the `run` method throws an error. If provided, the thrown error will be swallowed, and the promise returned by the `run` call will resolve rather than reject. Receives one parameter:
+6. `onError` (function) Callback that will be called once if the `run` method throws an error. If provided, the thrown error will be swallowed, and the promise returned by the `run` call will resolve rather than reject. Receives one parameter:
     * `error` (error) The thrown error object.
 
 ```ts
@@ -118,7 +122,7 @@ const options = { outputTests: './tests', pollingInterval: 5 };
 })();
 ```
 
-#### Stop polling for results
+##### Stop polling for results
 
 The `stopPolling` method can be used to interrupt a `run` call and stop the polling cycle. This will cause the promise returned by `run` to resolve.
 
@@ -652,13 +656,19 @@ This function accepts three parameters.
 1. `directoryPath` (string) The path of the directory that test files will be written to.
 2. `results` (array) An array of `result` objects, relating to one or more classes under test.
 3. `options` (object) [optional] Possible options:
-    * `concurrency` (integer) The maximum number of test files to write concurrently. (default: 20)
+    * `concurrency` (integer) [optional] The maximum number of test files to write concurrently. (default: 20)
+    * `filter` (array | object | function) [optional] Filter to apply to results before writing test files. One of:
+      * An array of tag strings
+      * A object with optional `include` and `exclude` properties, containing arrays of tag strings
+      * A callback function the accepts a single result as a parameter and returns a boolean
 
 The return value is an array of strings denoting the paths of the test files written.
 
 When writing test files, the provided results will be grouped by `sourceFilePath` so that each group relates to one class under test (See [Group results](#-group-results) below).
 
 For each group of results:
+
+If a `filter` option has been specified, the results will be filtered via `filterResults` before writing. See [Filter results](#-filter-results) below).
 
 If a test file with the expected name and path already exists in the target directory, the contents of the pre-existing file will be merged with the new tests generated from the results. The resulting test class containing both the new and pre-existing tests will be written back to the file, overwriting its original contents.
 
@@ -672,7 +682,10 @@ If errors occur during test writing, the function will continue to attempt to wr
 import CoverClient from '@diffblue/cover-client';
 
 const directoryPath = './tests';
-const options = { concurrency: 100 };
+const options = {
+  concurrency: 100,
+  filter: ['verified'],
+};
 const results = [] // This should be an array of analysis result objects
 
 (async () => {
@@ -715,6 +728,66 @@ const results = [] // This should be an array of analysis result objects
   const existingTestClass = await promisify(fs.readFile)('./FooBarTest.java');
   const mergedTestClass = await CoverClient.mergeIntoTestClass(existingTestClass, results);
   console.log(`Merged test class:\n${mergedTestClass}`);
+})();
+```
+
+### Filter results
+
+The `filterResults` can be used to filter an array of results.
+
+This function accepts two parameters:
+
+1. `results` (array) An array of `result` objects.
+2. `filter` (array | object | function) [optional] Filter to apply to results. One of:
+    * An array of tag strings
+    * A object with optional `include` and `exclude` properties, containing arrays of tag strings
+    * A callback function the accepts a single result as a parameter and returns a boolean
+
+If `filter` is omitted, the results array will be returned unaltered.
+
+If `filter` is an array of tag strings, only results that have at least one of the specified tags will be returned.
+
+If `filter` is an object, only results which match at least one `include` tag (if any are specified) and none of the `exclude` tags (if any are specified) will be returned.
+
+If `filter` is a function it will be used to filter the results array directly, as a callback passed to `Array.filter`.
+
+```ts
+import CoverClient from '@diffblue/cover-client';
+
+const results = [] // This should be an array of analysis result objects
+
+const allResults = CoverClient.filterResults(results, undefined);
+
+const verifiedResults = CoverClient.filterResults(results, ['verified']);
+
+const verifiedNoMockingResults = CoverClient.filterResults(
+  results,
+  { include: ['verified'], exclude: ['mocking'] },
+);
+
+const ticTacToeResults = CoverClient.filterResults(
+  results,
+  (result) => result.sourceFilePath === 'com/diffblue/javademo/TicTacToe.java',
+);
+```
+
+The `filterResults` function is used internally by `writeTests`, but could also be used to to filter arrays of results generically.
+For example, the `results` property of an `Analysis` object could be filtered to only include verified results:
+
+```ts
+import Analysis, { filterResults } from '@diffblue/cover-client';
+import { createReadStream } from 'fs';
+
+const analysis = new Analysis('https://your-cover-api-domain.com');
+const files = {
+  build: createReadStream('./build.jar'),
+  baseBuild: createReadStream('./baseBuild.jar'),
+  dependenciesBuild: createReadStream('./dependenciesBuild.jar'),
+};
+
+(async () => {
+  await analysis.run(files);
+  analysis.results = filterResults(analysis.results, ['verified'])
 })();
 ```
 

@@ -86,7 +86,10 @@ export default class Analysis {
       );
     }
     if (!this.analysisId) {
-      throw new AnalysisError('Analysis is in progress but the analysis id is not set.', AnalysisErrorCode.NO_ID);
+      throw new AnalysisError(
+        'Analysis is in progress but the analysis id is not set.',
+        AnalysisErrorCode.NO_ID,
+      );
     }
   }
 
@@ -119,8 +122,11 @@ export default class Analysis {
    *
    * If a directory is specified in the `outputTests` option,
    * tests will be written to that directory when the analysis completes.
-   * The `writingConcurrency` option can be used in conjunction to specify
+   * In addition:
+   * The `writingConcurrency` option can be used to specify
    * the concurrency when writing tests.
+   * The `writingFilter` option can be used to specify a filter
+   * to apply to the results before writing tests.
    *
    * If an `onResults` callback option is provided, this will be called
    * once for each group of results returned by each polling attempt.
@@ -163,7 +169,10 @@ export default class Analysis {
         }
       }
       if (options.outputTests) {
-        const writeOptions = options.writingConcurrency ? { concurrency: options.writingConcurrency } : undefined;
+        const writeOptions = {
+          concurrency: options.writingConcurrency,
+          filter: options.writingFilter,
+        };
         await this.writeTests(options.outputTests, writeOptions);
       }
     } catch (error) {
@@ -185,7 +194,11 @@ export default class Analysis {
     this.pollingStopped = true;
   }
 
-  /** Write test files to the specified directory using the current results */
+  /**
+   * Write test files to the specified directory using the current results
+   *
+   * The results to be used can be filtered by using the `filter` property of the `options` paramter.
+   */
   public async writeTests(directoryPath: string, options?: WriteTestsOptions): Promise<string[]> {
     return components.writeTests(directoryPath, this.results, options);
   }
@@ -205,7 +218,7 @@ export default class Analysis {
         await this.getDefaultSettings();
       } catch (error) {
         throw new AnalysisError(
-          `Could not fetch default settings when starting analysis:\n${error}`,
+          `Could not fetch default settings when starting analysis:\n${error.message}`,
           AnalysisErrorCode.START_DEFAULTS_FAILED,
         );
       }

@@ -171,7 +171,7 @@ describe('analysis', () => {
         await analysis.run(files, settings, options);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.calledOnceWith(writeTests, ['/test/path', undefined]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: undefined, filter: undefined }]);
       }));
 
       it('Can run an analysis and write test files with concurrency option', sinonTestWithTimers(async (sinon) => {
@@ -183,7 +183,19 @@ describe('analysis', () => {
         await analysis.run(files, settings, options);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1 }]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1, filter: undefined }]);
+      }));
+
+      it('Can run an analysis and write test files with results filter option', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl);
+        const writeTests = sinon.stub(analysis, 'writeTests');
+        const options = { pollingInterval: 0.0001, outputTests: '/test/path', writingFilter: ['verified'] };
+        await analysis.run(files, settings, options);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: undefined, filter: ['verified'] }]);
       }));
 
       it('Can pass new result groups to onResults callback when polling', sinonTestWithTimers(async (sinon) => {
@@ -239,7 +251,7 @@ describe('analysis', () => {
         assert.deepStrictEqual(returnValue, resultsResponse.results);
         assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.calledOnceWith(writeTests, ['/test/path', undefined]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: undefined, filter: undefined }]);
         assert.calledOnceWith(onError, [writeTestsError]);
       }));
 
@@ -322,9 +334,10 @@ describe('analysis', () => {
         const sampleResultFilePath = '/test/path/TicTacToeTest.java';
         const expectedReturn = [sampleResultFilePath];
         const writeTests = sinon.stub(components, 'writeTests').resolves(expectedReturn);
-        const returnValue = await analysis.writeTests('/test/path', { concurrency: 1 });
+        const options = { concurrency: 1, filter: ['verified'] };
+        const returnValue = await analysis.writeTests('/test/path', options);
         assert.deepStrictEqual(returnValue, expectedReturn);
-        assert.calledOnceWith(writeTests, ['/test/path', analysis.results, { concurrency: 1 }]);
+        assert.calledOnceWith(writeTests, ['/test/path', analysis.results, options]);
       }));
 
       it('Rejects if test writing method rejects', sinonTest(async (sinon) => {

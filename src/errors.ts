@@ -81,6 +81,26 @@ export class CombinerError extends CoverClientError {
   }
 }
 
+/** Error codes used by FilterResultsError */
+export enum FilterResultsErrorCode {
+  FILTER_INVALID = 'FILTER_INVALID',
+  FILTER_FAILED = 'FILTER_FAILED',
+}
+
+/** Error thrown by filterResults, with additional error code */
+export class FilterResultsError extends CoverClientError {
+
+  public message: string;
+  public code: FilterResultsErrorCode;
+
+  public constructor(message: string, code: FilterResultsErrorCode) {
+    super(message);
+    this.code = code;
+    this.name = `FilterResultsError ${this.code}`;
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
 /** Error codes used by WriterError */
 export enum WriterErrorCode {
   DIR_FAILED = 'DIR_FAILED',

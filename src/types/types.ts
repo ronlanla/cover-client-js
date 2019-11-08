@@ -171,6 +171,7 @@ export interface ApiVersionApiResponse {
 export interface RunAnalysisOptions {
   outputTests?: string;
   writingConcurrency?: number;
+  writingFilter?: ResultsFilter;
   pollingInterval?: number; // polling interval in seconds
   /** Called once for each results group returned when polling */
   onResults?(results: AnalysisResult[], filename: string): void;
@@ -178,9 +179,25 @@ export interface RunAnalysisOptions {
   onError?(error: Error): void;
 }
 
+/** An array of tag strings used to filter results by tag */
+export type ResultTagFilterArray = string[];
+
+/** An object used to filter results by tag, which may specify include and exclude tags */
+export interface ResultTagFilterObject {
+  include?: string[];
+  exclude?: string[];
+}
+
+/** A callback used to filter results */
+export type ResultFilterCallback = (result: AnalysisResult) => boolean;
+
+/** Union type of possible results filters */
+export type ResultsFilter = ResultTagFilterArray | ResultTagFilterObject | ResultFilterCallback;
+
 /** Options accepted by `writeTests` */
 export interface WriteTestsOptions {
   concurrency?: number;
+  filter?: ResultsFilter;
 }
 
 /** Options accepted by low level bindings */
