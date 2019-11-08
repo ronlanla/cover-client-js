@@ -10,6 +10,9 @@ export enum AnalysisStatus {
   COMPLETED = 'COMPLETED',
 }
 
+/** Special value used for the status of an Analysis object with an unknown status */
+export type UnknownAnalysisStatus = 'UNKNOWN';
+
 export const inProgressStatuses = new Set([AnalysisStatus.QUEUED, AnalysisStatus.RUNNING, AnalysisStatus.STOPPING]);
 export const endedStatuses = new Set([AnalysisStatus.CANCELED, AnalysisStatus.ERRORED, AnalysisStatus.COMPLETED]);
 

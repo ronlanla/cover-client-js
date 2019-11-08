@@ -28,6 +28,7 @@ import {
   endedStatuses,
   inProgressStatuses,
   RunAnalysisOptions,
+  UnknownAnalysisStatus,
   WriteTestsOptions,
 } from './types/types';
 import CancellableDelay from './utils/CancellableDelay';
@@ -45,6 +46,7 @@ export const components = {
 
 /** Class to run an analysis and keep track of its state */
 export default class Analysis {
+  public static readonly unknownStatus: UnknownAnalysisStatus = 'UNKNOWN';
 
   public apiUrl: string;
   public bindingsOptions: BindingsOptions;
@@ -52,7 +54,7 @@ export default class Analysis {
   public settings?: AnalysisSettings;
   public computedSettings?: ComputedAnalysisSettings;
   public defaultSettings?: ComputedAnalysisSettings;
-  public status?: AnalysisStatus;
+  public status?: AnalysisStatus | UnknownAnalysisStatus;
   public error?: ApiErrorResponse;
   public results: AnalysisResult[] = [];
   public cursor?: number;
@@ -60,9 +62,19 @@ export default class Analysis {
   public pollDelay?: CancellableDelay<void>;
   public pollingStopped?: boolean;
 
-  public constructor(apiUrl: string, bindingsOptions: BindingsOptions = {}) {
+  public constructor(
+    apiUrl: string,
+    bindingsOptions: BindingsOptions = {},
+    analysisId?: string,
+  ) {
     this.apiUrl = apiUrl;
     this.bindingsOptions = bindingsOptions;
+    if (analysisId) {
+      this.analysisId = analysisId;
+      // We know that the analysis has started (since we have an id for it)
+      // but we do not know it's current status.
+      this.status = Analysis.unknownStatus;
+    }
   }
 
   /** Check if analysis is running */
@@ -299,7 +311,7 @@ export default class Analysis {
 
   /** Check if status indicates that the analysis has ended */
   public isEnded(): boolean {
-    if (!this.status) {
+    if (!this.status || this.status === Analysis.unknownStatus) {
       return false;
     }
     return endedStatuses.has(this.status);
@@ -307,7 +319,7 @@ export default class Analysis {
 
   /** Check if status indicates that the analysis is in progress (started but not finished) */
   public isInProgress(): boolean {
-    if (!this.status) {
+    if (!this.status || this.status === Analysis.unknownStatus) {
       return false;
     }
     return inProgressStatuses.has(this.status);

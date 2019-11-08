@@ -13,7 +13,10 @@ It also makes the calling the low level API bindings simpler, and keeps track of
 The `Analysis` constructor has one required parameter, which is the URL of the Diffblue Cover API.
 
 The constructor also accepts a second optional parameter of bindings options, which will be applied to all calls the object makes to the low level API bindings.
-(see [low level options](#-low-level-options))
+(see [Low level options](#-low-level-options) below)
+
+The constructor also accepts a third optional parameter of an analysis id, which can be used to interact with an analysis that has already been started via the Diffblue Cover API.
+(see [Resume an analysis](#-resume-an-analysis)) below)
 
 In Node.js:
 
@@ -31,6 +34,34 @@ import { Analysis } from '@diffblue/cover-client';
 
 const analysis = new Analysis('https://your-cover-api-domain.com');
 const permissiveAnalysis = new Analysis('https://your-cover-api-domain.com', { allowUnauthorizedHttps: true });
+```
+
+#### Resume an analysis
+
+If you have already started an analysis via the Diffblue Cover API and wish to interact with it via an `Analysis` object, pass the analysis id to the `Analysis` constructor as a third parameter.
+
+The `Analysis` will be created with a special `status` value of `'UNKNOWN'` which indicates that the analysis has started (we know this is true since we have an id for it) but that we do not know it's current status. Calling `Analysis.getResults`, `Analysis.getStatus`, or `Analysis.cancel` will update the `status` property with the current server side status of the analysis. `Analysis.start` cannot be called when the `status` is `'UNKNOWN'`.
+
+In Node.js:
+
+```js
+const Analysis = require('@diffblue/cover-client').Analysis;
+const assert = require 'assert';
+
+const analysisId = 'analysis-id-here';  // analysis id previously fetched from the Diffblue Cover API
+const analysis = new Analysis('https://your-cover-api-domain.com', undefined, analysisId);
+assert.ok(analysis.status === 'UNKNOWN');
+```
+
+In Typescript:
+
+```ts
+import { Analysis } from '@diffblue/cover-client';
+import { ok } from 'assert';
+
+const analysisId = 'analysis-id-here';  // analysis id previously fetched from the Diffblue Cover API
+const analysis = new Analysis('https://your-cover-api-domain.com', undefined, analysisId);
+ok(analysis.status === 'UNKNOWN');
 ```
 
 ### Usage
