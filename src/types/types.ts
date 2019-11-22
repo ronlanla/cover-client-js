@@ -10,6 +10,9 @@ export enum AnalysisStatus {
   COMPLETED = 'COMPLETED',
 }
 
+/** Special value used for the status of an Analysis object with an unknown status */
+export type UnknownAnalysisStatus = 'UNKNOWN';
+
 export const inProgressStatuses = new Set([AnalysisStatus.QUEUED, AnalysisStatus.RUNNING, AnalysisStatus.STOPPING]);
 export const endedStatuses = new Set([AnalysisStatus.CANCELED, AnalysisStatus.ERRORED, AnalysisStatus.COMPLETED]);
 
@@ -51,8 +54,6 @@ export interface AnalysisPhase {
   depth?: number;
   doNotTestMethodsWithAccess?: ['public' | 'protected' | 'default' | 'private'];
   initial?: boolean;
-  inlineFunctionArguments?: boolean;
-  inlineIntoAssertion?: boolean;
   javaAssumeInputsIntegral?: boolean;
   javaAssumeInputsNonNull?: boolean;
   javaExternalCodeAction?: 'mock' | 'mock-non-jdk' | 'ignore' | 'discard-testcase';
@@ -67,9 +68,10 @@ export interface AnalysisPhase {
   javaTestOutputEntryPoint?: string[];
   javaUnwindEnumStatic?: boolean;
   loadContainingClassOnly?: boolean;
+  loadRtJar?: boolean;
   maxNondetArrayLength?: number;
   maxNondetStringLength?: number;
-  nextPhase?: { [event: string]: string | null };
+  nextPhase?: { [name: string]: string | null };
   noReflectiveAsserts?: boolean;
   paths?: 'fifo' | 'lifo';
   preferDepsJar?: boolean;
@@ -84,12 +86,13 @@ export interface AnalysisPhase {
 
 /**
  * Analysis phase returned and consumed by the API
- * - Timeout is optional in the input phases, only required for the computed phases (merged with defaults)
+ * - Timeout is optional in the input phases, only required for the computed phases
+ * - Any property may be set in the phaseBase and hence omitted from a specific phase
  */
 export interface PartialAnalysisPhase extends Partial<AnalysisPhase> {}
 
 /**
- * Analysis phases returned and consumed by the API
+ * Analysis phases returned and consumed by the API.
  * A mapping of phase names to phases.
  */
 export interface AnalysisPhases {
@@ -97,8 +100,8 @@ export interface AnalysisPhases {
 }
 
 /**
- * Analysis phases returned and consumed by the API
- * A mapping of phase names to phases.
+ * Partial analysis phases returned and consumed by the API.
+ * A mapping of phase names to partial phases.
  */
 export interface PartialAnalysisPhases {
   [phaseName: string]: PartialAnalysisPhase;
@@ -108,20 +111,31 @@ export interface PartialAnalysisPhases {
 /** Settings parameter require to start an analysis */
 export interface AnalysisSettings {
   cover?: string[];
-  coverExcludeBytecode?: string[];
-  coverExcludeLines?: string[];
-  coverFunctionOnly?: boolean;
   coverIncludeBytecode?: string[];
+  coverExcludeBytecode?: string[];
   coverIncludeLines?: string[];
-  coverIncludePattern?: string;
+  coverExcludeLines?: string[];
   coverOnly?: 'file' | 'function';
-  dependenciesOnClasspath?: Array<{classFile: string, source: string}>;
-  entryPointsExclude?: string[];
+  coverFunctionOnly?: boolean;
+  coverIncludePattern?: string;
+  inlineFunctionArguments?: boolean;
+  inlineIntoAssertion?: boolean;
   entryPointsInclude?: string[];
-  ignoreDefaults?: boolean;
+  entryPointsExclude?: string[];
+  useFuzzer?: boolean;
   phaseBase?: PartialAnalysisPhase;
-  phases?: PartialAnalysisPhases;
+  phases: { [name: string]: PartialAnalysisPhases };
 }
+
+/**
+ * Fully computed analysis settings
+ * - phaseBase is not returned in computed settings (any supplied phaseBase has been merged into phases)
+ * - phases must now contain all required properties
+ */
+export interface ComputedAnalysisSettings extends Omit<AnalysisSettings, 'phases phaseBase'> {
+  phases: { [name: string]: AnalysisPhases };
+}
+
 
 /** Status object returned by the API */
 export interface AnalysisStatusApiResponse {
@@ -132,7 +146,7 @@ export interface AnalysisStatusApiResponse {
 /** Object returned by the API on analysis start */
 export interface AnalysisStartApiResponse {
   id: string;
-  settings: AnalysisSettings;
+  settings: ComputedAnalysisSettings;
 }
 
 /** Object returned by the API on analysis cancellation */
@@ -157,6 +171,7 @@ export interface ApiVersionApiResponse {
 export interface RunAnalysisOptions {
   outputTests?: string;
   writingConcurrency?: number;
+  writingFilter?: ResultsFilter;
   pollingInterval?: number; // polling interval in seconds
   /** Called once for each results group returned when polling */
   onResults?(results: AnalysisResult[], filename: string): void;
@@ -164,9 +179,25 @@ export interface RunAnalysisOptions {
   onError?(error: Error): void;
 }
 
+/** An array of tag strings used to filter results by tag */
+export type ResultTagFilterArray = string[];
+
+/** An object used to filter results by tag, which may specify include and exclude tags */
+export interface ResultTagFilterObject {
+  include?: string[];
+  exclude?: string[];
+}
+
+/** A callback used to filter results */
+export type ResultFilterCallback = (result: AnalysisResult) => boolean;
+
+/** Union type of possible results filters */
+export type ResultsFilter = ResultTagFilterArray | ResultTagFilterObject | ResultFilterCallback;
+
 /** Options accepted by `writeTests` */
 export interface WriteTestsOptions {
   concurrency?: number;
+  filter?: ResultsFilter;
 }
 
 /** Options accepted by low level bindings */

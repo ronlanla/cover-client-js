@@ -21,7 +21,7 @@ const sampleResult = {
   staticImports: ['static import'],
   classAnnotations: ['class annotation'],
   classRules: ['class rules'],
-  tags: ['tag'],
+  tags: ['sample'],
   createdTime: 'created',
   coveredLines: ['com.diffblue.javademo.TicTacToe.checkTicTacToePosition:1-2,4-5'],
 };
@@ -29,6 +29,7 @@ const otherResult = {
   ...sampleResult,
   testedFunction: 'com.diffblue.other.OtherClass.otherFunction',
   sourceFilePath: '/com/diffblue/other/OtherClass.java',
+  tags: ['other'],
 };
 const testDirPath = '/test/path';
 const sampleResultDirPath = `${testDirPath}/com/diffblue/javademo`;
@@ -82,6 +83,29 @@ describe('writeTests', () => {
     sinonAssert.calledTwice(writeFile);
     sinonAssert.calledWithExactly(writeFile, sampleResultFilePath, 'test-class');
     sinonAssert.calledWithExactly(writeFile, otherResultFilePath, 'test-class');
+  }));
+
+  it('Can write only tests matching a filter', sinonTest(async (sinon) => {
+    const mkdirp = sinon.stub(dependencies, 'mkdirp').resolves();
+    const writeFile = sinon.stub(dependencies, 'writeFile').resolves();
+    const generateTestClass = sinon.stub(components, 'generateTestClass').returns('test-class');
+    const readFile = sinon.stub(dependencies, 'readFile').rejects(enoentError);
+    const returnValue = await writeTests(
+      testDirPath,
+      [sampleResult, otherResult],
+      { filter: sampleResult.tags },
+    );
+    const expectedReturn = [sampleResultFilePath];
+    assert.deepStrictEqual(returnValue, expectedReturn);
+    sinonAssert.calledTwice(mkdirp);
+    sinonAssert.calledWithExactly(mkdirp, testDirPath);
+    sinonAssert.calledWithExactly(mkdirp, sampleResultDirPath);
+    sinonAssert.calledOnce(readFile);
+    sinonAssert.calledWithExactly(readFile, sampleResultFilePath);
+    sinonAssert.calledOnce(generateTestClass);
+    sinonAssert.calledWithExactly(generateTestClass, [sampleResult]);
+    sinonAssert.calledOnce(writeFile);
+    sinonAssert.calledWithExactly(writeFile, sampleResultFilePath, 'test-class');
   }));
 
   it('Can write tests with matching file names and differing package paths', sinonTest(async (sinon) => {

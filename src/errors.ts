@@ -37,6 +37,7 @@ export class ApiError extends CoverClientError {
 export enum BindingsErrorCode {
   BUILD_MISSING = 'BUILD_MISSING',
   SETTINGS_INVALID = 'SETTINGS_INVALID',
+  SETTINGS_MISSING = 'SETTINGS_MISSING',
 }
 
 /** Error thrown by bindings functions, with additional error code */
@@ -80,6 +81,26 @@ export class CombinerError extends CoverClientError {
   }
 }
 
+/** Error codes used by FilterResultsError */
+export enum FilterResultsErrorCode {
+  FILTER_INVALID = 'FILTER_INVALID',
+  FILTER_FAILED = 'FILTER_FAILED',
+}
+
+/** Error thrown by filterResults, with additional error code */
+export class FilterResultsError extends CoverClientError {
+
+  public message: string;
+  public code: FilterResultsErrorCode;
+
+  public constructor(message: string, code: FilterResultsErrorCode) {
+    super(message);
+    this.code = code;
+    this.name = `FilterResultsError ${this.code}`;
+    Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+  }
+}
+
 /** Error codes used by WriterError */
 export enum WriterErrorCode {
   DIR_FAILED = 'DIR_FAILED',
@@ -106,6 +127,7 @@ export enum AnalysisErrorCode {
   ALREADY_STARTED = 'ALREADY_STARTED',
   NO_ID = 'NO_ID',
   RUN_ERRORED = 'RUN_ERRORED',
+  START_DEFAULTS_FAILED = 'START_DEFAULTS_FAILED',
 }
 
 /** Error thrown by Analysis object, with additional error code */

@@ -7,6 +7,7 @@ import {
   getAnalysisResults,
   getAnalysisStatus,
   getApiVersion,
+  getDefaultSettings,
   startAnalysis,
 } from './bindings';
 import { getFileNameForResult, groupResults } from './combiner';
@@ -23,9 +24,11 @@ import {
   ApiErrorResponse,
   ApiVersionApiResponse,
   BindingsOptions,
+  ComputedAnalysisSettings,
   endedStatuses,
   inProgressStatuses,
   RunAnalysisOptions,
+  UnknownAnalysisStatus,
   WriteTestsOptions,
 } from './types/types';
 import CancellableDelay from './utils/CancellableDelay';
@@ -37,28 +40,41 @@ export const components = {
   getAnalysisResults: getAnalysisResults,
   getAnalysisStatus: getAnalysisStatus,
   getApiVersion: getApiVersion,
+  getDefaultSettings: getDefaultSettings,
   startAnalysis: startAnalysis,
 };
 
 /** Class to run an analysis and keep track of its state */
 export default class Analysis {
+  public static readonly unknownStatus: UnknownAnalysisStatus = 'UNKNOWN';
 
   public apiUrl: string;
   public bindingsOptions: BindingsOptions;
   public analysisId?: string;
   public settings?: AnalysisSettings;
-  public status?: AnalysisStatus;
+  public computedSettings?: ComputedAnalysisSettings;
+  public defaultSettings?: ComputedAnalysisSettings;
+  public status?: AnalysisStatus | UnknownAnalysisStatus;
   public error?: ApiErrorResponse;
-  public computedSettings?: AnalysisSettings;
   public results: AnalysisResult[] = [];
   public cursor?: number;
   public apiVersion?: string;
   public pollDelay?: CancellableDelay<void>;
   public pollingStopped?: boolean;
 
-  public constructor(apiUrl: string, bindingsOptions: BindingsOptions = {}) {
+  public constructor(
+    apiUrl: string,
+    bindingsOptions: BindingsOptions = {},
+    analysisId?: string,
+  ) {
     this.apiUrl = apiUrl;
     this.bindingsOptions = bindingsOptions;
+    if (analysisId) {
+      this.analysisId = analysisId;
+      // We know that the analysis has started (since we have an id for it)
+      // but we do not know it's current status.
+      this.status = Analysis.unknownStatus;
+    }
   }
 
   /** Check if analysis is running */
@@ -70,7 +86,10 @@ export default class Analysis {
       );
     }
     if (!this.analysisId) {
-      throw new AnalysisError('Analysis is in progress but the analysis id is not set.', AnalysisErrorCode.NO_ID);
+      throw new AnalysisError(
+        'Analysis is in progress but the analysis id is not set.',
+        AnalysisErrorCode.NO_ID,
+      );
     }
   }
 
@@ -95,13 +114,19 @@ export default class Analysis {
    *
    * Starts the analysis and waits until it is complete before resolving.
    *
+   * If settings are omitted, the analysis will be started with default settings.
+   * Default settings will be fetched from the server if not already set on the object.
+   *
    * Will poll for latest results and analysis status every 60 seconds,
    * configurable via the `pollingInterval` option.
    *
    * If a directory is specified in the `outputTests` option,
    * tests will be written to that directory when the analysis completes.
-   * The `writingConcurrency` option can be used in conjunction to specify
+   * In addition:
+   * The `writingConcurrency` option can be used to specify
    * the concurrency when writing tests.
+   * The `writingFilter` option can be used to specify a filter
+   * to apply to the results before writing tests.
    *
    * If an `onResults` callback option is provided, this will be called
    * once for each group of results returned by each polling attempt.
@@ -111,7 +136,7 @@ export default class Analysis {
    */
   public async run(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {},
+    settings?: AnalysisSettings,
     options: RunAnalysisOptions = {},
   ): Promise<AnalysisResult[]> {
     try {
@@ -144,7 +169,10 @@ export default class Analysis {
         }
       }
       if (options.outputTests) {
-        const writeOptions = options.writingConcurrency ? { concurrency: options.writingConcurrency } : undefined;
+        const writeOptions = {
+          concurrency: options.writingConcurrency,
+          filter: options.writingFilter,
+        };
         await this.writeTests(options.outputTests, writeOptions);
       }
     } catch (error) {
@@ -166,18 +194,42 @@ export default class Analysis {
     this.pollingStopped = true;
   }
 
-  /** Write test files to the specified directory using the current results */
+  /**
+   * Write test files to the specified directory using the current results
+   *
+   * The results to be used can be filtered by using the `filter` property of the `options` paramter.
+   */
   public async writeTests(directoryPath: string, options?: WriteTestsOptions): Promise<string[]> {
     return components.writeTests(directoryPath, this.results, options);
   }
 
-  /** Start the analysis */
+  /**
+   * Start the analysis
+   *
+   * If settings are omitted, the analysis will be started with default settings.
+   * Default settings will be fetched from the server if not already set on the object.
+   */
   public async start(
     files: AnalysisFiles,
-    settings: AnalysisSettings = {},
+    settings?: AnalysisSettings,
   ): Promise<AnalysisStartApiResponse> {
+    if (!settings && !this.defaultSettings) {
+      try {
+        await this.getDefaultSettings();
+      } catch (error) {
+        throw new AnalysisError(
+          `Could not fetch default settings when starting analysis:\n${error.message}`,
+          AnalysisErrorCode.START_DEFAULTS_FAILED,
+        );
+      }
+    }
     this.checkNotStarted();
-    const response = await components.startAnalysis(this.apiUrl, files, settings, this.bindingsOptions);
+    const response = await components.startAnalysis(
+      this.apiUrl,
+      files,
+      settings || this.defaultSettings!,
+      this.bindingsOptions,
+    );
     this.settings = settings;
     this.analysisId = response.id;
     this.computedSettings = response.settings;
@@ -213,6 +265,13 @@ export default class Analysis {
     this.cursor = response.cursor;
     this.results = useCursor ? [...this.results, ...response.results] : response.results;
     this.updateStatus(response.status);
+    return response;
+  }
+
+  /** Get default analysis settings */
+  public async getDefaultSettings(): Promise<ComputedAnalysisSettings> {
+    const response = await components.getDefaultSettings(this.apiUrl, this.bindingsOptions);
+    this.defaultSettings = response;
     return response;
   }
 
@@ -265,7 +324,7 @@ export default class Analysis {
 
   /** Check if status indicates that the analysis has ended */
   public isEnded(): boolean {
-    if (!this.status) {
+    if (!this.status || this.status === Analysis.unknownStatus) {
       return false;
     }
     return endedStatuses.has(this.status);
@@ -273,7 +332,7 @@ export default class Analysis {
 
   /** Check if status indicates that the analysis is in progress (started but not finished) */
   public isInProgress(): boolean {
-    if (!this.status) {
+    if (!this.status || this.status === Analysis.unknownStatus) {
       return false;
     }
     return inProgressStatuses.has(this.status);

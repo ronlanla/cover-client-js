@@ -4,7 +4,7 @@ import { clone } from 'lodash';
 
 import Analysis, { components } from '../../src/analysis';
 import { AnalysisError, AnalysisErrorCode } from '../../src/errors';
-import { AnalysisStatus } from '../../src/types/types';
+import { AnalysisSettings, AnalysisStatus, ComputedAnalysisSettings } from '../../src/types/types';
 import assert from '../../src/utils/assertExtra';
 import sinonTestFactory from '../../src/utils/sinonTest';
 
@@ -13,7 +13,8 @@ const sinonTestWithTimers = sinonTestFactory({ useFakeTimers: false });
 
 const apiUrl = 'https://dummy-url.com';
 const analysisId = 'analysis-id-12345';
-const settings = {};
+const settings: AnalysisSettings = { phases: {}};
+const defaultSettings: ComputedAnalysisSettings = { coverFunctionOnly: true, phases: {}};
 const build = Buffer.alloc(0);
 const dependenciesBuild = Buffer.alloc(0);
 const baseBuild = Buffer.alloc(0);
@@ -49,6 +50,13 @@ describe('analysis', () => {
         assert.strictEqual(analysis.apiUrl, apiUrl);
         assert.strictEqual(analysis.bindingsOptions, sampleBindingOptions);
       }));
+
+      it('Can be instantiated with an analysis id', sinonTest(async (sinon) => {
+        const analysis = new Analysis(apiUrl, undefined, 'id123');
+        assert.strictEqual(analysis.status, Analysis.unknownStatus);
+        assert.strictEqual(analysis.analysisId, 'id123');
+        assert.strictEqual(analysis.apiUrl, apiUrl);
+      }));
     });
 
     describe('getApiVersion', () => {
@@ -73,8 +81,30 @@ describe('analysis', () => {
       }));
     });
 
+    describe('getDefaultSettings', () => {
+      const defaultSettingsResponse = { phases: {}};
+
+      it('Can get default analysis settings', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettingsResponse);
+        const baseAnalysis = new Analysis(apiUrl);
+        const analysis = clone(baseAnalysis);
+        const returnValue = await analysis.getDefaultSettings();
+        const changes = { defaultSettings: returnValue };
+        assert.deepStrictEqual(returnValue, defaultSettingsResponse);
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, {}]);
+        assert.changedProperties(baseAnalysis, analysis, changes);
+      }));
+
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettingsResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.getDefaultSettings();
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, sampleBindingOptions]);
+      }));
+    });
+
     describe('run', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const responseStatus = { status: AnalysisStatus.CANCELED };
       const resultsResponse = {
         status: responseStatus,
@@ -92,7 +122,7 @@ describe('analysis', () => {
           analysisId: analysisId,
           settings: settings,
           status: AnalysisStatus.CANCELED,
-          computedSettings: {},
+          computedSettings: defaultSettings,
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
           results: resultsResponse.results,
@@ -100,12 +130,13 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
       it('Can run an analysis without options or settings', sinonTestWithTimers(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
         const baseAnalysis = new Analysis(apiUrl);
@@ -114,9 +145,10 @@ describe('analysis', () => {
         const returnValue = await analysis.run(files);
         const changes = {
           analysisId: analysisId,
-          settings: settings,
           status: AnalysisStatus.CANCELED,
-          computedSettings: {},
+          settings: undefined,
+          computedSettings: defaultSettings,
+          defaultSettings: defaultSettings,
           pollDelay: undefined,
           cursor: resultsResponse.cursor,
           results: resultsResponse.results,
@@ -124,7 +156,8 @@ describe('analysis', () => {
           error: undefined,
         };
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, defaultSettings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
@@ -136,9 +169,9 @@ describe('analysis', () => {
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path' };
         await analysis.run(files, settings, options);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.calledOnceWith(writeTests, ['/test/path', undefined]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: undefined, filter: undefined }]);
       }));
 
       it('Can run an analysis and write test files with concurrency option', sinonTestWithTimers(async (sinon) => {
@@ -148,9 +181,21 @@ describe('analysis', () => {
         const writeTests = sinon.stub(analysis, 'writeTests');
         const options = { pollingInterval: 0.0001, outputTests: '/test/path', writingConcurrency: 1 };
         await analysis.run(files, settings, options);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1 }]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: 1, filter: undefined }]);
+      }));
+
+      it('Can run an analysis and write test files with results filter option', sinonTestWithTimers(async (sinon) => {
+        const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl);
+        const writeTests = sinon.stub(analysis, 'writeTests');
+        const options = { pollingInterval: 0.0001, outputTests: '/test/path', writingFilter: ['verified'] };
+        await analysis.run(files, settings, options);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: undefined, filter: ['verified'] }]);
       }));
 
       it('Can pass new result groups to onResults callback when polling', sinonTestWithTimers(async (sinon) => {
@@ -168,7 +213,7 @@ describe('analysis', () => {
         const onResults = sinon.spy();
         const analysis = new Analysis(apiUrl);
         await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.calledWith(
           onResults,
@@ -189,7 +234,7 @@ describe('analysis', () => {
         const onResults = sinon.spy();
         const analysis = new Analysis(apiUrl);
         await analysis.run(files, settings, { pollingInterval: 0.0001, onResults: onResults });
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.notCalled(onResults);
       }));
@@ -204,9 +249,9 @@ describe('analysis', () => {
         const options = { pollingInterval: 0.0001, outputTests: '/test/path', onError: onError };
         const returnValue = await analysis.run(files, settings, options);
         assert.deepStrictEqual(returnValue, resultsResponse.results);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.calledOnceWith(writeTests, ['/test/path', undefined]);
+        assert.calledOnceWith(writeTests, ['/test/path', { concurrency: undefined, filter: undefined }]);
         assert.calledOnceWith(onError, [writeTestsError]);
       }));
 
@@ -227,7 +272,7 @@ describe('analysis', () => {
             return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.RUN_ERRORED;
           },
         );
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
         assert.notCalled(writeTests);
       }));
@@ -248,7 +293,7 @@ describe('analysis', () => {
         const returnValue = await analysis.run(files, settings, { pollingInterval: 0.0001 });
         assert.deepStrictEqual(returnValue, resultsResponse.results);
         assert.strictEqual(analysis.status, AnalysisStatus.RUNNING);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         sinon.assert.calledWith(getAnalysisResults, apiUrl, analysisId, undefined, {});
       }));
 
@@ -266,7 +311,7 @@ describe('analysis', () => {
         const returnValue = await analysis.run(files, settings, { pollingInterval: 10 });
         assert.deepStrictEqual(returnValue, []);
         assert.strictEqual(analysis.status, AnalysisStatus.QUEUED);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, {}]);
         assert.notCalled(getAnalysisResults);
       }));
     });
@@ -289,9 +334,10 @@ describe('analysis', () => {
         const sampleResultFilePath = '/test/path/TicTacToeTest.java';
         const expectedReturn = [sampleResultFilePath];
         const writeTests = sinon.stub(components, 'writeTests').resolves(expectedReturn);
-        const returnValue = await analysis.writeTests('/test/path', { concurrency: 1 });
+        const options = { concurrency: 1, filter: ['verified'] };
+        const returnValue = await analysis.writeTests('/test/path', options);
         assert.deepStrictEqual(returnValue, expectedReturn);
-        assert.calledOnceWith(writeTests, ['/test/path', analysis.results, { concurrency: 1 }]);
+        assert.calledOnceWith(writeTests, ['/test/path', analysis.results, options]);
       }));
 
       it('Rejects if test writing method rejects', sinonTest(async (sinon) => {
@@ -304,25 +350,53 @@ describe('analysis', () => {
     });
 
     describe('start', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: defaultSettings };
 
-      it('Can start an analysis', sinonTest(async (sinon) => {
+      it('Can start an analysis without settings and fetch default settings', sinonTest(async (sinon) => {
+        const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
         const returnValue = await analysis.start(files);
         const changes = {
           analysisId: returnValue.id,
-          settings: settings,
+          settings: undefined,
           status: AnalysisStatus.QUEUED,
           computedSettings: returnValue.settings,
+          defaultSettings: defaultSettings,
         };
         assert.deepStrictEqual(returnValue, startResponse);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, {}]);
+        assert.calledOnceWith(getDefaultSettings, [apiUrl, {}]);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, defaultSettings, {}]);
         assert.changedProperties(baseAnalysis, analysis, changes);
       }));
 
-      it('Can start an analysis with all arguments', sinonTest(async (sinon) => {
+      it(
+        'Can start an analysis without settings and use defaults already set on the object',
+        sinonTest(async (sinon) => {
+          const getDefaultSettings = sinon.stub(components, 'getDefaultSettings').resolves(defaultSettings);
+          const baseAnalysis = new Analysis(apiUrl);
+          const otherDefaultSettings = clone(defaultSettings);
+          otherDefaultSettings.useFuzzer = true; // add a new key to make settings distinguishable
+          baseAnalysis.defaultSettings = otherDefaultSettings;
+          const startResponse = { id: analysisId, settings: otherDefaultSettings };
+          const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
+          const analysis = clone(baseAnalysis);
+          const returnValue = await analysis.start(files);
+          const changes = {
+            analysisId: returnValue.id,
+            settings: undefined,
+            status: AnalysisStatus.QUEUED,
+            computedSettings: returnValue.settings,
+          };
+          assert.deepStrictEqual(returnValue, startResponse);
+          assert.notCalled(getDefaultSettings);
+          assert.calledOnceWith(startAnalysis, [apiUrl, files, otherDefaultSettings, {}]);
+          assert.changedProperties(baseAnalysis, analysis, changes);
+        },
+      ));
+
+      it('Can start an analysis with settings', sinonTest(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const baseAnalysis = new Analysis(apiUrl);
         const analysis = clone(baseAnalysis);
@@ -341,8 +415,8 @@ describe('analysis', () => {
       it('Can pass through bindings options', sinonTest(async (sinon) => {
         const startAnalysis = sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl, sampleBindingOptions);
-        await analysis.start(files);
-        assert.calledOnceWith(startAnalysis, [apiUrl, files, {}, sampleBindingOptions]);
+        await analysis.start(files, settings);
+        assert.calledOnceWith(startAnalysis, [apiUrl, files, settings, sampleBindingOptions]);
       }));
 
       it('Fails to start an analysis, if api method throws', sinonTest(async (sinon) => {
@@ -354,11 +428,39 @@ describe('analysis', () => {
         assert.changedProperties(baseAnalysis, analysis, {});
       }));
 
+      it(
+        'Fails to start an analysis without settings if the get default settings binding rejects',
+        sinonTest(async (sinon) => {
+          sinon.stub(components, 'getDefaultSettings').rejects(new Error('get settings api call failed'));
+          const baseAnalysis = new Analysis(apiUrl);
+          const analysis = clone(baseAnalysis);
+          await assert.rejects(
+            async () => analysis.start(files),
+            (err: Error) => {
+              return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.START_DEFAULTS_FAILED;
+            },
+          );
+          assert.changedProperties(baseAnalysis, analysis, {});
+        },
+      ));
+
       it('Fails to start an analysis, if already started', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const analysis = new Analysis(apiUrl);
         await analysis.start(files, settings);
         assert.strictEqual(analysis.status, AnalysisStatus.QUEUED);
+        await assert.rejects(
+          async () => analysis.start(files, settings),
+          (err: Error) => {
+            return (err instanceof AnalysisError) && err.code === AnalysisErrorCode.ALREADY_STARTED;
+          },
+        );
+      }));
+
+      it('Fails to start an analysis, if status is unknown', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const analysis = new Analysis(apiUrl, undefined, 'id123');
+        assert.strictEqual(analysis.status, Analysis.unknownStatus);
         await assert.rejects(
           async () => analysis.start(files, settings),
           (err: Error) => {
@@ -388,7 +490,7 @@ describe('analysis', () => {
     });
 
     describe('cancel', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const cancelStatus = { status: AnalysisStatus.STOPPING };
       const cancelMessage = 'Analysis cancelled successfully';
       const cancelResponse = { message: cancelMessage, status: cancelStatus };
@@ -407,6 +509,21 @@ describe('analysis', () => {
         assert.deepStrictEqual(returnValue, cancelResponse);
         assert.calledOnceWith(cancelAnalysis, [apiUrl, analysisId, {}]);
         assert.changedProperties(startedAnalysis, canceledAnalysis, changes);
+      }));
+
+      it('Can cancel an analysis if status is unknown', sinonTest(async (sinon) => {
+        const cancelAnalysis = sinon.stub(components, 'cancelAnalysis').resolves(cancelResponse);
+        const unknownAnalysisId = 'id123';
+        const unknownStatusAnalysis = new Analysis(apiUrl, undefined, unknownAnalysisId);
+        const canceledAnalysis = clone(unknownStatusAnalysis);
+        const returnValue = await canceledAnalysis.cancel();
+        const changes = {
+          status: returnValue.status.status,
+          error: undefined,
+        };
+        assert.deepStrictEqual(returnValue, cancelResponse);
+        assert.calledOnceWith(cancelAnalysis, [apiUrl, unknownAnalysisId, {}]);
+        assert.changedProperties(unknownStatusAnalysis, canceledAnalysis, changes);
       }));
 
       it('Can pass through bindings options', sinonTest(async (sinon) => {
@@ -466,7 +583,7 @@ describe('analysis', () => {
     });
 
     describe('getStatus', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const statusResponse = { status: AnalysisStatus.COMPLETED };
 
       it('Can get the status of an analysis', sinonTest(async (sinon) => {
@@ -506,11 +623,26 @@ describe('analysis', () => {
         assert.changedProperties(startedAnalysis, analysis, changes);
       }));
 
+      it('Can get the status of an analysis if status is unknown', sinonTest(async (sinon) => {
+        const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
+        const unknownAnalysisId = 'id123';
+        const unknownStatusAnalysis = new Analysis(apiUrl, undefined, unknownAnalysisId);
+        const analysis = clone(unknownStatusAnalysis);
+        const returnValue = await analysis.getStatus();
+        const changes = {
+          status: returnValue.status,
+          error: undefined,
+        };
+        assert.deepStrictEqual(returnValue, statusResponse);
+        assert.calledOnceWith(getAnalysisStatus, [apiUrl, unknownAnalysisId, {}]);
+        assert.changedProperties(unknownStatusAnalysis, analysis, changes);
+      }));
+
       it('Can pass through bindings options', sinonTest(async (sinon) => {
         sinon.stub(components, 'startAnalysis').resolves(startResponse);
         const getAnalysisStatus = sinon.stub(components, 'getAnalysisStatus').resolves(statusResponse);
         const analysis = new Analysis(apiUrl, sampleBindingOptions);
-        await analysis.start(files);
+        await analysis.start(files, settings);
         await analysis.getStatus();
         assert.calledOnceWith(getAnalysisStatus, [apiUrl, analysisId, sampleBindingOptions]);
       }));
@@ -551,7 +683,7 @@ describe('analysis', () => {
       it('Fails to get the status an analysis, if id not set', sinonTest(async (sinon) => {
         const analysis = new Analysis(apiUrl);
         const startAnalysis = sinon.stub(components, 'startAnalysis');
-        startAnalysis.resolves({ id: analysisId, settings: {}});
+        startAnalysis.resolves({ id: analysisId, settings: defaultSettings });
         await analysis.start(files, settings);
         analysis.analysisId = '';
         await assert.rejects(
@@ -564,7 +696,7 @@ describe('analysis', () => {
     });
 
     describe('getResults', () => {
-      const startResponse = { id: analysisId, settings: {}};
+      const startResponse = { id: analysisId, settings: defaultSettings };
       const responseStatus = { status: AnalysisStatus.RUNNING };
       const resultsResponse = {
         status: responseStatus,
@@ -616,24 +748,11 @@ describe('analysis', () => {
         assert.changedProperties(startedAnalysis, analysis, changes);
       }));
 
-      it('Can pass through bindings options', sinonTest(async (sinon) => {
-        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+      it('Can get the results of an analysis if the status is unknown', sinonTest(async (sinon) => {
         const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
-        const analysis = new Analysis(apiUrl, sampleBindingOptions);
-        await analysis.start(files);
-        await analysis.getResults();
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, sampleBindingOptions]);
-      }));
-
-      it('Can get the full results of an analysis', sinonTest(async (sinon) => {
-        sinon.stub(components, 'startAnalysis').resolves(startResponse);
-        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
-        const startedAnalysis = new Analysis(apiUrl);
-        await startedAnalysis.start(files, settings);
-        const extantResult = clone(sampleResult);
-        extantResult.testId = 'overwritten';
-        startedAnalysis.results = [extantResult];
-        const analysis = clone(startedAnalysis);
+        const unknownAnalysisId = 'id123';
+        const unknownStatusAnalysis = new Analysis(apiUrl, undefined, unknownAnalysisId);
+        const analysis = clone(unknownStatusAnalysis);
         const returnValue = await analysis.getResults(false);
         const changes = {
           status: returnValue.status.status,
@@ -642,8 +761,17 @@ describe('analysis', () => {
           cursor: returnValue.cursor,
         };
         assert.deepStrictEqual(returnValue, resultsResponse);
-        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, {}]);
-        assert.changedProperties(startedAnalysis, analysis, changes);
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, unknownAnalysisId, undefined, {}]);
+        assert.changedProperties(unknownStatusAnalysis, analysis, changes);
+      }));
+
+      it('Can pass through bindings options', sinonTest(async (sinon) => {
+        sinon.stub(components, 'startAnalysis').resolves(startResponse);
+        const getAnalysisResults = sinon.stub(components, 'getAnalysisResults').resolves(resultsResponse);
+        const analysis = new Analysis(apiUrl, sampleBindingOptions);
+        await analysis.start(files, settings);
+        await analysis.getResults();
+        assert.calledOnceWith(getAnalysisResults, [apiUrl, analysisId, undefined, sampleBindingOptions]);
       }));
 
       it('Can get results if the analysis is ended', sinonTest(async (sinon) => {
@@ -789,6 +917,11 @@ describe('analysis', () => {
         assert.strictEqual(analysis.isStarted(), false);
       });
 
+      it('Knows it has started if status is unknown', () => {
+        const analysis = new Analysis(apiUrl, undefined, 'id123');
+        assert.strictEqual(analysis.isStarted(), true);
+      });
+
       it('Knows if it has ended', () => {
         const analysis = new Analysis(apiUrl);
         analysis.status = AnalysisStatus.CANCELED;
@@ -801,8 +934,13 @@ describe('analysis', () => {
         assert.strictEqual(analysis.isEnded(), false);
       });
 
-      it('Knows if it has not ended if status is not set', () => {
+      it('Knows it has not ended if status is not set', () => {
         const analysis = new Analysis(apiUrl);
+        assert.strictEqual(analysis.isEnded(), false);
+      });
+
+      it('Knows it has not ended if status is unknown', () => {
+        const analysis = new Analysis(apiUrl, undefined, 'id123');
         assert.strictEqual(analysis.isEnded(), false);
       });
 
@@ -818,6 +956,11 @@ describe('analysis', () => {
         const analysis = new Analysis(apiUrl);
         assert.strictEqual(analysis.isInProgress(), false);
         analysis.status = AnalysisStatus.ERRORED;
+        assert.strictEqual(analysis.isInProgress(), false);
+      });
+
+      it('Knows it is not in progress if status is unknown', () => {
+        const analysis = new Analysis(apiUrl, undefined, 'id123');
         assert.strictEqual(analysis.isInProgress(), false);
       });
     });

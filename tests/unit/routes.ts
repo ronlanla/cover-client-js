@@ -1,7 +1,7 @@
 // Copyright 2019 Diffblue Limited. All Rights Reserved.
 
-import assert, { errorEquals } from '../../../src/utils/assertExtra';
-import routes, { generateApiUrl, urlJoin } from '../../../src/utils/routes';
+import routes, { generateApiUrl, urlJoin } from '../../src/routes';
+import assert, { errorEquals } from '../../src/utils/assertExtra';
 
 describe('utils/routes', () => {
   const defaultApiUrl = 'http://localhost/api';
@@ -43,6 +43,12 @@ describe('utils/routes', () => {
     it('Correctly generates a string for the get API version route', () => {
       const actualString = routes.version(defaultApiUrl);
       const expectedString = 'http://localhost/api/version';
+      assert.deepStrictEqual(actualString, expectedString);
+    });
+
+    it('Correctly generates a string for the get default settings route', () => {
+      const actualString = routes.defaultSettings(defaultApiUrl);
+      const expectedString = 'http://localhost/api/default-settings';
       assert.deepStrictEqual(actualString, expectedString);
     });
 
